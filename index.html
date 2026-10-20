@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SubTrack - Bilancio &amp; Stima Ricorrente</title>
     
+    <!-- Web App & Favicon Icons -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230284c7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='2' y='4' width='20' h='16' rx='4'/><path d='M2 10h20'/><circle cx='7' cy='15' r='1'/></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230284c7'><rect width='24' height='24' rx='6'/><path d='M19 5H5C3.89 5 3 5.89 3 7V17C3 18.1 3.89 19 5 19H19C20.1 19 21 18.1 21 17V7C21 5.89 20.1 5 19 5ZM19 11H3V8H19V11Z' fill='white'/></svg>">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="SubTrack">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -78,11 +85,7 @@
                         <i data-lucide="wallet" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <div class="flex items-center gap-2">
-                            <h1 class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-slate-900 via-slate-700 to-brand-600 dark:from-white dark:via-slate-200 dark:to-brand-400 bg-clip-text text-transparent">SubTrack</h1>
-                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-brand-50 text-brand-600 dark:bg-brand-950 dark:text-brand-400 border border-brand-200/60 dark:border-brand-800/60">SaaS v2.0</span>
-                        </div>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Bilancio &amp; Stima Ricorrenze</p>
+                        <h1 class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-slate-900 via-slate-700 to-brand-600 dark:from-white dark:via-slate-200 dark:to-brand-400 bg-clip-text text-transparent">SubTrack</h1>
                     </div>
                 </div>
 
@@ -392,14 +395,14 @@
                     <div>
                         <select id="txKind" onchange="toggleKindOptions()" class="w-full text-sm px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-brand-500 focus:outline-none font-semibold dark:text-white">
                             <option value="once">Una Tantum (Singola Spesa/Entrata)</option>
-                            <option value="fixed_recurring">Ricorrente Fissa (Stesso importo fisso)</option>
-                            <option value="variable_bill">Ricorrente Variabile / Bolletta (Ripartizione Furba)</option>
+                            <option value="fixed_recurring">Ricorrente Fissa (Stesso importo ad ogni scadenza)</option>
+                            <option value="variable_bill">Ripartita su N mesi / Bolletta (Quota mensilizzata)</option>
                         </select>
                     </div>
 
                     <!-- Frequenza / Cadenza in mesi -->
                     <div id="cadenceContainer" class="hidden">
-                        <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Cadenza / Frequenza Mesi</label>
+                        <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Cadenza / Mesi di Copertura</label>
                         <select id="txMonthsCadence" class="w-full text-sm px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-brand-500 focus:outline-none dark:text-white font-semibold">
                             <option value="1">1 Mese (Mensile)</option>
                             <option value="2">2 Mesi (Bimensile - es. Bollette)</option>
@@ -479,7 +482,7 @@
 
         /* ====================================================================
            CONFIGURAZIONE FIREBASE FIRESTORE
-           Incolla qui le tue chiavi del progetto Firebase.
+           Incolla qui le tue chiavi del progetto Firebase se desideri la sincronizzazione Cloud.
            ==================================================================== */
 const firebaseConfig = {
 
@@ -688,23 +691,31 @@ const firebaseConfig = {
                 return 0;
             }
 
+            // Calcolo differenza mesi tra mese target e data inizio spesa
+            const monthsDiff = (targetYear - txYear) * 12 + (targetMonth - txMonth);
+
             if (kind === 'variable_bill') {
-                // Ripartizione Furba: divide l'importo per i mesi della cadenza nel passato recente
+                // Divide l'importo per i mesi della cadenza
                 const monthlyShare = amount / cadenceMesi;
-                for (let i = 0; i < cadenceMesi; i++) {
-                    const mDate = new Date(txYear, txMonth - i, 1);
-                    if (mDate.getFullYear() === targetYear && mDate.getMonth() === targetMonth) {
-                        return monthlyShare;
-                    }
+                if (monthsDiff >= 0 && monthsDiff < cadenceMesi) {
+                    return monthlyShare;
                 }
                 return 0;
             }
 
             if (kind === 'fixed_recurring') {
-                // Controlla la frequenza dell'abbonamento/entrata fissa
-                const totalMonthsDiff = (targetYear - txYear) * 12 + (targetMonth - txMonth);
-                if (totalMonthsDiff >= 0 && (totalMonthsDiff % cadenceMesi === 0)) {
-                    return amount;
+                // Per spese ricorrenti (es. annuale o bimensile)
+                if (cadenceMesi > 1) {
+                    // Ripartizione mensile uniforme se cadenza > 1 mese
+                    const monthlyShare = amount / cadenceMesi;
+                    if (monthsDiff >= 0 && monthsDiff < cadenceMesi) {
+                        return monthlyShare;
+                    }
+                } else {
+                    // Mensile fissa standard
+                    if (monthsDiff >= 0) {
+                        return amount;
+                    }
                 }
                 return 0;
             }
@@ -769,9 +780,9 @@ const firebaseConfig = {
 
             const net = currentMonthIncome - currentMonthExpense;
 
-            document.getElementById('totalIncome').innerText = `€${currentMonthIncome.toLocaleString('it-IT', { minimumFractionDigits: 2 })}`;
-            document.getElementById('totalExpenses').innerText = `€${currentMonthExpense.toLocaleString('it-IT', { minimumFractionDigits: 2 })}`;
-            document.getElementById('netBalance').innerText = `€${net.toLocaleString('it-IT', { minimumFractionDigits: 2 })}`;
+            document.getElementById('totalIncome').innerText = `€${currentMonthIncome.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('totalExpenses').innerText = `€${currentMonthExpense.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('netBalance').innerText = `€${net.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             
             calculateNextMonthEstimate();
             renderTransactionsList();
@@ -850,22 +861,26 @@ const firebaseConfig = {
             container.innerHTML = activeTxs.map(t => {
                 const cat = state.categories.find(c => c.id === t.categoryId) || { name: 'Altro', icon: 'tag', color: '#64748b' };
                 const isExpense = t.type === 'expense';
-                const formattedDate = new Date(t.date).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' });
+                const formattedDate = new Date(t.date).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' });
 
                 let badgeText = 'Una tantum';
                 let badgeClass = 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700';
                 const kind = t.kind || 'once';
 
+                const cadenceMesi = parseInt(t.monthsCadence) || 1;
+                const monthlyShare = (parseFloat(t.amount) / cadenceMesi).toFixed(2);
+
                 if (kind === 'fixed_recurring') {
-                    badgeText = `Ricorrente (${t.monthsCadence || 1}m)`;
+                    badgeText = cadenceMesi > 1 ? `Ripartito €${monthlyShare}/m (${cadenceMesi}m)` : `Ricorrente mensile`;
                     badgeClass = 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800';
                 } else if (kind === 'variable_bill') {
-                    const share = (parseFloat(t.amount) / (parseInt(t.monthsCadence) || 1)).toFixed(2);
-                    badgeText = `Ripartito da bolletta €${share}/mese (${t.monthsCadence || 1}m)`;
+                    badgeText = `Ripartito da bolletta €${monthlyShare}/m (${cadenceMesi}m)`;
                     badgeClass = 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800';
                 }
 
                 const calculatedVal = state.viewMode === 'monthly' ? getTxMonthlyBreakdownValue(t, year, month) : parseFloat(t.amount);
+
+                const calculatedVal = state.viewMode === 'monthly' ? getTxMonthlyBreakdownValue(t, year, month) : getTxAnnualTotalValue(t, year);
 
                 return `
                     <div class="flex items-center justify-between p-3.5 rounded-2xl border border-slate-200/70 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 hover:border-brand-500/50 transition">
@@ -886,9 +901,9 @@ const firebaseConfig = {
                         <div class="flex items-center gap-3">
                             <div class="text-right">
                                 <span class="text-xs font-black ${isExpense ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}">
-                                    ${isExpense ? '-' : '+'}€${calculatedVal.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+                                    ${isExpense ? '-' : '+'}€${calculatedVal.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </span>
-                                ${kind === 'variable_bill' ? `<p class="text-[9px] text-slate-400">Totale €${parseFloat(t.amount).toLocaleString('it-IT')}</p>` : ''}
+                                ${kind === 'variable_bill' ? `<p class="text-[9px] text-slate-400">Totale €${parseFloat(t.amount).toLocaleString('it-IT', { minimumFractionDigits: 2 })}</p>` : ''}
                             </div>
                             <div class="flex items-center gap-1">
                                 <button onclick="editTransaction('${t.id}')" class="p-1 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition">
@@ -966,7 +981,7 @@ const firebaseConfig = {
                             <span class="font-semibold text-slate-700 dark:text-slate-300">${label}</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="font-bold text-slate-900 dark:text-white">€${amt.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</span>
+                            <span class="font-bold text-slate-900 dark:text-white">€${amt.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                             <span class="text-[10px] text-slate-400 dark:text-slate-500">(${pct}%)</span>
                         </div>
                     </div>
@@ -1111,7 +1126,7 @@ const firebaseConfig = {
                 if (kind === 'once') kind = 'fixed_recurring';
             } else if (lower.includes('annuale') || lower.includes('1 anno') || lower.includes('un anno')) {
                 monthsCadence = '12';
-                if (kind === 'once') kind = 'fixed_recurring';
+                if (kind === 'once') kind = 'variable_bill';
             }
 
             // Match Categoria
@@ -1186,9 +1201,9 @@ const firebaseConfig = {
             } else {
                 container.classList.remove('hidden');
                 if (kind === 'fixed_recurring') {
-                    helpText.innerText = 'Addebita l\'importo fisso a ciascuna scadenza.';
+                    helpText.innerText = 'Addebita l\'importo intero a ciascuna scadenza a partire dalla data di inizio.';
                 } else if (kind === 'variable_bill') {
-                    helpText.innerText = 'Ripartizione Furba: divide l\'importo sulle quote mensili di competenza.';
+                    helpText.innerText = 'Divide l\'importo totale in quote mensili uguali per tutti i mesi di copertura a partire dalla data di inizio.';
                 }
             }
         }
