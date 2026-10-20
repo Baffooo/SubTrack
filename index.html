@@ -413,7 +413,7 @@ const firebaseConfig = {
 
             if (tx.recurrence === 'variable') {
                 const cadence = parseInt(tx.cadence) || 1;
-                // Gestione ripartizione mensile per qualsiasi durata (compresa quella annuale da 12 mesi)
+                // Ripartisce uniformemente l'importo nei mesi successivi alla data di inizio (es. 12 mesi a partire da luglio 2026)
                 if (monthDiff >= 0 && monthDiff < cadence) {
                     return tx.amount / cadence;
                 }
