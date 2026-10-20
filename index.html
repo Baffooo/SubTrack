@@ -393,7 +393,7 @@ const firebaseConfig = {
         });
 
         // ==========================================
-        // CORE CALCULATION & RECURRENCE ENGINE (FIXED)
+        // CORE CALCULATION & RECURRENCE ENGINE (DEFINITIVE FIX)
         // ==========================================
         function getTxMonthlyBreakdownValue(tx, targetYM) {
             const txYM = tx.date.slice(0, 7);
@@ -413,9 +413,16 @@ const firebaseConfig = {
 
             if (tx.recurrence === 'variable') {
                 const cadence = parseInt(tx.cadence) || 1;
-                // Ripartisce uniformemente l'importo nei mesi successivi alla data di inizio (es. 12 mesi a partire da luglio 2026)
-                if (monthDiff >= 0 && monthDiff < cadence) {
-                    return tx.amount / cadence;
+                
+                // Se la cadenza è annuale (12 mesi) o plurimensile, ripartiamo la quota sia nell'anno solare della spesa che nei 12 mesi di competenza
+                if (cadence === 12) {
+                    if (targetY === txY || (monthDiff >= 0 && monthDiff < 12)) {
+                        return tx.amount / 12;
+                    }
+                } else {
+                    if (monthDiff >= 0 && monthDiff < cadence) {
+                        return tx.amount / cadence;
+                    }
                 }
                 return 0;
             }
