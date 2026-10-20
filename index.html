@@ -15,11 +15,18 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Firebase Compat Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     
     <!-- Google Font Plus Jakarta Sans -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -86,6 +93,7 @@
                     </div>
                     <div>
                         <h1 class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-slate-900 via-slate-700 to-brand-600 dark:from-white dark:via-slate-200 dark:to-brand-400 bg-clip-text text-transparent">SubTrack</h1>
+                        <p class="text-[10px] text-slate-400 font-medium">Gestione Bilancio &amp; Stima Ricorrente</p>
                     </div>
                 </div>
 
@@ -476,12 +484,9 @@
     </div>
 
     <!-- Application Engine Script -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+    <script>
         /* ====================================================================
-           CONFIGURAZIONE FIREBASE FIRESTORE
+           CONFIGURAZIONE FIREBASE FIRESTORE (COMPAT MODE)
            Incolla qui le tue chiavi del progetto Firebase se desideri la sincronizzazione Cloud.
            ==================================================================== */
 const firebaseConfig = {
@@ -555,10 +560,10 @@ const firebaseConfig = {
 
         // Inizializzazione Database
         function initBackend() {
-            if (firebaseConfig.apiKey && firebaseConfig.projectId) {
+            if (firebaseConfig.apiKey && firebaseConfig.projectId && typeof firebase !== 'undefined') {
                 try {
-                    const app = initializeApp(firebaseConfig);
-                    state.db = getFirestore(app);
+                    firebase.initializeApp(firebaseConfig);
+                    state.db = firebase.firestore();
                     state.isFirebaseActive = true;
                     
                     document.getElementById('dbStatusDot').className = 'w-2 h-2 rounded-full bg-emerald-500';
@@ -579,16 +584,16 @@ const firebaseConfig = {
         function listenToFirestore() {
             if (!state.db) return;
 
-            onSnapshot(collection(state.db, "transactions"), (snapshot) => {
+            state.db.collection("transactions").onSnapshot((snapshot) => {
                 state.transactions = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderApp();
             });
 
-            onSnapshot(collection(state.db, "categories"), (snapshot) => {
+            state.db.collection("categories").onSnapshot((snapshot) => {
                 if (!snapshot.empty) {
                     state.categories = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 } else {
-                    DEFAULT_CATEGORIES.forEach(c => addDoc(collection(state.db, "categories"), c));
+                    DEFAULT_CATEGORIES.forEach(c => state.db.collection("categories").add(c));
                 }
                 renderApp();
             });
@@ -613,9 +618,9 @@ const firebaseConfig = {
                 if (txData.id) {
                     const id = txData.id;
                     delete txData.id;
-                    await updateDoc(doc(state.db, "transactions", id), txData);
+                    await state.db.collection("transactions").doc(id).update(txData);
                 } else {
-                    await addDoc(collection(state.db, "transactions"), txData);
+                    await state.db.collection("transactions").add(txData);
                 }
             } else {
                 if (txData.id) {
@@ -632,7 +637,7 @@ const firebaseConfig = {
 
         async function deleteTransactionData(id) {
             if (state.isFirebaseActive && state.db) {
-                await deleteDoc(doc(state.db, "transactions", id));
+                await state.db.collection("transactions").doc(id).delete();
             } else {
                 state.transactions = state.transactions.filter(t => t.id !== id);
                 saveLocalData();
@@ -645,9 +650,9 @@ const firebaseConfig = {
                 if (catData.id) {
                     const id = catData.id;
                     delete catData.id;
-                    await updateDoc(doc(state.db, "categories", id), catData);
+                    await state.db.collection("categories").doc(id).update(catData);
                 } else {
-                    await addDoc(collection(state.db, "categories"), catData);
+                    await state.db.collection("categories").add(catData);
                 }
             } else {
                 if (catData.id) {
@@ -664,7 +669,7 @@ const firebaseConfig = {
 
         async function deleteCategoryData(id) {
             if (state.isFirebaseActive && state.db) {
-                await deleteDoc(doc(state.db, "categories", id));
+                await state.db.collection("categories").doc(id).delete();
             } else {
                 state.categories = state.categories.filter(c => c.id !== id);
                 saveLocalData();
@@ -704,15 +709,12 @@ const firebaseConfig = {
             }
 
             if (kind === 'fixed_recurring') {
-                // Per spese ricorrenti (es. annuale o bimensile)
                 if (cadenceMesi > 1) {
-                    // Ripartizione mensile uniforme se cadenza > 1 mese
                     const monthlyShare = amount / cadenceMesi;
                     if (monthsDiff >= 0 && monthsDiff < cadenceMesi) {
                         return monthlyShare;
                     }
                 } else {
-                    // Mensile fissa standard
                     if (monthsDiff >= 0) {
                         return amount;
                     }
@@ -721,6 +723,14 @@ const firebaseConfig = {
             }
 
             return 0;
+        }
+
+        function getTxAnnualTotalValue(t, year) {
+            let total = 0;
+            for (let m = 0; m < 12; m++) {
+                total += getTxMonthlyBreakdownValue(t, year, m);
+            }
+            return total;
         }
 
         // Modulo Stima Mese Successivo (Esclude Una Tantum)
@@ -735,7 +745,6 @@ const firebaseConfig = {
                 const amount = parseFloat(t.amount) || 0;
                 const cadence = parseInt(t.monthsCadence) || 1;
                 
-                // Peso mensilizzato
                 const monthlyWeight = amount / cadence;
 
                 if (t.type === 'income') {
@@ -791,7 +800,9 @@ const firebaseConfig = {
             populateCategoryDropdowns();
             renderCategoryList();
 
-            lucide.createIcons();
+            if (window.lucide) {
+                lucide.createIcons();
+            }
         }
 
         function updatePeriodDisplay() {
@@ -877,8 +888,6 @@ const firebaseConfig = {
                     badgeText = `Ripartito da bolletta €${monthlyShare}/m (${cadenceMesi}m)`;
                     badgeClass = 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800';
                 }
-
-                const calculatedVal = state.viewMode === 'monthly' ? getTxMonthlyBreakdownValue(t, year, month) : parseFloat(t.amount);
 
                 const calculatedVal = state.viewMode === 'monthly' ? getTxMonthlyBreakdownValue(t, year, month) : getTxAnnualTotalValue(t, year);
 
@@ -987,14 +996,6 @@ const firebaseConfig = {
                     </div>
                 `;
             }).join('');
-        }
-
-        function getTxAnnualTotalValue(t, year) {
-            let total = 0;
-            for (let m = 0; m < 12; m++) {
-                total += getTxMonthlyBreakdownValue(t, year, m);
-            }
-            return total;
         }
 
         // Grafico a Barre Annuale
@@ -1317,7 +1318,7 @@ const firebaseConfig = {
         }
 
         function escapeHtml(str) {
-            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+            return str ? str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : "";
         }
 
         window.onload = function() {
