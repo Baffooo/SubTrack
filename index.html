@@ -2,11 +2,12 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SubTrack - Bilancio & Ricorrenze</title>
-    <!-- Web App Icons -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='2' y='5' width='20' height='14' rx='2'/><line x1='2' y1='10' x2='22' y2='10'/></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='2' y='5' width='20' height='14' rx='2'/><line x1='2' y1='10' x2='22' y2='10'/></svg>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SubTrack - Bilancio Personale</title>
+    
+    <!-- Favicon & WebApp Icons -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234f46e5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='20' height='14' x='2' y='5' rx='2'/><line x1='2' x2='22' y1='10' y2='10'/></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'><rect width='24' height='24' rx='5'/><path d='M4 7h16v10H4z' fill='%23ffffff'/></svg>">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,7 +18,11 @@
                 extend: {
                     colors: {
                         brand: {
-                            50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8'
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
                         }
                     }
                 }
@@ -27,123 +32,373 @@
     
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Firebase SDK (Compat) -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <style>
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.3); border-radius: 10px; }
-    </style>
-</head>
-<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200 font-sans pb-24 md:pb-8">
-
-    <!-- CONFIGURAZIONE FIREBASE -->
-    <script>
-        // Sostituisci qui i valori del tuo progetto Firebase subtrack-17828
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SubTrack - Bilancio & Ricorrenze</title>
-    <!-- Web App Icons -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='2' y='5' width='20' height='14' rx='2'/><line x1='2' y1='10' x2='22' y2='10'/></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='2' y='5' width='20' height='14' rx='2'/><line x1='2' y1='10' x2='22' y2='10'/></svg>">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8'
-                        }
-                    }
-                }
-            }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
         }
-    </script>
-    
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- Firebase SDK (Compat) -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
-    <style>
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.3); border-radius: 10px; }
-    </style>
-</head>
-<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200 font-sans pb-24 md:pb-8">
-
-    <!-- CONFIGURAZIONE FIREBASE -->
-    <script>
-        // Sostituisci qui i valori del tuo progetto Firebase subtrack-17828
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SubTrack - Bilancio & Ricorrenze</title>
-    <!-- Web App Icons -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='2' y='5' width='20' height='14' rx='2'/><line x1='2' y1='10' x2='22' y2='10'/></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='2' y='5' width='20' height='14' rx='2'/><line x1='2' y1='10' x2='22' y2='10'/></svg>">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8'
-                        }
-                    }
-                }
-            }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
         }
-    </script>
-    
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- Firebase SDK (Compat) -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
-    <style>
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.3); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.4);
+            border-radius: 10px;
+        }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200 font-sans pb-24 md:pb-8">
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-200 pb-20 md:pb-10 font-sans antialiased">
 
-    <!-- CONFIGURAZIONE FIREBASE -->
+    <!-- TOP HEADER -->
+    <header class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 sticky top-0 z-30">
+        <div class="max-w-6xl mx-auto px-4 py-3.5 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-brand-600 text-white p-2 rounded-xl shadow-md shadow-brand-500/20">
+                    <i data-lucide="wallet" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-gray-900 dark:text-white">SubTrack</h1>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <!-- Data Status Badge -->
+                <div id="dbStatusBadge" class="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span id="dbStatusText">Local Storage</span>
+                </div>
+
+                <!-- Theme Toggle Button -->
+                <button id="themeToggleBtn" onclick="toggleTheme()" class="p-2 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition-colors">
+                    <i data-lucide="moon" id="themeIconMoon" class="w-5 h-5"></i>
+                    <i data-lucide="sun" id="themeIconSun" class="w-5 h-5 hidden"></i>
+                </button>
+
+                <!-- Settings Button -->
+                <button onclick="openConfigModal()" class="p-2 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition-colors" title="Configura Firebase">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+
+        <!-- FILTER BAR & QUICK ADD -->
+        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
+            <div class="flex items-center gap-2">
+                <i data-lucide="calendar" class="w-5 h-5 text-brand-600 dark:text-brand-500"></i>
+                <label for="monthFilter" class="text-sm font-semibold text-gray-700 dark:text-gray-300">Periodo di Analisi:</label>
+                <input type="month" id="monthFilter" onchange="renderApp()" class="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl px-3 py-1.5 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none text-gray-900 dark:text-white">
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="openTransactionModal()" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-medium px-4 py-2 rounded-xl shadow-md shadow-brand-600/20 transition-all text-sm">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span>Nuovo Movimento</span>
+                </button>
+                <button onclick="openVoiceModal()" class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-3.5 py-2 rounded-xl shadow-md shadow-emerald-600/20 transition-all text-sm" title="Dettato Vocale">
+                    <i data-lucide="mic" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Dettato</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- SUMMARY STATS CARDS -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Balance Card -->
+            <div class="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col justify-between">
+                <div class="flex justify-between items-start">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Bilancio Effettivo del Mese</span>
+                    <div class="p-2 bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 rounded-xl">
+                        <i data-lucide="scale" class="w-5 h-5"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div id="statMonthlyBalance" class="text-3xl font-extrabold text-gray-900 dark:text-white">€0,00</div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Include entrate, uscite e ripartizioni bollette</p>
+                </div>
+            </div>
+
+            <!-- Income vs Expenses Card -->
+            <div class="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col justify-between">
+                <div class="flex justify-between items-start">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Flussi del Mese</span>
+                    <div class="p-2 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl">
+                        <i data-lucide="arrow-up-right" class="w-5 h-5"></i>
+                    </div>
+                </div>
+                <div class="mt-3 space-y-1.5">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Entrate Totali</span>
+                        <span id="statMonthlyIncome" class="text-base font-bold text-emerald-600 dark:text-emerald-400">+€0,00</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-rose-600 dark:text-rose-400 font-medium">Uscite Totali</span>
+                        <span id="statMonthlyExpense" class="text-base font-bold text-rose-600 dark:text-rose-400">-€0,00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Month Commitment Card -->
+            <div class="bg-gradient-to-br from-indigo-900 to-brand-900 text-white p-5 rounded-2xl shadow-md border border-indigo-700/50 flex flex-col justify-between relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 opacity-10 text-white pointer-events-none">
+                    <i data-lucide="pie-chart" class="w-32 h-32"></i>
+                </div>
+                <div class="flex justify-between items-start z-10">
+                    <div>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-indigo-200">Stima Peso Ricorrente Mensile</span>
+                        <p class="text-[11px] text-indigo-300 mt-0.5">Costo mensile medio dei tuoi impegni fissi</p>
+                    </div>
+                    <div class="p-2 bg-white/10 rounded-xl backdrop-blur-sm">
+                        <i data-lucide="calculator" class="w-5 h-5 text-indigo-200"></i>
+                    </div>
+                </div>
+                <div class="mt-4 z-10">
+                    <div id="statNextMonthEstimate" class="text-2xl font-extrabold text-white">€0,00 / mese</div>
+                    <p id="statNextMonthSubtext" class="text-xs text-indigo-200 mt-1">Entrate fisse nette residue: €0,00</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHARTS SECTION -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Expenses by Category Chart -->
+            <div class="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col">
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i data-lucide="pie-chart" class="w-5 h-5 text-brand-500"></i>
+                    Ripartizione Uscite Mese Selezionato
+                </h3>
+                <div class="relative flex-1 min-h-[220px] flex items-center justify-center">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Annual Cashflow Trend Chart -->
+            <div class="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col">
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5 text-brand-500"></i>
+                    Andamento Annuale Flussi
+                </h3>
+                <div class="relative flex-1 min-h-[220px] flex items-center justify-center">
+                    <canvas id="annualChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- TRANSACTIONS & CATEGORIES TABS -->
+        <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+            <div class="flex border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
+                <button id="tabBtnTx" onclick="switchTab('transactions')" class="flex-1 py-3.5 px-4 font-semibold text-sm border-b-2 border-brand-600 text-brand-600 dark:text-brand-400 flex items-center justify-center gap-2 transition-colors">
+                    <i data-lucide="list" class="w-4 h-4"></i>
+                    <span>Movimenti del Mese</span>
+                </button>
+                <button id="tabBtnCat" onclick="switchTab('categories')" class="flex-1 py-3.5 px-4 font-semibold text-sm border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center justify-center gap-2 transition-colors">
+                    <i data-lucide="tag" class="w-4 h-4"></i>
+                    <span>Gestione Categorie</span>
+                </button>
+            </div>
+
+            <!-- TAB 1: TRANSACTIONS LIST -->
+            <div id="tabTransactions" class="p-4">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="text-xs uppercase text-gray-400 border-b border-gray-100 dark:border-gray-800">
+                                <th class="pb-3 font-semibold">Data</th>
+                                <th class="pb-3 font-semibold">Descrizione</th>
+                                <th class="pb-3 font-semibold">Categoria</th>
+                                <th class="pb-3 font-semibold">Tipologia</th>
+                                <th class="pb-3 font-semibold text-right">Importo Totale</th>
+                                <th class="pb-3 font-semibold text-right">Quota Mese</th>
+                                <th class="pb-3 font-semibold text-center">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="txTableBody" class="divide-y divide-gray-100 dark:divide-gray-800">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                    <div id="txEmptyState" class="hidden py-12 text-center text-gray-400">
+                        <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-2 opacity-40"></i>
+                        <p class="text-sm">Nessun movimento registrato per questo mese.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: CATEGORIES MANAGEMENT -->
+            <div id="tabCategories" class="p-4 hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Personalizza Categorie</h4>
+                    <button onclick="openCategoryModal()" class="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                        <span>Aggiungi Categoria</span>
+                    </button>
+                </div>
+                <div id="categoriesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    <!-- Injected dynamically -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL: ADD / EDIT TRANSACTION -->
+    <div id="txModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 w-full max-w-md rounded-2xl shadow-xl overflow-hidden">
+            <div class="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
+                <h3 id="txModalTitle" class="font-bold text-lg text-gray-900 dark:text-white">Nuovo Movimento</h3>
+                <button onclick="closeTransactionModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form id="txForm" onsubmit="saveTransaction(event)" class="p-4 space-y-4">
+                <input type="hidden" id="txId">
+
+                <div class="grid grid-cols-2 gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl">
+                    <button type="button" id="btnTypeExpense" onclick="setTxType('expense')" class="py-2 text-xs font-bold rounded-lg transition-all bg-white dark:bg-gray-700 text-rose-600 dark:text-rose-400 shadow-sm">Uscita</button>
+                    <button type="button" id="btnTypeIncome" onclick="setTxType('income')" class="py-2 text-xs font-bold rounded-lg transition-all text-gray-500 dark:text-gray-400">Entrata</button>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Descrizione / Titolo</label>
+                    <input type="text" id="txTitle" required placeholder="es. Bolletta Luce, Stipendio, Assicurazione" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 outline-none text-gray-900 dark:text-white">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Importo (€)</label>
+                        <input type="number" step="0.01" id="txAmount" required placeholder="0.00" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 outline-none text-gray-900 dark:text-white font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Data Inizio / Pagamento</label>
+                        <input type="date" id="txDate" required class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 outline-none text-gray-900 dark:text-white">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Categoria</label>
+                    <select id="txCategory" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 outline-none text-gray-900 dark:text-white">
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Tipologia di Ricorrenza</label>
+                    <select id="txRecurrence" onchange="toggleCadenceVisibility()" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 outline-none text-gray-900 dark:text-white">
+                        <option value="once">Una tantum (Singolo evento)</option>
+                        <option value="fixed">Ricorrente Fissa (Stesso importo periodico)</option>
+                        <option value="variable">Ricorrente Variabile / Bolletta (Ripartizione Furba)</option>
+                    </select>
+                </div>
+
+                <div id="cadenceGroup" class="hidden">
+                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Cadenza / Durata in Mesi</label>
+                    <select id="txCadence" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 outline-none text-gray-900 dark:text-white">
+                        <option value="1">1 Mese (Mensile)</option>
+                        <option value="2">2 Mesi (Bimensile)</option>
+                        <option value="3">3 Mesi (Trimestrale)</option>
+                        <option value="6">6 Mesi (Semestrale)</option>
+                        <option value="12">12 Mesi (Annuale - diviso in 12 quote)</option>
+                    </select>
+                </div>
+
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeTransactionModal()" class="px-4 py-2 text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl">Annulla</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-xl shadow-md">Salva Movimento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT CATEGORY -->
+    <div id="categoryModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 w-full max-w-sm rounded-2xl shadow-xl overflow-hidden">
+            <div class="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
+                <h3 id="catModalTitle" class="font-bold text-gray-900 dark:text-white">Nuova Categoria</h3>
+                <button onclick="closeCategoryModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form id="catForm" onsubmit="saveCategory(event)" class="p-4 space-y-4">
+                <input type="hidden" id="catId">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Nome Categoria</label>
+                    <input type="text" id="catName" required placeholder="es. Abbonamenti, Svago, Casa" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 outline-none text-gray-900 dark:text-white">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Colore Distinctivo</label>
+                        <input type="color" id="catColor" value="#6366f1" class="w-full h-10 bg-transparent cursor-pointer rounded-xl">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Tipo Predominante</label>
+                        <select id="catType" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 outline-none text-gray-900 dark:text-white">
+                            <option value="expense">Uscita</option>
+                            <option value="income">Entrata</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeCategoryModal()" class="px-4 py-2 text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl">Annulla</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-xl shadow-md">Salva Categoria</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: VOICE INPUT -->
+    <div id="voiceModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 w-full max-w-md rounded-2xl shadow-xl overflow-hidden p-6 text-center space-y-4">
+            <div class="mx-auto w-16 h-16 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center animate-pulse">
+                <i data-lucide="mic" class="w-8 h-8"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-lg text-gray-900 dark:text-white">Dettato Vocale Smart</h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Pronuncia ad esempio: <br><em>"Bolletta luce 60 euro bimensile"</em> oppure <em>"Stipendio 1500 euro mensile"</em></p>
+            </div>
+            
+            <div id="voiceTranscript" class="min-h-[60px] p-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center justify-center italic">
+                In ascolto... Parla ora.
+            </div>
+
+            <div class="flex justify-center gap-3">
+                <button onclick="closeVoiceModal()" class="px-4 py-2 text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl">Chiudi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: FIREBASE SETTINGS -->
+    <div id="configModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 w-full max-w-lg rounded-2xl shadow-xl overflow-hidden">
+            <div class="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
+                <h3 class="font-bold text-gray-900 dark:text-white">Configurazione Firebase Database</h3>
+                <button onclick="closeConfigModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="saveFirebaseConfig(event)" class="p-4 space-y-3">
+                <p class="text-xs text-gray-500 dark:text-gray-400">Modifica o aggiorna le tue credenziali Firebase.</p>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">API Key</label>
+                    <input type="text" id="cfgApiKey" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl px-3 py-1.5 text-xs font-mono text-gray-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Project ID</label>
+                    <input type="text" id="cfgProjectId" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl px-3 py-1.5 text-xs font-mono text-gray-900 dark:text-white">
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeConfigModal()" class="px-4 py-2 text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl">Annulla</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-xl shadow-md">Salva e Riconnetti</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT LOGIC -->
     <script>
-        // Sostituisci qui i valori del tuo progetto Firebase subtrack-17828
-const firebaseConfig = {
-
+        // ==========================================
+        // 1. FIREBASE CONFIGURATION
+        // ==========================================
+        let firebaseConfig = {
   apiKey: "AIzaSyC7HeTfczh4xJBuxQb_GUyEHxvoUohX8NQ",
 
   authDomain: "bilancio-445a2.firebaseapp.com",
@@ -158,345 +413,117 @@ const firebaseConfig = {
 
   measurementId: "G-BFQFLE708Y"
 
-};
+        };
 
-    </script>
+        const savedCfg = localStorage.getItem('subtrack_fb_config');
+        if (savedCfg) {
+            try { firebaseConfig = JSON.parse(savedCfg); } catch(e){}
+        }
 
-    <div class="max-w-6xl mx-auto px-4 py-6">
-        <!-- HEADER -->
-        <header class="flex justify-between items-center mb-8 border-b border-slate-200 dark:border-slate-800 pb-4">
-            <div class="flex items-center gap-3">
-                <div class="bg-blue-600 text-white p-2.5 rounded-xl shadow-md">
-                    <i data-lucide="wallet" class="w-6 h-6"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-bold tracking-tight">SubTrack</h1>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Gestione Bilancio & Ricorrenze</p>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-2">
-                <!-- Theme Toggle -->
-                <button id="themeToggle" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
-                    <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
-                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
-                </button>
-            </div>
-        </header>
-
-        <!-- DASHBOARD METRICS -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-            <!-- Balance Card -->
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Saldo Periodo Selezionato</span>
-                    <span id="periodBadge" class="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300">Ottobre 2026</span>
-                </div>
-                <div id="netBalanceVal" class="text-3xl font-extrabold text-slate-900 dark:text-white">€ 0,00</div>
-                <div class="flex gap-4 mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/50 text-sm">
-                    <div>Entrate: <span id="periodIncomeVal" class="font-semibold text-emerald-600 dark:text-emerald-400">€ 0,00</span></div>
-                    <div>Uscite: <span id="periodExpenseVal" class="font-semibold text-rose-600 dark:text-rose-400">€ 0,00</span></div>
-                </div>
-            </div>
-
-            <!-- Next Month Recurring Estimate -->
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Stima Peso Mese Prossimo</span>
-                    <i data-lucide="calculator" class="w-4 h-4 text-slate-400"></i>
-                </div>
-                <div id="nextMonthNetVal" class="text-3xl font-extrabold text-slate-900 dark:text-white">€ 0,00</div>
-                <div class="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                    Entrate ricorrenti meno il costo mensilizzato di tutti gli abbonamenti e bollette attive.
-                </div>
-            </div>
-
-            <!-- Select Period Selector -->
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
-                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Filtro Periodo</span>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-xs text-slate-500 block mb-1">Mese</label>
-                        <select id="monthSelect" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-sm font-medium">
-                            <option value="0">Gennaio</option><option value="1">Febbraio</option>
-                            <option value="2">Marzo</option><option value="3">Aprile</option>
-                            <option value="4">Maggio</option><option value="5">Giugno</option>
-                            <option value="6">Luglio</option><option value="7">Agosto</option>
-                            <option value="8">Settembre</option><option value="9">Ottobre</option>
-                            <option value="10">Novembre</option><option value="11">Dicembre</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-xs text-slate-500 block mb-1">Anno</label>
-                        <select id="yearSelect" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-sm font-medium"></select>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- MAIN ACTION BUTTONS -->
-        <div class="flex flex-wrap gap-3 mb-8">
-            <button onclick="openModal('txModal')" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-xl shadow-sm transition">
-                <i data-lucide="plus-circle" class="w-5 h-5"></i>
-                Nuovo Movimento
-            </button>
-            <button id="voiceBtn" onclick="toggleVoiceRecording()" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-medium px-5 py-2.5 rounded-xl shadow-sm transition">
-                <i data-lucide="mic" class="w-5 h-5"></i>
-                <span id="voiceBtnText">Dettato Vocale</span>
-            </button>
-            <button onclick="openModal('catModal')" class="flex items-center gap-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium px-5 py-2.5 rounded-xl shadow-sm transition">
-                <i data-lucide="tag" class="w-5 h-5"></i>
-                Gestisci Categorie
-            </button>
-        </div>
-
-        <!-- MAIN GRID: TRANSACTIONS & CHARTS -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Transactions List (2 Cols) -->
-            <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
-                    <i data-lucide="list" class="w-5 h-5 text-blue-500"></i>
-                    Movimenti del Mese
-                </h2>
-                <div id="txList" class="space-y-3 custom-scrollbar max-h-[500px] overflow-y-auto pr-1">
-                    <!-- Dynamic Items -->
-                </div>
-            </div>
-
-            <!-- Charts Column (1 Col) -->
-            <div class="space-y-6">
-                <!-- Doughnut Chart -->
-                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-                    <h3 class="text-sm font-bold mb-4 flex items-center gap-2">
-                        <i data-lucide="pie-chart" class="w-4 h-4 text-blue-500"></i>
-                        Ripartizione Spese per Categoria
-                    </h3>
-                    <div class="relative h-48">
-                        <canvas id="categoryChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Annual Trend -->
-                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-                    <h3 class="text-sm font-bold mb-4 flex items-center gap-2">
-                        <i data-lucide="bar-chart-2" class="w-4 h-4 text-blue-500"></i>
-                        Andamento Annuale
-                    </h3>
-                    <div class="relative h-48">
-                        <canvas id="trendChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: AGGIUNGI MOVIMENTO -->
-    <div id="txModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-xl border border-slate-200 dark:border-slate-700">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold" id="txModalTitle">Nuovo Movimento</h3>
-                <button onclick="closeModal('txModal')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x"></i></button>
-            </div>
-            
-            <form id="txForm" onsubmit="saveTransaction(event)" class="space-y-4">
-                <input type="hidden" id="txId">
-                
-                <div class="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl">
-                    <button type="button" id="typeExpenseBtn" onclick="setTxType('expense')" class="py-2 text-sm font-medium rounded-lg bg-white dark:bg-slate-800 shadow-sm text-rose-600">Uscita</button>
-                    <button type="button" id="typeIncomeBtn" onclick="setTxType('income')" class="py-2 text-sm font-medium rounded-lg text-slate-500">Entrata</button>
-                </div>
-                <input type="hidden" id="txType" value="expense">
-
-                <div>
-                    <label class="text-xs font-semibold text-slate-500">Descrizione / Titolo</label>
-                    <input type="text" id="txName" required placeholder="Es. Bolletta Luce, Stipendio, Netflix" class="w-full mt-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-sm">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-xs font-semibold text-slate-500">Importo (€)</label>
-                        <input type="number" step="0.01" id="txAmount" required placeholder="0.00" class="w-full mt-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-sm">
-                    </div>
-                    <div>
-                        <label class="text-xs font-semibold text-slate-500">Data Inizio / Pagamento</label>
-                        <input type="date" id="txDate" required class="w-full mt-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-sm">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="text-xs font-semibold text-slate-500">Categoria</label>
-                    <select id="txCategory" class="w-full mt-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-sm"></select>
-                </div>
-
-                <div>
-                    <label class="text-xs font-semibold text-slate-500">Tipologia Ricorrenza</label>
-                    <select id="txRecurrence" onchange="toggleRecurrenceOptions()" class="w-full mt-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-sm">
-                        <option value="one_off">Una Tantum (Singola Spesa)</option>
-                        <option value="fixed_recurring">Ricorrente Fissa (Fisso Mensile/Annuale)</option>
-                        <option value="variable_bill">Ricorrente Variabile / Bolletta (Ripartita)</option>
-                    </select>
-                </div>
-
-                <div id="cadenceGroup" class="hidden">
-                    <label class="text-xs font-semibold text-slate-500">Cadenza / Frequenza</label>
-                    <select id="txCadence" class="w-full mt-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-sm">
-                        <option value="1">Ogni 1 Mese (Mensile)</option>
-                        <option value="2">Ogni 2 Mesi (Bimensile - Bolletta)</option>
-                        <option value="3">Ogni 3 Mesi (Trimestrale)</option>
-                        <option value="6">Ogni 6 Mesi (Semestrale)</option>
-                        <option value="12">Ogni 12 Mesi (Annuale)</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl shadow-sm transition mt-2">
-                    Salva Movimento
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: GESTIONE CATEGORIE -->
-    <div id="catModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-xl border border-slate-200 dark:border-slate-700">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold">Gestisci Categorie</h3>
-                <button onclick="closeModal('catModal')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x"></i></button>
-            </div>
-
-            <form onsubmit="addCategory(event)" class="flex gap-2 mb-4">
-                <input type="text" id="newCatName" required placeholder="Nome Categoria" class="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2 text-sm">
-                <input type="color" id="newCatColor" value="#3b82f6" class="w-10 h-10 border-0 rounded-xl cursor-pointer">
-                <button type="submit" class="bg-blue-600 text-white px-4 rounded-xl text-sm font-medium">Aggiungi</button>
-            </form>
-
-            <div id="catList" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
-                <!-- Dynamic Categories -->
-            </div>
-        </div>
-    </div>
-
-    <!-- APP SCRIPT LOGIC -->
-    <script>
-        // State
         let db = null;
         let isFirebaseActive = false;
-        let transactions = [];
-        let categories = [
-            { id: 'cat_1', name: 'Casa & Bollette', color: '#ef4444' },
-            { id: 'cat_2', name: 'Abbonamenti', color: '#3b82f6' },
-            { id: 'cat_3', name: 'Alimentari', color: '#10b981' },
-            { id: 'cat_4', name: 'Stipendio & Entrate', color: '#8b5cf6' },
-            { id: 'cat_5', name: 'Svago & Varie', color: '#f59e0b' }
-        ];
-
-        let selectedMonth = new Date().getMonth();
-        let selectedYear = new Date().getFullYear();
-        let categoryChart = null;
-        let trendChart = null;
-
-        // INIT
-        window.addEventListener('DOMContentLoaded', () => {
-            initYears();
-            initTheme();
-            initFirebase();
-            setupCharts();
-            renderCategories();
-            renderApp();
-            lucide.createIcons();
-        });
-
-        function initTheme() {
-            const themeBtn = document.getElementById('themeToggle');
-            themeBtn.addEventListener('click', () => {
-                document.documentElement.classList.toggle('dark');
-                localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-                updateChartsTheme();
-            });
-            if (localStorage.getItem('theme') === 'dark') {
-                document.documentElement.classList.add('dark');
-            }
-        }
-
-        function initYears() {
-            const ySelect = document.getElementById('yearSelect');
-            const curY = new Date().getFullYear();
-            for (let y = curY - 3; y <= curY + 3; y++) {
-                const opt = document.createElement('option');
-                opt.value = y;
-                opt.textContent = y;
-                if (y === curY) opt.selected = true;
-                ySelect.appendChild(opt);
-            }
-
-            document.getElementById('monthSelect').value = selectedMonth;
-            document.getElementById('txDate').valueAsDate = new Date();
-
-            document.getElementById('monthSelect').addEventListener('change', (e) => {
-                selectedMonth = parseInt(e.target.value);
-                renderApp();
-            });
-            document.getElementById('yearSelect').addEventListener('change', (e) => {
-                selectedYear = parseInt(e.target.value);
-                renderApp();
-            });
-        }
 
         function initFirebase() {
-            if (typeof firebase !== 'undefined' && firebaseConfig && firebaseConfig.apiKey !== "YOUR_API_KEY") {
+            if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
                 try {
-                    firebase.initializeApp(firebaseConfig);
+                    if (!firebase.apps.length) {
+                        firebase.initializeApp(firebaseConfig);
+                    }
                     db = firebase.firestore();
                     isFirebaseActive = true;
-                    
-                    // Listen to primary and legacy collections automatically
-                    const collectionsToListen = ['transactions', 'subscriptions', 'movimenti'];
-                    collectionsToListen.forEach(collName => {
-                        db.collection(collName).onSnapshot(snapshot => {
-                            let loadedFromFS = [];
-                            snapshot.forEach(doc => {
-                                const data = doc.data();
-                                loadedFromFS.push(normalizeTransactionData(doc.id, data));
-                            });
-                            if (loadedFromFS.length > 0) {
-                                // Merge keeping newest
-                                const merged = [...transactions];
-                                loadedFromFS.forEach(item => {
-                                    const idx = merged.findIndex(x => x.id === item.id);
-                                    if (idx >= 0) merged[idx] = item;
-                                    else merged.push(item);
-                                });
-                                transactions = merged;
-                                renderApp();
-                            }
-                        });
-                    });
-                } catch (e) {
-                    console.warn("Firebase fallito, fallback locale attivo:", e);
-                    loadLocalData();
+                    document.getElementById('dbStatusBadge').classList.remove('hidden');
+                    document.getElementById('dbStatusBadge').className = "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20";
+                    document.getElementById('dbStatusText').innerText = "Firebase Cloud";
+                } catch(e) {
+                    console.error("Firebase init fallback:", e);
+                    setupLocalStorageFallback();
                 }
             } else {
-                loadLocalData();
+                setupLocalStorageFallback();
             }
         }
 
-        function normalizeTransactionData(id, data) {
-            return {
-                id: id,
-                name: data.name || data.title || data.description || 'Movimento',
-                amount: parseFloat(data.amount || data.cost || data.price || 0),
-                type: data.type || (data.cost ? 'expense' : 'expense'),
-                date: data.date || new Date().toISOString().split('T')[0],
-                category: data.category || 'cat_5',
-                recurrence: data.recurrence || (data.cadence > 0 ? 'fixed_recurring' : 'one_off'),
-                cadence: parseInt(data.cadence || 1)
-            };
+        function setupLocalStorageFallback() {
+            isFirebaseActive = false;
+            document.getElementById('dbStatusBadge').classList.remove('hidden');
+            document.getElementById('dbStatusBadge').className = "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20";
+            document.getElementById('dbStatusText').innerText = "Locale (LocalStorage)";
         }
 
-        function loadLocalData() {
-            const localTx = localStorage.getItem('subtrack_tx');
-            if (localTx) transactions = JSON.parse(localTx);
-            const localCat = localStorage.getItem('subtrack_cat');
-            if (localCat) categories = JSON.parse(localCat);
+        // ==========================================
+        // 2. STATE MANAGEMENT & DEFAULTS
+        // ==========================================
+        let transactions = [];
+        let categories = [
+            { id: 'cat_1', name: 'Stipendio / Entrate', color: '#10b981', type: 'income' },
+            { id: 'cat_2', name: 'Casa & Bollette', color: '#f59e0b', type: 'expense' },
+            { id: 'cat_3', name: 'Abbonamenti & Sub', color: '#6366f1', type: 'expense' },
+            { id: 'cat_4', name: 'Spesa & Cibo', color: '#ec4899', type: 'expense' },
+            { id: 'cat_5', name: 'Trasporti & Auto', color: '#3b82f6', type: 'expense' },
+            { id: 'cat_6', name: 'Svago & Tempo Libero', color: '#8b5cf6', type: 'expense' }
+        ];
+
+        let categoryChartInstance = null;
+        let annualChartInstance = null;
+
+        // ==========================================
+        // 3. INIT & DATA FETCH
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            const now = new Date();
+            const yearMonth = now.toISOString().slice(0, 7);
+            document.getElementById('monthFilter').value = yearMonth;
+
+            lucide.createIcons();
+            initTheme();
+            initFirebase();
+            loadAllData();
+        });
+
+        async function loadAllData() {
+            if (isFirebaseActive && db) {
+                const collectionsToScan = ['transactions', 'subscriptions', 'movimenti'];
+                
+                collectionsToScan.forEach(colName => {
+                    db.collection(colName).onSnapshot(snapshot => {
+                        snapshot.forEach(doc => {
+                            const d = doc.data();
+                            const item = {
+                                id: doc.id,
+                                title: d.title || d.name || 'Senza Titolo',
+                                amount: parseFloat(d.amount || d.cost || d.price || 0),
+                                date: d.date || d.startDate || new Date().toISOString().slice(0, 10),
+                                categoryId: d.categoryId || 'cat_3',
+                                type: d.type || 'expense',
+                                recurrence: d.recurrence || (d.cadence ? 'fixed' : 'once'),
+                                cadence: parseInt(d.cadence || 1)
+                            };
+                            
+                            const idx = transactions.findIndex(t => t.id === item.id);
+                            if (idx >= 0) transactions[idx] = item;
+                            else transactions.push(item);
+                        });
+                        renderApp();
+                    }, err => console.log("Scan notice:", colName));
+                });
+
+                db.collection('categories').onSnapshot(snapshot => {
+                    if (!snapshot.empty) {
+                        categories = [];
+                        snapshot.forEach(doc => {
+                            categories.push({ id: doc.id, ...doc.data() });
+                        });
+                    }
+                    renderApp();
+                });
+
+            } else {
+                const localTx = localStorage.getItem('subtrack_tx');
+                const localCat = localStorage.getItem('subtrack_cat');
+                if (localTx) transactions = JSON.parse(localTx);
+                if (localCat) categories = JSON.parse(localCat);
+                renderApp();
+            }
         }
 
         function saveData() {
@@ -506,854 +533,591 @@ const firebaseConfig = {
             }
         }
 
-        // CALCULATION LOGIC FOR RECURRENCES AND SPLITTING
-        function getTxMonthlyBreakdownValue(tx, targetM, targetY) {
-            const txDate = new Date(tx.date);
-            const txM = txDate.getMonth();
-            const txY = txDate.getFullYear();
+        // ==========================================
+        // 4. FINANCIAL ENGINE & CALCULATIONS
+        // ==========================================
+        function getTxMonthlyBreakdownValue(tx, targetYM) {
+            const txYM = tx.date.slice(0, 7);
+            
+            const [targetY, targetM] = targetYM.split('-').map(Number);
+            const [txY, txM] = tx.date.slice(0, 10).split('-').map(Number);
 
-            // Total months difference between start date and target date
-            const monthsDiff = (targetY - txY) * 12 + (targetM - txM);
+            const monthDiff = (targetY - txY) * 12 + (targetM - txM);
 
-            if (tx.recurrence === 'one_off') {
-                return (monthsDiff === 0) ? tx.amount : 0;
+            // 1. Una tantum
+            if (tx.recurrence === 'once') {
+                return txYM === targetYM ? tx.amount : 0;
             }
 
-            if (tx.recurrence === 'fixed_recurring') {
-                if (monthsDiff >= 0 && monthsDiff % tx.cadence === 0) {
+            // 2. Ricorrente Fissa
+            if (tx.recurrence === 'fixed') {
+                if (monthDiff < 0) return 0;
+                const cadence = tx.cadence || 1;
+                if (monthDiff % cadence === 0) {
                     return tx.amount;
                 }
                 return 0;
             }
 
-            if (tx.recurrence === 'variable_bill') {
-                // Ripartizione Furba: split amount evenly over the cadence window
+            // 3. Ricorrente Variabile / Bolletta (Ripartizione)
+            if (tx.recurrence === 'variable') {
                 const cadence = tx.cadence || 1;
-                // Applies to target month if target falls inside current bill period window
-                if (monthsDiff >= -(cadence - 1) && monthsDiff <= 0) {
+                if (monthDiff <= 0 && monthDiff > -cadence) {
                     return tx.amount / cadence;
                 }
+                return 0;
             }
+
             return 0;
         }
 
         function calculateNextMonthEstimate() {
-            let totalIncome = 0;
-            let totalExpenseWeight = 0;
+            let totalRecurringExpenseWeight = 0;
+            let totalRecurringIncomeWeight = 0;
 
             transactions.forEach(tx => {
-                if (tx.recurrence === 'one_off') return;
+                if (tx.recurrence === 'once') return;
 
                 const cadence = tx.cadence || 1;
                 const monthlyWeight = tx.amount / cadence;
 
-                if (tx.type === 'income') {
-                    totalIncome += monthlyWeight;
-                } else {
-                    totalExpenseWeight += monthlyWeight;
+                if (tx.type === 'expense') {
+                    totalRecurringExpenseWeight += monthlyWeight;
+                } else if (tx.type === 'income') {
+                    totalRecurringIncomeWeight += monthlyWeight;
                 }
             });
 
-            return totalIncome - totalExpenseWeight;
-        }
-
-        // RENDER FUNCTIONS
-        function renderApp()
-    </script>
-
-    <div class="max-w-6xl mx-auto px-4 py-6">
-        <!-- HEADER -->
-        <header class="flex justify-between items-center mb-8 border-b border-slate-200 dark:border-slate-800 pb-4">
-            <div class="flex items-center gap-3">
-                <div class="bg-blue-600 text-white p-2.5 rounded-xl shadow-md">
-                    <i data-lucide="wallet" class="w-6 h-6"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-bold tracking-tight">SubTrack</h1>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Gestione Bilancio & Ricorrenze</p>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-2">
-                <!-- Theme Toggle -->
-                <button id="themeToggle" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
-                    <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
-                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
-                </button>
-            </div>
-        </header>
-
-        <!-- DASHBOARD METRICS -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-            <!-- Balance Card -->
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Saldo Periodo Selezionato</span>
-                    <span id="periodBadge" class="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300">Ottobre 2026</span>
-                </div>
-                <div id="netBalanceVal" class="text-3xl font-extrabold text-slate-900 dark:text-white">€ 0,00</div>
-                <div class="flex gap-4 mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/50 text-sm">
-                    <div>Entrate: <span id="periodIncomeVal" class="font-semibold text-emerald-600 dark:text-emerald-400">€ 0,00</span></div>
-                    <div>Uscite: <span id="periodExpenseVal" class="font-semibold text-rose-600 dark:text-rose-400">€ 0,00</span></div>
-                </div>
-            </div>
-
-            <!-- Next Month Recurring Estimate -->
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Stima Peso Mese Prossimo</span>
-                    <i data-lucide="calculator" class="w-4 h-4 text-slate-400"></i>
-                </div>
-                <div id="nextMonthNetVal" class="text-3xl font-extrabold text-slate-900 dark:text-white">€ 0,00</div>
-                <div class="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                    Entrate ricorrenti meno il costo mensilizzato di tutti gli abbonamenti e bollette attive.
-                </div>
-            </div>
-
-            <!-- Select Period Selector -->
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
-                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Filtro Periodo</span>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-xs text-slate-500 block mb-1">Mese</label>
-                        <select id="monthSelect" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-sm font-medium">
-                            <option value="0">Gennaio</option><option value="1">Febbraio</option>
-                            <option value="2">Marzo</option><option value="3">Aprile</option>
-                            <option value="4">Maggio</option><option value="5">Giugno</option>
-                            <option value="6">Luglio</option><option value="7">Agosto</option>
-                            <option value="8">Settembre</option><option value="9">Ottobre</option>
-                            <option value="10">Novembre</option><option value="11">Dicembre</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-xs text-slate-500 block mb-1">Anno</label>
-                        <select id="yearSelect" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-sm font-medium"></select>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- MAIN ACTION BUTTONS -->
-        <div class="flex flex-wrap gap-3 mb-8">
-            <button onclick="openModal('txModal')" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-xl shadow-sm transition">
-                <i data-lucide="plus-circle" class="w-5 h-5"></i>
-                Nuovo Movimento
-            </button>
-            <button id="voiceBtn" onclick="toggleVoiceRecording()" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-medium px-5 py-2.5 rounded-xl shadow-sm transition">
-                <i data-lucide="mic" class="w-5 h-5"></i>
-                <span id="voiceBtnText">Dettato Vocale</span>
-            </button>
-            <button onclick="openModal('catModal')" class="flex items-center gap-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium px-5 py-2.5 rounded-xl shadow-sm transition">
-                <i data-lucide="tag" class="w-5 h-5"></i>
-                Gestisci Categorie
-            </button>
-        </div>
-
-        <!-- MAIN GRID: TRANSACTIONS & CHARTS -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Transactions List (2 Cols) -->
-            <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
-                    <i data-lucide="list" class="w-5 h-5 text-blue-500"></i>
-                    Movimenti del Mese
-                </h2>
-                <div id="txList" class="space-y-3 custom-scrollbar max-h-[500px] overflow-y-auto pr-1">
-                    <!-- Dynamic Items -->
-                </div>
-            </div>
-
-            <!-- Charts Column (1 Col) -->
-            <div class="space-y-6">
-                <!-- Doughnut Chart -->
-                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-                    <h3 class="text-sm font-bold mb-4 flex items-center gap-2">
-                        <i data-lucide="pie-chart" class="w-4 h-4 text-blue-500"></i>
-                        Ripartizione Spese per Categoria
-                    </h3>
-                    <div class="relative h-48">
-                        <canvas id="categoryChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Annual Trend -->
-                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-                    <h3 class="text-sm font-bold mb-4 flex items-center gap-2">
-                        <i data-lucide="bar-chart-2" class="w-4 h-4 text-blue-500"></i>
-                        Andamento Annuale
-                    </h3>
-                    <div class="relative h-48">
-                        <canvas id="trendChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: AGGIUNGI MOVIMENTO -->
-    <div id="txModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-xl border border-slate-200 dark:border-slate-700">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold" id="txModalTitle">Nuovo Movimento</h3>
-                <button onclick="closeModal('txModal')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x"></i></button>
-            </div>
-            
-            <form id="txForm" onsubmit="saveTransaction(event)" class="space-y-4">
-                <input type="hidden" id="txId">
-                
-                <div class="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl">
-                    <button type="button" id="typeExpenseBtn" onclick="setTxType('expense')" class="py-2 text-sm font-medium rounded-lg bg-white dark:bg-slate-800 shadow-sm text-rose-600">Uscita</button>
-                    <button type="button" id="typeIncomeBtn" onclick="setTxType('income')" class="py-2 text-sm font-medium rounded-lg text-slate-500">Entrata</button>
-                </div>
-                <input type="hidden" id="txType" value="expense">
-
-                <div>
-                    <label class="text-xs font-semibold text-slate-500">Descrizione / Titolo</label>
-                    <input type="text" id="txName" required placeholder="Es. Bolletta Luce, Stipendio, Netflix" class="w-full mt-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-sm">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-xs font-semibold text-slate-500">Importo (€)</label>
-                        <input type="number" step="0.01" id="txAmount" required placeholder="0.00" class="w-full mt-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-sm">
-                    </div>
-                    <div>
-                        <label class="text-xs font-semibold text-slate-500">Data Inizio / Pagamento</label>
-                        <input type="date" id="txDate" required class="w-full mt-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-sm">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="text-xs font-semibold text-slate-500">Categoria</label>
-                    <select id="txCategory" class="w-full mt-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-sm"></select>
-                </div>
-
-                <div>
-                    <label class="text-xs font-semibold text-slate-500">Tipologia Ricorrenza</label>
-                    <select id="txRecurrence" onchange="toggleRecurrenceOptions()" class="w-full mt-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-sm">
-                        <option value="one_off">Una Tantum (Singola Spesa)</option>
-                        <option value="fixed_recurring">Ricorrente Fissa (Fisso Mensile/Annuale)</option>
-                        <option value="variable_bill">Ricorrente Variabile / Bolletta (Ripartita)</option>
-                    </select>
-                </div>
-
-                <div id="cadenceGroup" class="hidden">
-                    <label class="text-xs font-semibold text-slate-500">Cadenza / Frequenza</label>
-                    <select id="txCadence" class="w-full mt-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-sm">
-                        <option value="1">Ogni 1 Mese (Mensile)</option>
-                        <option value="2">Ogni 2 Mesi (Bimensile - Bolletta)</option>
-                        <option value="3">Ogni 3 Mesi (Trimestrale)</option>
-                        <option value="6">Ogni 6 Mesi (Semestrale)</option>
-                        <option value="12">Ogni 12 Mesi (Annuale)</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl shadow-sm transition mt-2">
-                    Salva Movimento
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: GESTIONE CATEGORIE -->
-    <div id="catModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-xl border border-slate-200 dark:border-slate-700">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold">Gestisci Categorie</h3>
-                <button onclick="closeModal('catModal')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x"></i></button>
-            </div>
-
-            <form onsubmit="addCategory(event)" class="flex gap-2 mb-4">
-                <input type="text" id="newCatName" required placeholder="Nome Categoria" class="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2 text-sm">
-                <input type="color" id="newCatColor" value="#3b82f6" class="w-10 h-10 border-0 rounded-xl cursor-pointer">
-                <button type="submit" class="bg-blue-600 text-white px-4 rounded-xl text-sm font-medium">Aggiungi</button>
-            </form>
-
-            <div id="catList" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
-                <!-- Dynamic Categories -->
-            </div>
-        </div>
-    </div>
-
-    <!-- APP SCRIPT LOGIC -->
-    <script>
-        // State
-        let db = null;
-        let isFirebaseActive = false;
-        let transactions = [];
-        let categories = [
-            { id: 'cat_1', name: 'Casa & Bollette', color: '#ef4444' },
-            { id: 'cat_2', name: 'Abbonamenti', color: '#3b82f6' },
-            { id: 'cat_3', name: 'Alimentari', color: '#10b981' },
-            { id: 'cat_4', name: 'Stipendio & Entrate', color: '#8b5cf6' },
-            { id: 'cat_5', name: 'Svago & Varie', color: '#f59e0b' }
-        ];
-
-        let selectedMonth = new Date().getMonth();
-        let selectedYear = new Date().getFullYear();
-        let categoryChart = null;
-        let trendChart = null;
-
-        // INIT
-        window.addEventListener('DOMContentLoaded', () => {
-            initYears();
-            initTheme();
-            initFirebase();
-            setupCharts();
-            renderCategories();
-            renderApp();
-            lucide.createIcons();
-        });
-
-        function initTheme() {
-            const themeBtn = document.getElementById('themeToggle');
-            themeBtn.addEventListener('click', () => {
-                document.documentElement.classList.toggle('dark');
-                localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-                updateChartsTheme();
-            });
-            if (localStorage.getItem('theme') === 'dark') {
-                document.documentElement.classList.add('dark');
-            }
-        }
-
-        function initYears() {
-            const ySelect = document.getElementById('yearSelect');
-            const curY = new Date().getFullYear();
-            for (let y = curY - 3; y <= curY + 3; y++) {
-                const opt = document.createElement('option');
-                opt.value = y;
-                opt.textContent = y;
-                if (y === curY) opt.selected = true;
-                ySelect.appendChild(opt);
-            }
-
-            document.getElementById('monthSelect').value = selectedMonth;
-            document.getElementById('txDate').valueAsDate = new Date();
-
-            document.getElementById('monthSelect').addEventListener('change', (e) => {
-                selectedMonth = parseInt(e.target.value);
-                renderApp();
-            });
-            document.getElementById('yearSelect').addEventListener('change', (e) => {
-                selectedYear = parseInt(e.target.value);
-                renderApp();
-            });
-        }
-
-        function initFirebase() {
-            if (typeof firebase !== 'undefined' && firebaseConfig && firebaseConfig.apiKey !== "YOUR_API_KEY") {
-                try {
-                    firebase.initializeApp(firebaseConfig);
-                    db = firebase.firestore();
-                    isFirebaseActive = true;
-                    
-                    // Listen to primary and legacy collections automatically
-                    const collectionsToListen = ['transactions', 'subscriptions', 'movimenti'];
-                    collectionsToListen.forEach(collName => {
-                        db.collection(collName).onSnapshot(snapshot => {
-                            let loadedFromFS = [];
-                            snapshot.forEach(doc => {
-                                const data = doc.data();
-                                loadedFromFS.push(normalizeTransactionData(doc.id, data));
-                            });
-                            if (loadedFromFS.length > 0) {
-                                // Merge keeping newest
-                                const merged = [...transactions];
-                                loadedFromFS.forEach(item => {
-                                    const idx = merged.findIndex(x => x.id === item.id);
-                                    if (idx >= 0) merged[idx] = item;
-                                    else merged.push(item);
-                                });
-                                transactions = merged;
-                                renderApp();
-                            }
-                        });
-                    });
-                } catch (e) {
-                    console.warn("Firebase fallito, fallback locale attivo:", e);
-                    loadLocalData();
-                }
-            } else {
-                loadLocalData();
-            }
-        }
-
-        function normalizeTransactionData(id, data) {
             return {
-                id: id,
-                name: data.name || data.title || data.description || 'Movimento',
-                amount: parseFloat(data.amount || data.cost || data.price || 0),
-                type: data.type || (data.cost ? 'expense' : 'expense'),
-                date: data.date || new Date().toISOString().split('T')[0],
-                category: data.category || 'cat_5',
-                recurrence: data.recurrence || (data.cadence > 0 ? 'fixed_recurring' : 'one_off'),
-                cadence: parseInt(data.cadence || 1)
+                expenseWeight: totalRecurringExpenseWeight,
+                incomeWeight: totalRecurringIncomeWeight,
+                netResidue: totalRecurringIncomeWeight - totalRecurringExpenseWeight
             };
         }
 
-        function loadLocalData() {
-            const localTx = localStorage.getItem('subtrack_tx');
-            if (localTx) transactions = JSON.parse(localTx);
-            const localCat = localStorage.getItem('subtrack_cat');
-            if (localCat) categories = JSON.parse(localCat);
-        }
-
-        function saveData() {
-            if (!isFirebaseActive) {
-                localStorage.setItem('subtrack_tx', JSON.stringify(transactions));
-                localStorage.setItem('subtrack_cat', JSON.stringify(categories));
-            }
-        }
-
-        // CALCULATION LOGIC FOR RECURRENCES AND SPLITTING
-        function getTxMonthlyBreakdownValue(tx, targetM, targetY) {
-            const txDate = new Date(tx.date);
-            const txM = txDate.getMonth();
-            const txY = txDate.getFullYear();
-
-            // Total months difference between start date and target date
-            const monthsDiff = (targetY - txY) * 12 + (targetM - txM);
-
-            if (tx.recurrence === 'one_off') {
-                return (monthsDiff === 0) ? tx.amount : 0;
-            }
-
-            if (tx.recurrence === 'fixed_recurring') {
-                if (monthsDiff >= 0 && monthsDiff % tx.cadence === 0) {
-                    return tx.amount;
-                }
-                return 0;
-            }
-
-            if (tx.recurrence === 'variable_bill') {
-                // Ripartizione Furba: split amount evenly over the cadence window
-                const cadence = tx.cadence || 1;
-                // Applies to target month if target falls inside current bill period window
-                if (monthsDiff >= -(cadence - 1) && monthsDiff <= 0) {
-                    return tx.amount / cadence;
-                }
-            }
-            return 0;
-        }
-
-        function calculateNextMonthEstimate() {
-            let totalIncome = 0;
-            let totalExpenseWeight = 0;
-
-            transactions.forEach(tx => {
-                if (tx.recurrence === 'one_off') return;
-
-                const cadence = tx.cadence || 1;
-                const monthlyWeight = tx.amount / cadence;
-
-                if (tx.type === 'income') {
-                    totalIncome += monthlyWeight;
-                } else {
-                    totalExpenseWeight += monthlyWeight;
-                }
-            });
-
-            return totalIncome - totalExpenseWeight;
-        }
-
-        // RENDER FUNCTIONS
-        function renderApp()
-    </script>
-
-    <div class="max-w-6xl mx-auto px-4 py-6">
-        <!-- HEADER -->
-        <header class="flex justify-between items-center mb-8 border-b border-slate-200 dark:border-slate-800 pb-4">
-            <div class="flex items-center gap-3">
-                <div class="bg-blue-600 text-white p-2.5 rounded-xl shadow-md">
-                    <i data-lucide="wallet" class="w-6 h-6"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-bold tracking-tight">SubTrack</h1>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Gestione Bilancio & Ricorrenze</p>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-2">
-                <!-- Theme Toggle -->
-                <button id="themeToggle" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
-                    <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
-                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
-                </button>
-            </div>
-        </header>
-
-        <!-- DASHBOARD METRICS -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-            <!-- Balance Card -->
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Saldo Periodo Selezionato</span>
-                    <span id="periodBadge" class="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300">Ottobre 2026</span>
-                </div>
-                <div id="netBalanceVal" class="text-3xl font-extrabold text-slate-900 dark:text-white">€ 0,00</div>
-                <div class="flex gap-4 mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/50 text-sm">
-                    <div>Entrate: <span id="periodIncomeVal" class="font-semibold text-emerald-600 dark:text-emerald-400">€ 0,00</span></div>
-                    <div>Uscite: <span id="periodExpenseVal" class="font-semibold text-rose-600 dark:text-rose-400">€ 0,00</span></div>
-                </div>
-            </div>
-
-            <!-- Next Month Recurring Estimate -->
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Stima Peso Mese Prossimo</span>
-                    <i data-lucide="calculator" class="w-4 h-4 text-slate-400"></i>
-                </div>
-                <div id="nextMonthNetVal" class="text-3xl font-extrabold text-slate-900 dark:text-white">€ 0,00</div>
-                <div class="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                    Entrate ricorrenti meno il costo mensilizzato di tutti gli abbonamenti e bollette attive.
-                </div>
-            </div>
-
-            <!-- Select Period Selector -->
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
-                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Filtro Periodo</span>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-xs text-slate-500 block mb-1">Mese</label>
-                        <select id="monthSelect" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-sm font-medium">
-                            <option value="0">Gennaio</option><option value="1">Febbraio</option>
-                            <option value="2">Marzo</option><option value="3">Aprile</option>
-                            <option value="4">Maggio</option><option value="5">Giugno</option>
-                            <option value="6">Luglio</option><option value="7">Agosto</option>
-                            <option value="8">Settembre</option><option value="9">Ottobre</option>
-                            <option value="10">Novembre</option><option value="11">Dicembre</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-xs text-slate-500 block mb-1">Anno</label>
-                        <select id="yearSelect" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-sm font-medium"></select>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- MAIN ACTION BUTTONS -->
-        <div class="flex flex-wrap gap-3 mb-8">
-            <button onclick="openModal('txModal')" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-xl shadow-sm transition">
-                <i data-lucide="plus-circle" class="w-5 h-5"></i>
-                Nuovo Movimento
-            </button>
-            <button id="voiceBtn" onclick="toggleVoiceRecording()" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-medium px-5 py-2.5 rounded-xl shadow-sm transition">
-                <i data-lucide="mic" class="w-5 h-5"></i>
-                <span id="voiceBtnText">Dettato Vocale</span>
-            </button>
-            <button onclick="openModal('catModal')" class="flex items-center gap-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium px-5 py-2.5 rounded-xl shadow-sm transition">
-                <i data-lucide="tag" class="w-5 h-5"></i>
-                Gestisci Categorie
-            </button>
-        </div>
-
-        <!-- MAIN GRID: TRANSACTIONS & CHARTS -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Transactions List (2 Cols) -->
-            <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
-                    <i data-lucide="list" class="w-5 h-5 text-blue-500"></i>
-                    Movimenti del Mese
-                </h2>
-                <div id="txList" class="space-y-3 custom-scrollbar max-h-[500px] overflow-y-auto pr-1">
-                    <!-- Dynamic Items -->
-                </div>
-            </div>
-
-            <!-- Charts Column (1 Col) -->
-            <div class="space-y-6">
-                <!-- Doughnut Chart -->
-                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-                    <h3 class="text-sm font-bold mb-4 flex items-center gap-2">
-                        <i data-lucide="pie-chart" class="w-4 h-4 text-blue-500"></i>
-                        Ripartizione Spese per Categoria
-                    </h3>
-                    <div class="relative h-48">
-                        <canvas id="categoryChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Annual Trend -->
-                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-                    <h3 class="text-sm font-bold mb-4 flex items-center gap-2">
-                        <i data-lucide="bar-chart-2" class="w-4 h-4 text-blue-500"></i>
-                        Andamento Annuale
-                    </h3>
-                    <div class="relative h-48">
-                        <canvas id="trendChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: AGGIUNGI MOVIMENTO -->
-    <div id="txModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-xl border border-slate-200 dark:border-slate-700">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold" id="txModalTitle">Nuovo Movimento</h3>
-                <button onclick="closeModal('txModal')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x"></i></button>
-            </div>
+        // ==========================================
+        // 5. RENDER APP
+        // ==========================================
+        function renderApp() {
+            const selectedYM = document.getElementById('monthFilter').value || new Date().toISOString().slice(0, 7);
             
-            <form id="txForm" onsubmit="saveTransaction(event)" class="space-y-4">
-                <input type="hidden" id="txId">
-                
-                <div class="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl">
-                    <button type="button" id="typeExpenseBtn" onclick="setTxType('expense')" class="py-2 text-sm font-medium rounded-lg bg-white dark:bg-slate-800 shadow-sm text-rose-600">Uscita</button>
-                    <button type="button" id="typeIncomeBtn" onclick="setTxType('income')" class="py-2 text-sm font-medium rounded-lg text-slate-500">Entrata</button>
-                </div>
-                <input type="hidden" id="txType" value="expense">
-
-                <div>
-                    <label class="text-xs font-semibold text-slate-500">Descrizione / Titolo</label>
-                    <input type="text" id="txName" required placeholder="Es. Bolletta Luce, Stipendio, Netflix" class="w-full mt-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-sm">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-xs font-semibold text-slate-500">Importo (€)</label>
-                        <input type="number" step="0.01" id="txAmount" required placeholder="0.00" class="w-full mt-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-sm">
-                    </div>
-                    <div>
-                        <label class="text-xs font-semibold text-slate-500">Data Inizio / Pagamento</label>
-                        <input type="date" id="txDate" required class="w-full mt-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-sm">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="text-xs font-semibold text-slate-500">Categoria</label>
-                    <select id="txCategory" class="w-full mt-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-sm"></select>
-                </div>
-
-                <div>
-                    <label class="text-xs font-semibold text-slate-500">Tipologia Ricorrenza</label>
-                    <select id="txRecurrence" onchange="toggleRecurrenceOptions()" class="w-full mt-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-sm">
-                        <option value="one_off">Una Tantum (Singola Spesa)</option>
-                        <option value="fixed_recurring">Ricorrente Fissa (Fisso Mensile/Annuale)</option>
-                        <option value="variable_bill">Ricorrente Variabile / Bolletta (Ripartita)</option>
-                    </select>
-                </div>
-
-                <div id="cadenceGroup" class="hidden">
-                    <label class="text-xs font-semibold text-slate-500">Cadenza / Frequenza</label>
-                    <select id="txCadence" class="w-full mt-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-sm">
-                        <option value="1">Ogni 1 Mese (Mensile)</option>
-                        <option value="2">Ogni 2 Mesi (Bimensile - Bolletta)</option>
-                        <option value="3">Ogni 3 Mesi (Trimestrale)</option>
-                        <option value="6">Ogni 6 Mesi (Semestrale)</option>
-                        <option value="12">Ogni 12 Mesi (Annuale)</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl shadow-sm transition mt-2">
-                    Salva Movimento
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: GESTIONE CATEGORIE -->
-    <div id="catModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-xl border border-slate-200 dark:border-slate-700">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold">Gestisci Categorie</h3>
-                <button onclick="closeModal('catModal')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x"></i></button>
-            </div>
-
-            <form onsubmit="addCategory(event)" class="flex gap-2 mb-4">
-                <input type="text" id="newCatName" required placeholder="Nome Categoria" class="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2 text-sm">
-                <input type="color" id="newCatColor" value="#3b82f6" class="w-10 h-10 border-0 rounded-xl cursor-pointer">
-                <button type="submit" class="bg-blue-600 text-white px-4 rounded-xl text-sm font-medium">Aggiungi</button>
-            </form>
-
-            <div id="catList" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
-                <!-- Dynamic Categories -->
-            </div>
-        </div>
-    </div>
-
-    <!-- APP SCRIPT LOGIC -->
-    <script>
-        // State
-        let db = null;
-        let isFirebaseActive = false;
-        let transactions = [];
-        let categories = [
-            { id: 'cat_1', name: 'Casa & Bollette', color: '#ef4444' },
-            { id: 'cat_2', name: 'Abbonamenti', color: '#3b82f6' },
-            { id: 'cat_3', name: 'Alimentari', color: '#10b981' },
-            { id: 'cat_4', name: 'Stipendio & Entrate', color: '#8b5cf6' },
-            { id: 'cat_5', name: 'Svago & Varie', color: '#f59e0b' }
-        ];
-
-        let selectedMonth = new Date().getMonth();
-        let selectedYear = new Date().getFullYear();
-        let categoryChart = null;
-        let trendChart = null;
-
-        // INIT
-        window.addEventListener('DOMContentLoaded', () => {
-            initYears();
-            initTheme();
-            initFirebase();
-            setupCharts();
-            renderCategories();
-            renderApp();
-            lucide.createIcons();
-        });
-
-        function initTheme() {
-            const themeBtn = document.getElementById('themeToggle');
-            themeBtn.addEventListener('click', () => {
-                document.documentElement.classList.toggle('dark');
-                localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-                updateChartsTheme();
-            });
-            if (localStorage.getItem('theme') === 'dark') {
-                document.documentElement.classList.add('dark');
-            }
-        }
-
-        function initYears() {
-            const ySelect = document.getElementById('yearSelect');
-            const curY = new Date().getFullYear();
-            for (let y = curY - 3; y <= curY + 3; y++) {
-                const opt = document.createElement('option');
-                opt.value = y;
-                opt.textContent = y;
-                if (y === curY) opt.selected = true;
-                ySelect.appendChild(opt);
-            }
-
-            document.getElementById('monthSelect').value = selectedMonth;
-            document.getElementById('txDate').valueAsDate = new Date();
-
-            document.getElementById('monthSelect').addEventListener('change', (e) => {
-                selectedMonth = parseInt(e.target.value);
-                renderApp();
-            });
-            document.getElementById('yearSelect').addEventListener('change', (e) => {
-                selectedYear = parseInt(e.target.value);
-                renderApp();
-            });
-        }
-
-        function initFirebase() {
-            if (typeof firebase !== 'undefined' && firebaseConfig && firebaseConfig.apiKey !== "YOUR_API_KEY") {
-                try {
-                    firebase.initializeApp(firebaseConfig);
-                    db = firebase.firestore();
-                    isFirebaseActive = true;
-                    
-                    // Listen to primary and legacy collections automatically
-                    const collectionsToListen = ['transactions', 'subscriptions', 'movimenti'];
-                    collectionsToListen.forEach(collName => {
-                        db.collection(collName).onSnapshot(snapshot => {
-                            let loadedFromFS = [];
-                            snapshot.forEach(doc => {
-                                const data = doc.data();
-                                loadedFromFS.push(normalizeTransactionData(doc.id, data));
-                            });
-                            if (loadedFromFS.length > 0) {
-                                // Merge keeping newest
-                                const merged = [...transactions];
-                                loadedFromFS.forEach(item => {
-                                    const idx = merged.findIndex(x => x.id === item.id);
-                                    if (idx >= 0) merged[idx] = item;
-                                    else merged.push(item);
-                                });
-                                transactions = merged;
-                                renderApp();
-                            }
-                        });
-                    });
-                } catch (e) {
-                    console.warn("Firebase fallito, fallback locale attivo:", e);
-                    loadLocalData();
-                }
-            } else {
-                loadLocalData();
-            }
-        }
-
-        function normalizeTransactionData(id, data) {
-            return {
-                id: id,
-                name: data.name || data.title || data.description || 'Movimento',
-                amount: parseFloat(data.amount || data.cost || data.price || 0),
-                type: data.type || (data.cost ? 'expense' : 'expense'),
-                date: data.date || new Date().toISOString().split('T')[0],
-                category: data.category || 'cat_5',
-                recurrence: data.recurrence || (data.cadence > 0 ? 'fixed_recurring' : 'one_off'),
-                cadence: parseInt(data.cadence || 1)
-            };
-        }
-
-        function loadLocalData() {
-            const localTx = localStorage.getItem('subtrack_tx');
-            if (localTx) transactions = JSON.parse(localTx);
-            const localCat = localStorage.getItem('subtrack_cat');
-            if (localCat) categories = JSON.parse(localCat);
-        }
-
-        function saveData() {
-            if (!isFirebaseActive) {
-                localStorage.setItem('subtrack_tx', JSON.stringify(transactions));
-                localStorage.setItem('subtrack_cat', JSON.stringify(categories));
-            }
-        }
-
-        // CALCULATION LOGIC FOR RECURRENCES AND SPLITTING
-        function getTxMonthlyBreakdownValue(tx, targetM, targetY) {
-            const txDate = new Date(tx.date);
-            const txM = txDate.getMonth();
-            const txY = txDate.getFullYear();
-
-            // Total months difference between start date and target date
-            const monthsDiff = (targetY - txY) * 12 + (targetM - txM);
-
-            if (tx.recurrence === 'one_off') {
-                return (monthsDiff === 0) ? tx.amount : 0;
-            }
-
-            if (tx.recurrence === 'fixed_recurring') {
-                if (monthsDiff >= 0 && monthsDiff % tx.cadence === 0) {
-                    return tx.amount;
-                }
-                return 0;
-            }
-
-            if (tx.recurrence === 'variable_bill') {
-                // Ripartizione Furba: split amount evenly over the cadence window
-                const cadence = tx.cadence || 1;
-                // Applies to target month if target falls inside current bill period window
-                if (monthsDiff >= -(cadence - 1) && monthsDiff <= 0) {cvo
-                    return tx.amount / cadence;
-                }
-            }
-            return 0;
-        }
-
-        function calculateNextMonthEstimate() {
-            let totalIncome = 0;
-            let totalExpenseWeight = 0;
+            let monthlyIncome = 0;
+            let monthlyExpense = 0;
+            const filteredTx = [];
 
             transactions.forEach(tx => {
-                if (tx.recurrence === 'one_off') return;
-
-                const cadence = tx.cadence || 1;
-                const monthlyWeight = tx.amount / cadence;
-
-                if (tx.type === 'income') {
-                    totalIncome += monthlyWeight;
-                } else {
-                    totalExpenseWeight += monthlyWeight;
+                const val = getTxMonthlyBreakdownValue(tx, selectedYM);
+                if (val > 0) {
+                    filteredTx.push({ ...tx, currentMonthVal: val });
+                    if (tx.type === 'income') monthlyIncome += val;
+                    if (tx.type === 'expense') monthlyExpense += val;
                 }
             });
 
-            return totalIncome - totalExpenseWeight;
+            const monthlyBalance = monthlyIncome - monthlyExpense;
+
+            document.getElementById('statMonthlyBalance').innerText = formatCurrency(monthlyBalance);
+            document.getElementById('statMonthlyIncome').innerText = '+' + formatCurrency(monthlyIncome);
+            document.getElementById('statMonthlyExpense').innerText = '-' + formatCurrency(monthlyExpense);
+
+            const estimate = calculateNextMonthEstimate();
+            document.getElementById('statNextMonthEstimate').innerText = formatCurrency(estimate.expenseWeight) + ' / mese';
+            document.getElementById('statNextMonthSubtext').innerText = `Entrate fisse residue: ${formatCurrency(estimate.netResidue)}`;
+
+            renderTransactionsTable(filteredTx);
+            renderCategoriesGrid();
+            renderCategoryChart(filteredTx);
+            renderAnnualChart(selectedYM.slice(0, 4));
+
+            lucide.createIcons();
         }
 
-        // RENDER FUNCTIONS
-        function renderApp()
+        function renderTransactionsTable(txList) {
+            const tbody = document.getElementById('txTableBody');
+            const emptyState = document.getElementById('txEmptyState');
+            tbody.innerHTML = '';
+
+            if (txList.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            txList.forEach(tx => {
+                const cat = categories.find(c => c.id === tx.categoryId) || { name: 'Generale', color: '#9ca3af' };
+                const isExpense = tx.type === 'expense';
+
+                let recurrenceBadge = '';
+                if (tx.recurrence === 'once') recurrenceBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-500">Una tantum</span>`;
+                else if (tx.recurrence === 'fixed') recurrenceBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-indigo-100 dark:bg-indigo-950 text-indigo-500">Fissa (${tx.cadence}m)</span>`;
+                else if (tx.recurrence === 'variable') recurrenceBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 dark:bg-amber-950 text-amber-500">Ripartita (${tx.cadence}m)</span>`;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50/50 dark:hover:bg-gray-800/40 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-3 text-xs text-gray-500 dark:text-gray-400 font-mono">${tx.date}</td>
+                    <td class="py-3 font-semibold text-gray-900 dark:text-white">${escapeHtml(tx.title)}</td>
+                    <td class="py-3">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium" style="background-color: ${cat.color}15; color: ${cat.color}">
+                            <span class="w-1.5 h-1.5 rounded-full" style="background-color: ${cat.color}"></span>
+                            ${escapeHtml(cat.name)}
+                        </span>
+                    </td>
+                    <td class="py-3">${recurrenceBadge}</td>
+                    <td class="py-3 text-right font-mono text-xs text-gray-400">${formatCurrency(tx.amount)}</td>
+                    <td class="py-3 text-right font-mono font-bold ${isExpense ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}">
+                        ${isExpense ? '-' : '+'}${formatCurrency(tx.currentMonthVal)}
+                    </td>
+                    <td class="py-3 text-center">
+                        <div class="flex items-center justify-center gap-1">
+                            <button onclick="editTransaction('${tx.id}')" class="p-1 text-gray-400 hover:text-brand-600"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                            <button onclick="deleteTransaction('${tx.id}')" class="p-1 text-gray-400 hover:text-rose-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderCategoriesGrid() {
+            const grid = document.getElementById('categoriesGrid');
+            grid.innerHTML = '';
+
+            categories.forEach(cat => {
+                const card = document.createElement('div');
+                card.className = "p-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50 flex justify-between items-center";
+                card.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-4 h-4 rounded-full" style="background-color: ${cat.color}"></span>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white">${escapeHtml(cat.name)}</p>
+                            <span class="text-[10px] text-gray-400 uppercase font-bold">${cat.type === 'expense' ? 'Uscita' : 'Entrata'}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button onclick="editCategory('${cat.id}')" class="p-1 text-gray-400 hover:text-brand-600"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>
+                        <button onclick="deleteCategory('${cat.id}')" class="p-1 text-gray-400 hover:text-rose-600"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // ==========================================
+        // 6. CHARTS LOGIC
+        // ==========================================
+        function renderCategoryChart(txList) {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            
+            const categorySums = {};
+            txList.filter(t => t.type === 'expense').forEach(t => {
+                categorySums[t.categoryId] = (categorySums[t.categoryId] || 0) + t.currentMonthVal;
+            });
+
+            const labels = [];
+            const data = [];
+            const colors = [];
+
+            Object.keys(categorySums).forEach(catId => {
+                const cat = categories.find(c => c.id === catId) || { name: 'Altro', color: '#9ca3af' };
+                labels.push(cat.name);
+                data.push(categorySums[catId]);
+                colors.push(cat.color);
+            });
+
+            if (categoryChartInstance) categoryChartInstance.destroy();
+
+            if (data.length === 0) {
+                categoryChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: { labels: ['Nessuna Uscita'], datasets: [{ data: [1], backgroundColor: ['#e5e7eb'] }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                });
+                return;
+            }
+
+            const isDark = document.documentElement.classList.contains('dark');
+
+            categoryChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{ data: data, backgroundColor: colors, borderWidth: 0 }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: isDark ? '#cbd5e1' : '#475569', font: { size: 11 } } }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        function renderAnnualChart(year) {
+            const ctx = document.getElementById('annualChart').getContext('2d');
+            const months = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+            const labels = ['Gen','Feb','Mar','Apr','Mag','Giug','Lug','Ago','Set','Ott','Nov','Dic'];
+
+            const incomeData = [];
+            const expenseData = [];
+
+            months.forEach(m => {
+                const targetYM = `${year}-${m}`;
+                let inc = 0;
+                let exp = 0;
+
+                transactions.forEach(tx => {
+                    const val = getTxMonthlyBreakdownValue(tx, targetYM);
+                    if (tx.type === 'income') inc += val;
+                    if (tx.type === 'expense') exp += val;
+                });
+
+                incomeData.push(inc);
+                expenseData.push(exp);
+            });
+
+            if (annualChartInstance) annualChartInstance.destroy();
+
+            const isDark = document.documentElement.classList.contains('dark');
+
+            annualChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Entrate', data: incomeData, backgroundColor: '#10b981', borderRadius: 4 },
+                        { label: 'Uscite', data: expenseData, backgroundColor: '#f43f5e', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { ticks: { color: isDark ? '#94a3b8' : '#64748b' }, grid: { display: false } },
+                        y: { ticks: { color: isDark ? '#94a3b8' : '#64748b' }, grid: { color: isDark ? '#334155' : '#f1f5f9' } }
+                    },
+                    plugins: {
+                        legend: { labels: { color: isDark ? '#cbd5e1' : '#475569', font: { size: 11 } } }
+                    }
+                }
+            });
+        }
+
+        // ==========================================
+        // 7. ACTIONS & MODALS
+        // ==========================================
+        let currentTxType = 'expense';
+
+        function openTransactionModal(editId = null) {
+            populateCategorySelect();
+            document.getElementById('txForm').reset();
+            document.getElementById('txId').value = '';
+            document.getElementById('txDate').value = new Date().toISOString().slice(0, 10);
+            setTxType('expense');
+
+            if (editId) {
+                const tx = transactions.find(t => t.id === editId);
+                if (tx) {
+                    document.getElementById('txId').value = tx.id;
+                    document.getElementById('txTitle').value = tx.title;
+                    document.getElementById('txAmount').value = tx.amount;
+                    document.getElementById('txDate').value = tx.date;
+                    document.getElementById('txCategory').value = tx.categoryId;
+                    document.getElementById('txRecurrence').value = tx.recurrence || 'once';
+                    document.getElementById('txCadence').value = tx.cadence || '1';
+                    setTxType(tx.type);
+                }
+            }
+
+            toggleCadenceVisibility();
+            document.getElementById('txModal').classList.remove('hidden');
+        }
+
+        function closeTransactionModal() {
+            document.getElementById('txModal').classList.add('hidden');
+        }
+
+        function setTxType(type) {
+            currentTxType = type;
+            const btnExpense = document.getElementById('btnTypeExpense');
+            const btnIncome = document.getElementById('btnTypeIncome');
+
+            if (type === 'expense') {
+                btnExpense.className = "py-2 text-xs font-bold rounded-lg transition-all bg-white dark:bg-gray-700 text-rose-600 dark:text-rose-400 shadow-sm";
+                btnIncome.className = "py-2 text-xs font-bold rounded-lg transition-all text-gray-500 dark:text-gray-400";
+            } else {
+                btnIncome.className = "py-2 text-xs font-bold rounded-lg transition-all bg-white dark:bg-gray-700 text-emerald-600 dark:text-emerald-400 shadow-sm";
+                btnExpense.className = "py-2 text-xs font-bold rounded-lg transition-all text-gray-500 dark:text-gray-400";
+            }
+            populateCategorySelect();
+        }
+
+        function toggleCadenceVisibility() {
+            const rec = document.getElementById('txRecurrence').value;
+            const group = document.getElementById('cadenceGroup');
+            if (rec === 'once') group.classList.add('hidden');
+            else group.classList.remove('hidden');
+        }
+
+        function populateCategorySelect() {
+            const sel = document.getElementById('txCategory');
+            sel.innerHTML = '';
+            const filtered = categories.filter(c => c.type === currentTxType);
+            
+            filtered.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.innerText = c.name;
+                sel.appendChild(opt);
+            });
+        }
+
+        async function saveTransaction(e) {
+            e.preventDefault();
+            const id = document.getElementById('txId').value || 'tx_' + Date.now();
+            const title = document.getElementById('txTitle').value;
+            const amount = parseFloat(document.getElementById('txAmount').value);
+            const date = document.getElementById('txDate').value;
+            const categoryId = document.getElementById('txCategory').value;
+            const recurrence = document.getElementById('txRecurrence').value;
+            const cadence = parseInt(document.getElementById('txCadence').value || '1');
+
+            const txObj = { id, title, amount, date, categoryId, type: currentTxType, recurrence, cadence };
+
+            if (isFirebaseActive && db) {
+                await db.collection('transactions').doc(id).set(txObj);
+            } else {
+                const idx = transactions.findIndex(t => t.id === id);
+                if (idx >= 0) transactions[idx] = txObj;
+                else transactions.push(txObj);
+                saveData();
+            }
+
+            closeTransactionModal();
+            renderApp();
+        }
+
+        function editTransaction(id) {
+            openTransactionModal(id);
+        }
+
+        async function deleteTransaction(id) {
+            if (!confirm("Sei sicuro di voler eliminare questo movimento?")) return;
+
+            if (isFirebaseActive && db) {
+                await db.collection('transactions').doc(id).delete();
+            } else {
+                transactions = transactions.filter(t => t.id !== id);
+                saveData();
+            }
+            renderApp();
+        }
+
+        function openCategoryModal(editId = null) {
+            document.getElementById('catForm').reset();
+            document.getElementById('catId').value = '';
+
+            if (editId) {
+                const c = categories.find(cat => cat.id === editId);
+                if (c) {
+                    document.getElementById('catId').value = c.id;
+                    document.getElementById('catName').value = c.name;
+                    document.getElementById('catColor').value = c.color;
+                    document.getElementById('catType').value = c.type;
+                }
+            }
+            document.getElementById('categoryModal').classList.remove('hidden');
+        }
+
+        function closeCategoryModal() {
+            document.getElementById('categoryModal').classList.add('hidden');
+        }
+
+        async function saveCategory(e) {
+            e.preventDefault();
+            const id = document.getElementById('catId').value || 'cat_' + Date.now();
+            const name = document.getElementById('catName').value;
+            const color = document.getElementById('catColor').value;
+            const type = document.getElementById('catType').value;
+
+            const catObj = { id, name, color, type };
+
+            if (isFirebaseActive && db) {
+                await db.collection('categories').doc(id).set(catObj);
+            } else {
+                const idx = categories.findIndex(c => c.id === id);
+                if (idx >= 0) categories[idx] = catObj;
+                else categories.push(catObj);
+                saveData();
+            }
+
+            closeCategoryModal();
+            renderApp();
+        }
+
+        function editCategory(id) {
+            openCategoryModal(id);
+        }
+
+        async function deleteCategory(id) {
+            if (!confirm("Eliminare questa categoria?")) return;
+
+            if (isFirebaseActive && db) {
+                await db.collection('categories').doc(id).delete();
+            } else {
+                categories = categories.filter(c => c.id !== id);
+                saveData();
+            }
+            renderApp();
+        }
+
+        // ==========================================
+        // 8. VOICE RECOGNITION
+        // ==========================================
+        let recognition = null;
+
+        function openVoiceModal() {
+            document.getElementById('voiceModal').classList.remove('hidden');
+            const transcriptDiv = document.getElementById('voiceTranscript');
+            transcriptDiv.innerText = "In ascolto... Parla ora.";
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                transcriptDiv.innerText = "Il riconoscimento vocale non è supportato da questo browser.";
+                return;
+            }
+
+            recognition = new SpeechRecognition();
+            recognition.lang = 'it-IT';
+            recognition.continuous = false;
+
+            recognition.onresult = (event) => {
+                const text = event.results[0][0].transcript;
+                transcriptDiv.innerText = `"${text}"`;
+                parseVoiceText(text);
+            };
+
+            recognition.onerror = () => {
+                transcriptDiv.innerText = "Errore durante l'ascolto. Riprova.";
+            };
+
+            recognition.start();
+        }
+
+        function closeVoiceModal() {
+            if (recognition) recognition.stop();
+            document.getElementById('voiceModal').classList.add('hidden');
+        }
+
+        function parseVoiceText(text) {
+            const lower = text.toLowerCase();
+            openTransactionModal();
+
+            const numbers = lower.match(/\d+([.,]\d+)?/);
+            if (numbers) {
+                document.getElementById('txAmount').value = numbers[0].replace(',', '.');
+            }
+
+            if (lower.includes('stipendio') || lower.includes('entrata') || lower.includes('guadagno')) {
+                setTxType('income');
+            } else {
+                setTxType('expense');
+            }
+
+            if (lower.includes('bimensile') || lower.includes('ogni 2 mesi')) {
+                document.getElementById('txRecurrence').value = 'variable';
+                document.getElementById('txCadence').value = '2';
+            } else if (lower.includes('mensile') || lower.includes('ogni mese')) {
+                document.getElementById('txRecurrence').value = 'fixed';
+                document.getElementById('txCadence').value = '1';
+            } else if (lower.includes('annuale') || lower.includes('all\'anno')) {
+                document.getElementById('txRecurrence').value = 'fixed';
+                document.getElementById('txCadence').value = '12';
+            }
+
+            document.getElementById('txTitle').value = text;
+            toggleCadenceVisibility();
+            closeVoiceModal();
+        }
+
+        // ==========================================
+        // 9. THEME & UTILS
+        // ==========================================
+        function initTheme() {
+            const isDark = localStorage.getItem('subtrack_theme') === 'dark' || 
+                (!('subtrack_theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('themeIconMoon').classList.add('hidden');
+                document.getElementById('themeIconSun').classList.remove('hidden');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('themeIconSun').classList.add('hidden');
+                document.getElementById('themeIconMoon').classList.remove('hidden');
+            }
+        }
+
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('subtrack_theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('subtrack_theme', 'dark');
+            }
+            initTheme();
+            renderApp();
+        }
+
+        function switchTab(tab) {
+            const btnTx = document.getElementById('tabBtnTx');
+            const btnCat = document.getElementById('tabBtnCat');
+            const tabTx = document.getElementById('tabTransactions');
+            const tabCat = document.getElementById('tabCategories');
+
+            if (tab === 'transactions') {
+                btnTx.className = "flex-1 py-3.5 px-4 font-semibold text-sm border-b-2 border-brand-600 text-brand-600 dark:text-brand-400 flex items-center justify-center gap-2 transition-colors";
+                btnCat.className = "flex-1 py-3.5 px-4 font-semibold text-sm border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center justify-center gap-2 transition-colors";
+                tabTx.classList.remove('hidden');
+                tabCat.classList.add('hidden');
+            } else {
+                btnCat.className = "flex-1 py-3.5 px-4 font-semibold text-sm border-b-2 border-brand-600 text-brand-600 dark:text-brand-400 flex items-center justify-center gap-2 transition-colors";
+                btnTx.className = "flex-1 py-3.5 px-4 font-semibold text-sm border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center justify-center gap-2 transition-colors";
+                tabCat.classList.remove('hidden');
+                tabTx.classList.add('hidden');
+            }
+        }
+
+        function openConfigModal() {
+            document.getElementById('cfgApiKey').value = firebaseConfig.apiKey || '';
+            document.getElementById('cfgProjectId').value = firebaseConfig.projectId || '';
+            document.getElementById('configModal').classList.remove('hidden');
+        }
+
+        function closeConfigModal() {
+            document.getElementById('configModal').classList.add('hidden');
+        }
+
+        function saveFirebaseConfig(e) {
+            e.preventDefault();
+            const apiKey = document.getElementById('cfgApiKey').value;
+            const projectId = document.getElementById('cfgProjectId').value;
+
+            const cfg = { ...firebaseConfig, apiKey, projectId };
+            localStorage.setItem('subtrack_fb_config', JSON.stringify(cfg));
+            location.reload();
+        }
+
+        function formatCurrency(val) {
+            return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(val || 0);
+        }
+
+        function escapeHtml(str) {
+            return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+    </script>
+</body>
+</html>
