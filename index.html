@@ -219,8 +219,8 @@
             <div id="tabCategories" class="p-4 hidden">
                 <div class="flex justify-between items-center mb-4">
                     <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Personalizza Categorie</h4>
-                    <button onclick="openCategoryModal()" class="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
-                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                    <button onclick="openCategoryModal()" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow-md transition-all flex items-center gap-1.5">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
                         <span>Aggiungi Categoria</span>
                     </button>
                 </div>
@@ -311,7 +311,7 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Colore Distinctivo</label>
+                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Colore Distintivo</label>
                         <input type="color" id="catColor" value="#6366f1" class="w-full h-10 bg-transparent cursor-pointer rounded-xl">
                     </div>
                     <div>
@@ -379,7 +379,7 @@
     <!-- MAIN JAVASCRIPT LOGIC -->
     <script>
         // ==========================================
-        // 1. FIREBASE CONFIGURATION (INCOLLA QUI)
+        // 1. FIREBASE CONFIGURATION
         // ==========================================
 const firebaseConfig = {
 
@@ -400,7 +400,6 @@ const firebaseConfig = {
 };
 
 
-        // Gestione eventuale override da LocalStorage
         const savedCfg = localStorage.getItem('subtrack_fb_config');
         let activeConfig = firebaseConfig;
         if (savedCfg) {
@@ -455,26 +454,35 @@ const firebaseConfig = {
         let annualChartInstance = null;
 
         // ==========================================
-        // 3. INIT & SAFE DATA FETCH
+        // 3. INIT & DATA FETCH
         // ==========================================
         window.addEventListener('DOMContentLoaded', () => {
             const now = new Date();
             const yearMonth = now.toISOString().slice(0, 7);
             document.getElementById('monthFilter').value = yearMonth;
 
-            lucide.createIcons();
             initTheme();
             initFirebase();
-            
-            // Disegna subito l'interfaccia (non resta mai bianca)
             renderApp();
-
-            // Sincronizza i dati da Firebase in background senza bloccare la UI
             loadCloudDataInBackground();
         });
 
         async function loadCloudDataInBackground() {
             if (!isFirebaseActive || !db) return;
+
+            // Load Categories first so transactions map properly
+            try {
+                const catSnapshot = await db.collection('categories').get();
+                if (!catSnapshot.empty) {
+                    let loadedCat = [];
+                    catSnapshot.forEach(doc => {
+                        loadedCat.push({ id: doc.id, ...doc.data() });
+                    });
+                    categories = loadedCat;
+                }
+            } catch(e) {
+                console.log("Categorie custom non trovate su cloud, uso default.");
+            }
 
             const collectionsToScan = ['transactions', 'subscriptions', 'movimenti'];
             let loadedTx = [];
@@ -489,63 +497,59 @@ const firebaseConfig = {
                             title: d.title || d.name || 'Senza Titolo',
                             amount: parseFloat(d.amount || d.cost || d.price || 0),
                             date: d.date || d.startDate || new Date().toISOString().slice(0, 10),
-                            categoryId: d.categoryId || 'cat_3',
+                            categoryId: d.categoryId || categories[0]?.id || 'cat_3',
                             type: d.type || 'expense',
                             recurrence: d.recurrence || (d.cadence ? 'fixed' : 'once'),
                             cadence: parseInt(d.cadence || 1)
                         });
                     });
-                } catch(e) {
-                    console.log(`Collezione ${colName} non accessibile o vuota:`, e.message);
-                }
+                } catch(e) {}
             }
 
             if (loadedTx.length > 0) {
                 transactions = loadedTx;
             }
 
-            try {
-                const catSnapshot = await db.collection('categories').get();
-                if (!catSnapshot.empty) {
-                    let loadedCat = [];
-                    catSnapshot.forEach(doc => {
-                        loadedCat.push({ id: doc.id, ...doc.data() });
-                    });
-                    categories = loadedCat;
-                }
-            } catch(e) {
-                console.log("Categorie custom non trovate su cloud.");
-            }
-
             renderApp();
 
-            // Attiva ascoltatori real-time in background
-            collectionsToScan.forEach(colName => {
-                db.collection(colName).onSnapshot(snapshot => {
-                    snapshot.docChanges().forEach(change => {
-                        const d = change.doc.data();
-                        const item = {
-                            id: change.doc.id,
-                            title: d.title || d.name || 'Senza Titolo',
-                            amount: parseFloat(d.amount || d.cost || d.price || 0),
-                            date: d.date || d.startDate || new Date().toISOString().slice(0, 10),
-                            categoryId: d.categoryId || 'cat_3',
-                            type: d.type || 'expense',
-                            recurrence: d.recurrence || (d.cadence ? 'fixed' : 'once'),
-                            cadence: parseInt(d.cadence || 1)
-                        };
+            // Realtime listeners
+            try {
+                db.collection('categories').onSnapshot(snapshot => {
+                    if (!snapshot.empty) {
+                        let cList = [];
+                        snapshot.forEach(doc => cList.push({ id: doc.id, ...doc.data() }));
+                        categories = cList;
+                        renderApp();
+                    }
+                });
 
-                        const idx = transactions.findIndex(t => t.id === item.id);
-                        if (change.type === 'added' || change.type === 'modified') {
-                            if (idx >= 0) transactions[idx] = item;
-                            else transactions.push(item);
-                        } else if (change.type === 'removed') {
-                            transactions = transactions.filter(t => t.id !== item.id);
-                        }
+                collectionsToScan.forEach(colName => {
+                    db.collection(colName).onSnapshot(snapshot => {
+                        snapshot.docChanges().forEach(change => {
+                            const d = change.doc.data();
+                            const item = {
+                                id: change.doc.id,
+                                title: d.title || d.name || 'Senza Titolo',
+                                amount: parseFloat(d.amount || d.cost || d.price || 0),
+                                date: d.date || d.startDate || new Date().toISOString().slice(0, 10),
+                                categoryId: d.categoryId || categories[0]?.id || 'cat_3',
+                                type: d.type || 'expense',
+                                recurrence: d.recurrence || (d.cadence ? 'fixed' : 'once'),
+                                cadence: parseInt(d.cadence || 1)
+                            };
+
+                            const idx = transactions.findIndex(t => t.id === item.id);
+                            if (change.type === 'added' || change.type === 'modified') {
+                                if (idx >= 0) transactions[idx] = item;
+                                else transactions.push(item);
+                            } else if (change.type === 'removed') {
+                                transactions = transactions.filter(t => t.id !== item.id);
+                            }
+                        });
+                        renderApp();
                     });
-                    renderApp();
-                }, err => {});
-            });
+                });
+            } catch(e) {}
         }
 
         function saveData() {
@@ -707,8 +711,8 @@ const firebaseConfig = {
                         </div>
                     </div>
                     <div class="flex items-center gap-1">
-                        <button onclick="editCategory('${cat.id}')" class="p-1 text-gray-400 hover:text-brand-600"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>
-                        <button onclick="deleteCategory('${cat.id}')" class="p-1 text-gray-400 hover:text-rose-600"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>
+                        <button onclick="editCategory('${cat.id}')" class="p-1 text-gray-400 hover:text-brand-600" title="Modifica"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                        <button onclick="deleteCategory('${cat.id}')" class="p-1 text-gray-400 hover:text-rose-600" title="Elimina"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -716,10 +720,13 @@ const firebaseConfig = {
         }
 
         // ==========================================
-        // 6. CHARTS LOGIC
+        // 6. CHARTS LOGIC (FIXED & OPTIMIZED)
         // ==========================================
         function renderCategoryChart(txList) {
-            const ctx = document.getElementById('categoryChart').getContext('2d');
+            const canvas = document.getElementById('categoryChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
             const categorySums = {};
             txList.filter(t => t.type === 'expense').forEach(t => {
                 categorySums[t.categoryId] = (categorySums[t.categoryId] || 0) + t.currentMonthVal;
@@ -736,33 +743,58 @@ const firebaseConfig = {
                 colors.push(cat.color);
             });
 
-            if (categoryChartInstance) categoryChartInstance.destroy();
-
-            if (data.length === 0) {
-                categoryChartInstance = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: { labels: ['Nessuna Uscita'], datasets: [{ data: [1], backgroundColor: ['#e5e7eb'] }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-                });
-                return;
+            if (categoryChartInstance) {
+                categoryChartInstance.destroy();
+                categoryChartInstance = null;
             }
 
             const isDark = document.documentElement.classList.contains('dark');
 
+            if (data.length === 0) {
+                categoryChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: { 
+                        labels: ['Nessuna Uscita'], 
+                        datasets: [{ data: [1], backgroundColor: [isDark ? '#334155' : '#e2e8f0'], borderWidth: 0 }] 
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        plugins: { legend: { display: false } },
+                        cutout: '70%'
+                    }
+                });
+                return;
+            }
+
             categoryChartInstance = new Chart(ctx, {
                 type: 'doughnut',
-                data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderWidth: 0 }] },
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors,
+                        borderWidth: 0
+                    }]
+                },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { color: isDark ? '#cbd5e1' : '#475569', font: { size: 11 } } } },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: isDark ? '#cbd5e1' : '#475569', font: { size: 11 }, boxWidth: 12 }
+                        }
+                    },
                     cutout: '70%'
                 }
             });
         }
 
         function renderAnnualChart(year) {
-            const ctx = document.getElementById('annualChart').getContext('2d');
+            const canvas = document.getElementById('annualChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
             const months = ['01','02','03','04','05','06','07','08','09','10','11','12'];
             const labels = ['Gen','Feb','Mar','Apr','Mag','Giug','Lug','Ago','Set','Ott','Nov','Dic'];
 
@@ -784,7 +816,10 @@ const firebaseConfig = {
                 expenseData.push(exp);
             });
 
-            if (annualChartInstance) annualChartInstance.destroy();
+            if (annualChartInstance) {
+                annualChartInstance.destroy();
+                annualChartInstance = null;
+            }
 
             const isDark = document.documentElement.classList.contains('dark');
 
@@ -828,10 +863,10 @@ const firebaseConfig = {
                     document.getElementById('txTitle').value = tx.title;
                     document.getElementById('txAmount').value = tx.amount;
                     document.getElementById('txDate').value = tx.date;
+                    setTxType(tx.type);
                     document.getElementById('txCategory').value = tx.categoryId;
                     document.getElementById('txRecurrence').value = tx.recurrence || 'once';
                     document.getElementById('txCadence').value = tx.cadence || '1';
-                    setTxType(tx.type);
                 }
             }
 
@@ -919,17 +954,21 @@ const firebaseConfig = {
             renderApp();
         }
 
+        // ==========================================
+        // 8. CATEGORY MANAGEMENT ACTIONS
+        // ==========================================
         function openCategoryModal(editId = null) {
             document.getElementById('catForm').reset();
             document.getElementById('catId').value = '';
+            document.getElementById('catColor').value = '#6366f1';
 
             if (editId) {
                 const c = categories.find(cat => cat.id === editId);
                 if (c) {
                     document.getElementById('catId').value = c.id;
                     document.getElementById('catName').value = c.name;
-                    document.getElementById('catColor').value = c.color;
-                    document.getElementById('catType').value = c.type;
+                    document.getElementById('catColor').value = c.color || '#6366f1';
+                    document.getElementById('catType').value = c.type || 'expense';
                 }
             }
             document.getElementById('categoryModal').classList.remove('hidden');
@@ -966,7 +1005,11 @@ const firebaseConfig = {
         }
 
         async function deleteCategory(id) {
-            if (!confirm("Eliminare questa categoria?")) return;
+            if (categories.length <= 1) {
+                alert("Devi mantenere almeno una categoria.");
+                return;
+            }
+            if (!confirm("Eliminare questa categoria? I movimenti associati rimarranno visibili.")) return;
 
             if (isFirebaseActive && db) {
                 await db.collection('categories').doc(id).delete();
@@ -978,7 +1021,7 @@ const firebaseConfig = {
         }
 
         // ==========================================
-        // 8. VOICE RECOGNITION
+        // 9. VOICE RECOGNITION
         // ==========================================
         let recognition = null;
 
@@ -1047,7 +1090,7 @@ const firebaseConfig = {
         }
 
         // ==========================================
-        // 9. THEME & UTILS
+        // 10. THEME & UTILS
         // ==========================================
         function initTheme() {
             const isDark = localStorage.getItem('subtrack_theme') === 'dark' || 
