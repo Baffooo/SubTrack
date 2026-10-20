@@ -104,7 +104,7 @@
                 </div>
                 <div class="mt-4">
                     <div id="statMonthlyBalance" class="text-2xl font-extrabold text-white">€0,00</div>
-                    <p class="text-[11px] text-brand-muted mt-1">Include entrate, uscite e ripartizioni bollette</p>
+                    <p class="text-[11px] text-brand-muted mt-1">Include entrate, uscite e ripartizioni</p>
                 </div>
             </div>
 
@@ -203,7 +203,7 @@
 
                 <div>
                     <label class="block text-xs font-medium text-brand-muted mb-1">Descrizione *</label>
-                    <input type="text" id="txTitle" required placeholder="es. Bolletta Luce, Stipendio..." class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white">
+                    <input type="text" id="txTitle" required placeholder="es. Assicurazione, Stipendio..." class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
@@ -228,7 +228,7 @@
                     <select id="txRecurrence" onchange="toggleCadenceVisibility()" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white">
                         <option value="once">Una tantum (Singolo evento)</option>
                         <option value="fixed">Ricorrente Fissa (Stesso importo periodico)</option>
-                        <option value="variable">Ricorrente Variabile / Bolletta (Ripartizione Furba)</option>
+                        <option value="variable">Ricorrente variabile (Ripartizione nei mesi)</option>
                     </select>
                 </div>
 
@@ -236,7 +236,7 @@
                     <label class="block text-xs font-medium text-brand-muted mb-1">Cadenza / Durata in Mesi *</label>
                     <select id="txCadence" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white">
                         <option value="1">1 Mese (Mensile)</option>
-                        <option value="2">2 Mesi (Bimensile - es. Bollette)</option>
+                        <option value="2">2 Mesi (Bimensile)</option>
                         <option value="3">3 Mesi (Trimestrale)</option>
                         <option value="6">6 Mesi (Semestrale)</option>
                         <option value="12">12 Mesi (Annuale - diviso in 12 quote)</option>
@@ -270,7 +270,6 @@
 
             <div id="categoriesGrid" class="space-y-2 max-h-[40vh] overflow-y-auto custom-scrollbar pr-1"></div>
 
-            <!-- Form Sub-modal for category add/edit -->
             <form id="catForm" onsubmit="saveCategory(event)" class="space-y-3 pt-3 border-t border-brand-border hidden">
                 <input type="hidden" id="catId">
                 <div class="flex justify-between items-center">
@@ -355,19 +354,16 @@ const firebaseConfig = {
         }
 
         function initFirebaseListeners() {
-            // Real-time Transactions listener
             db.collection("subtrack_transactions").onSnapshot(snapshot => {
                 transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderApp();
             }, err => console.error("Errore sync transazioni:", err));
 
-            // Real-time Categories listener
             db.collection("subtrack_categories").onSnapshot(snapshot => {
                 if (!snapshot.empty) {
                     categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     renderApp();
                 } else {
-                    // Seed default categories if empty
                     categories.forEach(c => db.collection("subtrack_categories").doc(c.id).set(c));
                 }
             }, err => console.error("Errore sync categorie:", err));
@@ -397,7 +393,7 @@ const firebaseConfig = {
         });
 
         // ==========================================
-        // CORE CALCULATION & RECURRENCE ENGINE
+        // CORE CALCULATION & RECURRENCE ENGINE (FIXED)
         // ==========================================
         function getTxMonthlyBreakdownValue(tx, targetYM) {
             const txYM = tx.date.slice(0, 7);
@@ -408,18 +404,22 @@ const firebaseConfig = {
             if (tx.recurrence === 'once') {
                 return txYM === targetYM ? tx.amount : 0;
             }
+
             if (tx.recurrence === 'fixed') {
                 if (monthDiff < 0) return 0;
-                const cadence = tx.cadence || 1;
+                const cadence = parseInt(tx.cadence) || 1;
                 return (monthDiff % cadence === 0) ? tx.amount : 0;
             }
+
             if (tx.recurrence === 'variable') {
-                const cadence = tx.cadence || 1;
-                if (monthDiff <= 0 && monthDiff > -cadence) {
+                const cadence = parseInt(tx.cadence) || 1;
+                // Gestione ripartizione mensile per qualsiasi durata (compresa quella annuale da 12 mesi)
+                if (monthDiff >= 0 && monthDiff < cadence) {
                     return tx.amount / cadence;
                 }
                 return 0;
             }
+
             return 0;
         }
 
@@ -428,7 +428,7 @@ const firebaseConfig = {
             let totalIncome = 0;
             transactions.forEach(tx => {
                 if (tx.recurrence === 'once') return;
-                const cadence = tx.cadence || 1;
+                const cadence = parseInt(tx.cadence) || 1;
                 const monthlyWeight = tx.amount / cadence;
                 if (tx.type === 'expense') totalExpense += monthlyWeight;
                 else if (tx.type === 'income') totalIncome += monthlyWeight;
@@ -486,10 +486,11 @@ const firebaseConfig = {
             txList.forEach((tx, index) => {
                 const cat = categories.find(c => c.id === tx.categoryId) || { name: 'Generale', color: '#737373' };
                 const isExpense = tx.type === 'expense';
+                const cadence = parseInt(tx.cadence) || 1;
 
                 let recBadge = '';
-                if (tx.recurrence === 'fixed') recBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] bg-neutral-800 text-neutral-300">Fissa (${tx.cadence}m)</span>`;
-                else if (tx.recurrence === 'variable') recBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] bg-neutral-800 text-neutral-300">Bolletta (${tx.cadence}m)</span>`;
+                if (tx.recurrence === 'fixed') recBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] bg-neutral-800 text-neutral-300">Fissa (${cadence}m)</span>`;
+                else if (tx.recurrence === 'variable') recBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] bg-neutral-800 text-neutral-300">Ricorrente variabile (${cadence}m)</span>`;
                 else recBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] bg-brand-black text-brand-muted">Una tantum</span>`;
 
                 const card = document.createElement('div');
@@ -879,7 +880,7 @@ const firebaseConfig = {
                 document.getElementById('txRecurrence').value = 'fixed';
                 document.getElementById('txCadence').value = '1';
             } else if (text.includes('annuale')) {
-                document.getElementById('txRecurrence').value = 'fixed';
+                document.getElementById('txRecurrence').value = 'variable';
                 document.getElementById('txCadence').value = '12';
             }
             document.getElementById('txTitle').value = capitalizeWords(text);
