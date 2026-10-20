@@ -30,9 +30,8 @@
         }
     </script>
     
-    <!-- Lucide Icons -->
+    <!-- Lucide Icons & Chart.js -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Firebase SDK (Compat) -->
@@ -60,9 +59,9 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <div id="dbStatusBadge" class="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                <div id="dbStatusBadge" class="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                     <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                    <span id="dbStatusText">Local Storage</span>
+                    <span id="dbStatusText">Inizializzazione...</span>
                 </div>
 
                 <button id="themeToggleBtn" onclick="toggleTheme()" class="p-2 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition-colors">
@@ -380,9 +379,10 @@
     <!-- MAIN JAVASCRIPT LOGIC -->
     <script>
         // ==========================================
-        // 1. FIREBASE CONFIGURATION
+        // 1. FIREBASE CONFIGURATION (INCOLLA QUI)
         // ==========================================
-        let firebaseConfig = {
+const firebaseConfig = {
+
   apiKey: "AIzaSyC7HeTfczh4xJBuxQb_GUyEHxvoUohX8NQ",
 
   authDomain: "bilancio-445a2.firebaseapp.com",
@@ -397,34 +397,38 @@
 
   measurementId: "G-BFQFLE708Y"
 
-        };
+};
 
+
+        // Gestione eventuale override da LocalStorage
         const savedCfg = localStorage.getItem('subtrack_fb_config');
+        let activeConfig = firebaseConfig;
         if (savedCfg) {
-            try { firebaseConfig = JSON.parse(savedCfg); } catch(e){}
+            try { activeConfig = JSON.parse(savedCfg); } catch(e){}
         }
 
         let db = null;
         let isFirebaseActive = false;
 
         function initFirebase() {
-            if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
+            if (activeConfig.apiKey && activeConfig.apiKey !== "YOUR_API_KEY") {
                 try {
-                    if (!firebase.apps.length) {
-                        firebase.initializeApp(firebaseConfig);
+                    if (typeof firebase !== 'undefined') {
+                        if (!firebase.apps.length) {
+                            firebase.initializeApp(activeConfig);
+                        }
+                        db = firebase.firestore();
+                        isFirebaseActive = true;
+                        document.getElementById('dbStatusBadge').classList.remove('hidden');
+                        document.getElementById('dbStatusBadge').className = "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20";
+                        document.getElementById('dbStatusText').innerText = "Firebase Cloud";
+                        return;
                     }
-                    db = firebase.firestore();
-                    isFirebaseActive = true;
-                    document.getElementById('dbStatusBadge').classList.remove('hidden');
-                    document.getElementById('dbStatusBadge').className = "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20";
-                    document.getElementById('dbStatusText').innerText = "Firebase Cloud";
                 } catch(e) {
-                    console.error("Firebase init fallback:", e);
-                    setupLocalStorageFallback();
+                    console.error("Firebase init error:", e);
                 }
-            } else {
-                setupLocalStorageFallback();
             }
+            setupLocalStorageFallback();
         }
 
         function setupLocalStorageFallback() {
@@ -451,9 +455,9 @@
         let annualChartInstance = null;
 
         // ==========================================
-        // 3. INIT & DATA FETCH (AWAIT FIRESTORE)
+        // 3. INIT & SAFE DATA FETCH
         // ==========================================
-        window.addEventListener('DOMContentLoaded', async () => {
+        window.addEventListener('DOMContentLoaded', () => {
             const now = new Date();
             const yearMonth = now.toISOString().slice(0, 7);
             document.getElementById('monthFilter').value = yearMonth;
@@ -462,93 +466,86 @@
             initTheme();
             initFirebase();
             
-            await loadAllData();
+            // Disegna subito l'interfaccia (non resta mai bianca)
+            renderApp();
+
+            // Sincronizza i dati da Firebase in background senza bloccare la UI
+            loadCloudDataInBackground();
         });
 
-        async function loadAllData() {
-            if (isFirebaseActive && db) {
+        async function loadCloudDataInBackground() {
+            if (!isFirebaseActive || !db) return;
+
+            const collectionsToScan = ['transactions', 'subscriptions', 'movimenti'];
+            let loadedTx = [];
+
+            for (const colName of collectionsToScan) {
                 try {
-                    // Fetch Transactions from possible collections
-                    const collectionsToScan = ['transactions', 'subscriptions', 'movimenti'];
-                    let loadedTx = [];
-                    
-                    for (const colName of collectionsToScan) {
-                        try {
-                            const snapshot = await db.collection(colName).get();
-                            snapshot.forEach(doc => {
-                                const d = doc.data();
-                                loadedTx.push({
-                                    id: doc.id,
-                                    title: d.title || d.name || 'Senza Titolo',
-                                    amount: parseFloat(d.amount || d.cost || d.price || 0),
-                                    date: d.date || d.startDate || new Date().toISOString().slice(0, 10),
-                                    categoryId: d.categoryId || 'cat_3',
-                                    type: d.type || 'expense',
-                                    recurrence: d.recurrence || (d.cadence ? 'fixed' : 'once'),
-                                    cadence: parseInt(d.cadence || 1)
-                                });
-                            });
-                        } catch(err) {
-                            console.log(`Nota collezione ${colName}:`, err.message);
-                        }
-                    }
-
-                    if (loadedTx.length > 0) {
-                        transactions = loadedTx;
-                    }
-
-                    // Fetch Categories
-                    try {
-                        const catSnapshot = await db.collection('categories').get();
-                        if (!catSnapshot.empty) {
-                            let loadedCat = [];
-                            catSnapshot.forEach(doc => {
-                                loadedCat.push({ id: doc.id, ...doc.data() });
-                            });
-                            categories = loadedCat;
-                        }
-                    } catch(e) {
-                        console.log("Categorie custom non trovate, uso default.");
-                    }
-
-                    // Realtime sync listeners after initial load
-                    collectionsToScan.forEach(colName => {
-                        db.collection(colName).onSnapshot(snapshot => {
-                            snapshot.docChanges().forEach(change => {
-                                const d = change.doc.data();
-                                const item = {
-                                    id: change.doc.id,
-                                    title: d.title || d.name || 'Senza Titolo',
-                                    amount: parseFloat(d.amount || d.cost || d.price || 0),
-                                    date: d.date || d.startDate || new Date().toISOString().slice(0, 10),
-                                    categoryId: d.categoryId || 'cat_3',
-                                    type: d.type || 'expense',
-                                    recurrence: d.recurrence || (d.cadence ? 'fixed' : 'once'),
-                                    cadence: parseInt(d.cadence || 1)
-                                };
-
-                                const idx = transactions.findIndex(t => t.id === item.id);
-                                if (change.type === 'added' || change.type === 'modified') {
-                                    if (idx >= 0) transactions[idx] = item;
-                                    else transactions.push(item);
-                                } else if (change.type === 'removed') {
-                                    transactions = transactions.filter(t => t.id !== item.id);
-                                }
-                            });
-                            renderApp();
+                    const snapshot = await db.collection(colName).get();
+                    snapshot.forEach(doc => {
+                        const d = doc.data();
+                        loadedTx.push({
+                            id: doc.id,
+                            title: d.title || d.name || 'Senza Titolo',
+                            amount: parseFloat(d.amount || d.cost || d.price || 0),
+                            date: d.date || d.startDate || new Date().toISOString().slice(0, 10),
+                            categoryId: d.categoryId || 'cat_3',
+                            type: d.type || 'expense',
+                            recurrence: d.recurrence || (d.cadence ? 'fixed' : 'once'),
+                            cadence: parseInt(d.cadence || 1)
                         });
                     });
-
-                } catch (e) {
-                    console.error("Errore di connessione Firestore (verifica le Regole di Sicurezza):", e);
+                } catch(e) {
+                    console.log(`Collezione ${colName} non accessibile o vuota:`, e.message);
                 }
-            } else {
-                const localTx = localStorage.getItem('subtrack_tx');
-                const localCat = localStorage.getItem('subtrack_cat');
-                if (localTx) transactions = JSON.parse(localTx);
-                if (localCat) categories = JSON.parse(localCat);
             }
+
+            if (loadedTx.length > 0) {
+                transactions = loadedTx;
+            }
+
+            try {
+                const catSnapshot = await db.collection('categories').get();
+                if (!catSnapshot.empty) {
+                    let loadedCat = [];
+                    catSnapshot.forEach(doc => {
+                        loadedCat.push({ id: doc.id, ...doc.data() });
+                    });
+                    categories = loadedCat;
+                }
+            } catch(e) {
+                console.log("Categorie custom non trovate su cloud.");
+            }
+
             renderApp();
+
+            // Attiva ascoltatori real-time in background
+            collectionsToScan.forEach(colName => {
+                db.collection(colName).onSnapshot(snapshot => {
+                    snapshot.docChanges().forEach(change => {
+                        const d = change.doc.data();
+                        const item = {
+                            id: change.doc.id,
+                            title: d.title || d.name || 'Senza Titolo',
+                            amount: parseFloat(d.amount || d.cost || d.price || 0),
+                            date: d.date || d.startDate || new Date().toISOString().slice(0, 10),
+                            categoryId: d.categoryId || 'cat_3',
+                            type: d.type || 'expense',
+                            recurrence: d.recurrence || (d.cadence ? 'fixed' : 'once'),
+                            cadence: parseInt(d.cadence || 1)
+                        };
+
+                        const idx = transactions.findIndex(t => t.id === item.id);
+                        if (change.type === 'added' || change.type === 'modified') {
+                            if (idx >= 0) transactions[idx] = item;
+                            else transactions.push(item);
+                        } else if (change.type === 'removed') {
+                            transactions = transactions.filter(t => t.id !== item.id);
+                        }
+                    });
+                    renderApp();
+                }, err => {});
+            });
         }
 
         function saveData() {
@@ -1099,8 +1096,8 @@
         }
 
         function openConfigModal() {
-            document.getElementById('cfgApiKey').value = firebaseConfig.apiKey || '';
-            document.getElementById('cfgProjectId').value = firebaseConfig.projectId || '';
+            document.getElementById('cfgApiKey').value = activeConfig.apiKey || '';
+            document.getElementById('cfgProjectId').value = activeConfig.projectId || '';
             document.getElementById('configModal').classList.remove('hidden');
         }
 
@@ -1110,7 +1107,7 @@
 
         function saveFirebaseConfig(e) {
             e.preventDefault();
-            const apiKey = document.getElementById('cfgApiKey'].value;
+            const apiKey = document.getElementById('cfgApiKey').value;
             const projectId = document.getElementById('cfgProjectId').value;
 
             const cfg = { ...firebaseConfig, apiKey, projectId };
