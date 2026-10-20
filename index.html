@@ -40,17 +40,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <style>
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 5px;
-            height: 5px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(156, 163, 175, 0.4);
-            border-radius: 10px;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.4); border-radius: 10px; }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-200 pb-20 md:pb-10 font-sans antialiased">
@@ -68,19 +60,16 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <!-- Data Status Badge -->
                 <div id="dbStatusBadge" class="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                     <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
                     <span id="dbStatusText">Local Storage</span>
                 </div>
 
-                <!-- Theme Toggle Button -->
                 <button id="themeToggleBtn" onclick="toggleTheme()" class="p-2 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition-colors">
                     <i data-lucide="moon" id="themeIconMoon" class="w-5 h-5"></i>
                     <i data-lucide="sun" id="themeIconSun" class="w-5 h-5 hidden"></i>
                 </button>
 
-                <!-- Settings Button -->
                 <button onclick="openConfigModal()" class="p-2 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition-colors" title="Configura Firebase">
                     <i data-lucide="settings" class="w-5 h-5"></i>
                 </button>
@@ -113,7 +102,6 @@
 
         <!-- SUMMARY STATS CARDS -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- Balance Card -->
             <div class="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col justify-between">
                 <div class="flex justify-between items-start">
                     <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Bilancio Effettivo del Mese</span>
@@ -127,7 +115,6 @@
                 </div>
             </div>
 
-            <!-- Income vs Expenses Card -->
             <div class="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col justify-between">
                 <div class="flex justify-between items-start">
                     <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Flussi del Mese</span>
@@ -147,7 +134,6 @@
                 </div>
             </div>
 
-            <!-- Next Month Commitment Card -->
             <div class="bg-gradient-to-br from-indigo-900 to-brand-900 text-white p-5 rounded-2xl shadow-md border border-indigo-700/50 flex flex-col justify-between relative overflow-hidden">
                 <div class="absolute -right-4 -bottom-4 opacity-10 text-white pointer-events-none">
                     <i data-lucide="pie-chart" class="w-32 h-32"></i>
@@ -170,7 +156,6 @@
 
         <!-- CHARTS SECTION -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Expenses by Category Chart -->
             <div class="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col">
                 <h3 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                     <i data-lucide="pie-chart" class="w-5 h-5 text-brand-500"></i>
@@ -181,7 +166,6 @@
                 </div>
             </div>
 
-            <!-- Annual Cashflow Trend Chart -->
             <div class="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col">
                 <h3 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                     <i data-lucide="bar-chart-3" class="w-5 h-5 text-brand-500"></i>
@@ -467,9 +451,9 @@
         let annualChartInstance = null;
 
         // ==========================================
-        // 3. INIT & DATA FETCH
+        // 3. INIT & DATA FETCH (AWAIT FIRESTORE)
         // ==========================================
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             const now = new Date();
             const yearMonth = now.toISOString().slice(0, 7);
             document.getElementById('monthFilter').value = yearMonth;
@@ -477,53 +461,94 @@
             lucide.createIcons();
             initTheme();
             initFirebase();
-            loadAllData();
+            
+            await loadAllData();
         });
 
         async function loadAllData() {
             if (isFirebaseActive && db) {
-                const collectionsToScan = ['transactions', 'subscriptions', 'movimenti'];
-                
-                collectionsToScan.forEach(colName => {
-                    db.collection(colName).onSnapshot(snapshot => {
-                        snapshot.forEach(doc => {
-                            const d = doc.data();
-                            const item = {
-                                id: doc.id,
-                                title: d.title || d.name || 'Senza Titolo',
-                                amount: parseFloat(d.amount || d.cost || d.price || 0),
-                                date: d.date || d.startDate || new Date().toISOString().slice(0, 10),
-                                categoryId: d.categoryId || 'cat_3',
-                                type: d.type || 'expense',
-                                recurrence: d.recurrence || (d.cadence ? 'fixed' : 'once'),
-                                cadence: parseInt(d.cadence || 1)
-                            };
-                            
-                            const idx = transactions.findIndex(t => t.id === item.id);
-                            if (idx >= 0) transactions[idx] = item;
-                            else transactions.push(item);
-                        });
-                        renderApp();
-                    }, err => console.log("Scan notice:", colName));
-                });
-
-                db.collection('categories').onSnapshot(snapshot => {
-                    if (!snapshot.empty) {
-                        categories = [];
-                        snapshot.forEach(doc => {
-                            categories.push({ id: doc.id, ...doc.data() });
-                        });
+                try {
+                    // Fetch Transactions from possible collections
+                    const collectionsToScan = ['transactions', 'subscriptions', 'movimenti'];
+                    let loadedTx = [];
+                    
+                    for (const colName of collectionsToScan) {
+                        try {
+                            const snapshot = await db.collection(colName).get();
+                            snapshot.forEach(doc => {
+                                const d = doc.data();
+                                loadedTx.push({
+                                    id: doc.id,
+                                    title: d.title || d.name || 'Senza Titolo',
+                                    amount: parseFloat(d.amount || d.cost || d.price || 0),
+                                    date: d.date || d.startDate || new Date().toISOString().slice(0, 10),
+                                    categoryId: d.categoryId || 'cat_3',
+                                    type: d.type || 'expense',
+                                    recurrence: d.recurrence || (d.cadence ? 'fixed' : 'once'),
+                                    cadence: parseInt(d.cadence || 1)
+                                });
+                            });
+                        } catch(err) {
+                            console.log(`Nota collezione ${colName}:`, err.message);
+                        }
                     }
-                    renderApp();
-                });
 
+                    if (loadedTx.length > 0) {
+                        transactions = loadedTx;
+                    }
+
+                    // Fetch Categories
+                    try {
+                        const catSnapshot = await db.collection('categories').get();
+                        if (!catSnapshot.empty) {
+                            let loadedCat = [];
+                            catSnapshot.forEach(doc => {
+                                loadedCat.push({ id: doc.id, ...doc.data() });
+                            });
+                            categories = loadedCat;
+                        }
+                    } catch(e) {
+                        console.log("Categorie custom non trovate, uso default.");
+                    }
+
+                    // Realtime sync listeners after initial load
+                    collectionsToScan.forEach(colName => {
+                        db.collection(colName).onSnapshot(snapshot => {
+                            snapshot.docChanges().forEach(change => {
+                                const d = change.doc.data();
+                                const item = {
+                                    id: change.doc.id,
+                                    title: d.title || d.name || 'Senza Titolo',
+                                    amount: parseFloat(d.amount || d.cost || d.price || 0),
+                                    date: d.date || d.startDate || new Date().toISOString().slice(0, 10),
+                                    categoryId: d.categoryId || 'cat_3',
+                                    type: d.type || 'expense',
+                                    recurrence: d.recurrence || (d.cadence ? 'fixed' : 'once'),
+                                    cadence: parseInt(d.cadence || 1)
+                                };
+
+                                const idx = transactions.findIndex(t => t.id === item.id);
+                                if (change.type === 'added' || change.type === 'modified') {
+                                    if (idx >= 0) transactions[idx] = item;
+                                    else transactions.push(item);
+                                } else if (change.type === 'removed') {
+                                    transactions = transactions.filter(t => t.id !== item.id);
+                                }
+                            });
+                            renderApp();
+                        });
+                    });
+
+                } catch (e) {
+                    console.error("Errore di connessione Firestore (verifica le Regole di Sicurezza):", e);
+                }
             } else {
                 const localTx = localStorage.getItem('subtrack_tx');
                 const localCat = localStorage.getItem('subtrack_cat');
                 if (localTx) transactions = JSON.parse(localTx);
                 if (localCat) categories = JSON.parse(localCat);
-                renderApp();
             }
+            renderApp();
         }
 
         function saveData() {
@@ -538,28 +563,22 @@
         // ==========================================
         function getTxMonthlyBreakdownValue(tx, targetYM) {
             const txYM = tx.date.slice(0, 7);
-            
             const [targetY, targetM] = targetYM.split('-').map(Number);
             const [txY, txM] = tx.date.slice(0, 10).split('-').map(Number);
 
             const monthDiff = (targetY - txY) * 12 + (targetM - txM);
 
-            // 1. Una tantum
             if (tx.recurrence === 'once') {
                 return txYM === targetYM ? tx.amount : 0;
             }
 
-            // 2. Ricorrente Fissa
             if (tx.recurrence === 'fixed') {
                 if (monthDiff < 0) return 0;
                 const cadence = tx.cadence || 1;
-                if (monthDiff % cadence === 0) {
-                    return tx.amount;
-                }
+                if (monthDiff % cadence === 0) return tx.amount;
                 return 0;
             }
 
-            // 3. Ricorrente Variabile / Bolletta (Ripartizione)
             if (tx.recurrence === 'variable') {
                 const cadence = tx.cadence || 1;
                 if (monthDiff <= 0 && monthDiff > -cadence) {
@@ -577,15 +596,11 @@
 
             transactions.forEach(tx => {
                 if (tx.recurrence === 'once') return;
-
                 const cadence = tx.cadence || 1;
                 const monthlyWeight = tx.amount / cadence;
 
-                if (tx.type === 'expense') {
-                    totalRecurringExpenseWeight += monthlyWeight;
-                } else if (tx.type === 'income') {
-                    totalRecurringIncomeWeight += monthlyWeight;
-                }
+                if (tx.type === 'expense') totalRecurringExpenseWeight += monthlyWeight;
+                else if (tx.type === 'income') totalRecurringIncomeWeight += monthlyWeight;
             });
 
             return {
@@ -708,7 +723,6 @@
         // ==========================================
         function renderCategoryChart(txList) {
             const ctx = document.getElementById('categoryChart').getContext('2d');
-            
             const categorySums = {};
             txList.filter(t => t.type === 'expense').forEach(t => {
                 categorySums[t.categoryId] = (categorySums[t.categoryId] || 0) + t.currentMonthVal;
@@ -740,16 +754,11 @@
 
             categoryChartInstance = new Chart(ctx, {
                 type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{ data: data, backgroundColor: colors, borderWidth: 0 }]
-                },
+                data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderWidth: 0 }] },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { color: isDark ? '#cbd5e1' : '#475569', font: { size: 11 } } }
-                    },
+                    plugins: { legend: { position: 'bottom', labels: { color: isDark ? '#cbd5e1' : '#475569', font: { size: 11 } } } },
                     cutout: '70%'
                 }
             });
@@ -798,9 +807,7 @@
                         x: { ticks: { color: isDark ? '#94a3b8' : '#64748b' }, grid: { display: false } },
                         y: { ticks: { color: isDark ? '#94a3b8' : '#64748b' }, grid: { color: isDark ? '#334155' : '#f1f5f9' } }
                     },
-                    plugins: {
-                        legend: { labels: { color: isDark ? '#cbd5e1' : '#475569', font: { size: 11 } } }
-                    }
+                    plugins: { legend: { labels: { color: isDark ? '#cbd5e1' : '#475569', font: { size: 11 } } } }
                 }
             });
         }
@@ -1103,7 +1110,7 @@
 
         function saveFirebaseConfig(e) {
             e.preventDefault();
-            const apiKey = document.getElementById('cfgApiKey').value;
+            const apiKey = document.getElementById('cfgApiKey'].value;
             const projectId = document.getElementById('cfgProjectId').value;
 
             const cfg = { ...firebaseConfig, apiKey, projectId };
