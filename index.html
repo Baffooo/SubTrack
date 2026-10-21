@@ -1,3 +1,15 @@
+Ecco il codice **completo e aggiornato** con le correzioni e i raffinamenti grafici richiesti:
+
+1. **Ripristino dei Colori dei Titoli nei 4 Riquadri**: I titoli (`COSTI FISSI MESE`, `STIMA MESE PROX`, `USCITE REALI MESE`, `BILANCIO MESE`) tornano ad avere i loro specifici colori distintivi (indaco, rosa, ecc.), mentre le cifre in `€` sono **bianche in Dark Mode** e **nere in Light Mode**.
+2. **Effetto LED Animato e Hover sui 4 Riquadri**:
+* Aggiunto un bordo con sfumatura colorata (stile LED) su ciascuno dei 4 specchietti.
+* Quando passi il mouse sopra (hover), il riquadro si solleva leggermente (`scale-[1.02]`) e si attiva un'animazione fluida in cui un riflesso/luce LED scorre lungo tutto il perimetro della card finché permane l'hover, tornando statica quando il cursore si sposta.
+
+
+
+Copia e sostituisci interamente il codice nel tuo file `index.html`:
+
+```html
 <!DOCTYPE html>
 <html lang="it" class="dark">
 <head>
@@ -52,6 +64,34 @@
         
         #search-overlay {
             transition: opacity 0.25s ease;
+        }
+
+        /* LED Border Animation */
+        @keyframes ledSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .led-card {
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .led-card::before {
+            content: '';
+            position: absolute;
+            inset: -50%;
+            background: conic-gradient(from 0deg at 50% 50%, transparent 0%, transparent 70%, var(--led-color) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .led-card:hover::before {
+            opacity: 1;
+            animation: ledSpin 3s linear infinite;
+        }
+        .led-card-inner {
+            position: relative;
+            z-index: 1;
         }
     </style>
 </head>
@@ -115,7 +155,7 @@
 
     <!-- SEARCH RESULTS VIEW PAGE -->
     <section id="search-results-page" class="hidden max-w-4xl w-full mx-auto p-4 space-y-4">
-        <div class="flex justify-between items-center bg-white dark:bg-brand-card border border-neutral-200 dark:border-brand-border p-4 rounded-2xl">
+        <div class="flex justify-between items-center bg-white dark:bg-brand-card border border-neutral-200 dark:border-brand-border p-4 rounded-2xl shadow-sm">
             <div>
                 <h2 class="text-sm font-bold text-neutral-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
                     <i data-lucide="search" class="w-4 h-4 text-indigo-500 dark:text-indigo-400"></i> Risultati Ricerca Globale
@@ -134,7 +174,7 @@
     <main id="main-dashboard" class="flex-1 max-w-4xl w-full mx-auto p-3 sm:p-4 space-y-4 sm:space-y-6">
 
         <!-- PERIOD FILTER BAR -->
-        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 bg-white dark:bg-brand-card border border-neutral-200 dark:border-brand-border p-3.5 sm:p-4 rounded-2xl">
+        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 bg-white dark:bg-brand-card border border-neutral-200 dark:border-brand-border p-3.5 sm:p-4 rounded-2xl shadow-sm">
             <div class="flex items-center gap-2.5">
                 <i data-lucide="calendar" class="w-4 h-4 text-neutral-400 dark:text-brand-muted"></i>
                 <label for="monthFilterBtn" class="text-xs font-semibold text-neutral-500 dark:text-brand-muted uppercase tracking-wider">Periodo di Analisi:</label>
@@ -147,62 +187,70 @@
             </div>
         </div>
 
-        <!-- SUMMARY STATS CARDS -->
+        <!-- SUMMARY STATS CARDS (COLORE TITOLI ORIGINALE + EFFETTO LED & HOVER) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
             
             <!-- 1. COSTI FISSI MESE -->
-            <div onclick="openStatsModal('accrual')" class="bg-white dark:bg-brand-card border border-indigo-200 dark:border-brand-border p-3.5 sm:p-5 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-indigo-500 transition-all group shadow-sm">
-                <div class="flex justify-between items-start">
-                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 truncate pr-1">COSTI FISSI MESE</span>
-                    <div class="p-1.5 sm:p-2 bg-indigo-50 dark:bg-brand-black rounded-xl border border-indigo-100 dark:border-brand-border text-indigo-600 dark:text-indigo-400 shrink-0">
-                        <i data-lucide="calculator" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+            <div onclick="openStatsModal('accrual')" style="--led-color: #6366f1;" class="led-card bg-white dark:bg-brand-card border border-neutral-200 dark:border-brand-border p-3.5 sm:p-5 rounded-2xl flex flex-col justify-between cursor-pointer shadow-sm hover:scale-[1.02] hover:shadow-indigo-500/10">
+                <div class="led-card-inner flex flex-col justify-between h-full">
+                    <div class="flex justify-between items-start">
+                        <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-indigo-500 truncate pr-1">COSTI FISSI MESE</span>
+                        <div class="p-1.5 sm:p-2 bg-indigo-50 dark:bg-brand-black rounded-xl border border-indigo-100 dark:border-brand-border text-indigo-500 shrink-0">
+                            <i data-lucide="calculator" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                        </div>
                     </div>
-                </div>
-                <div class="mt-2 sm:mt-3 space-y-0.5">
-                    <div class="text-base sm:text-xl font-extrabold font-mono text-neutral-900 dark:text-white truncate" id="statMonthlyAccrualCost">€0,00</div>
-                    <p class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 truncate">Ricorrenti + Ripartiti</p>
+                    <div class="mt-2 sm:mt-3 space-y-0.5">
+                        <div class="text-base sm:text-xl font-extrabold font-mono text-neutral-900 dark:text-white truncate" id="statMonthlyAccrualCost">€0,00</div>
+                        <p class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 truncate">Ricorrenti + Ripartiti</p>
+                    </div>
                 </div>
             </div>
 
             <!-- 2. STIMA MESE PROSSIMO -->
-            <div onclick="openStatsModal('estimate')" class="bg-white dark:bg-brand-card border border-indigo-200 dark:border-indigo-900/60 p-3.5 sm:p-5 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-indigo-500 transition-all group shadow-sm">
-                <div class="flex justify-between items-start">
-                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-300 truncate pr-1">STIMA MESE PROX</span>
-                    <div class="p-1.5 sm:p-2 bg-indigo-50 dark:bg-indigo-950 border border-indigo-100 dark:border-indigo-800/60 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
-                        <i data-lucide="trending-up" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+            <div onclick="openStatsModal('estimate')" style="--led-color: #818cf8;" class="led-card bg-white dark:bg-brand-card border border-neutral-200 dark:border-brand-border p-3.5 sm:p-5 rounded-2xl flex flex-col justify-between cursor-pointer shadow-sm hover:scale-[1.02] hover:shadow-indigo-500/10">
+                <div class="led-card-inner flex flex-col justify-between h-full">
+                    <div class="flex justify-between items-start">
+                        <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-indigo-400 truncate pr-1">STIMA MESE PROX</span>
+                        <div class="p-1.5 sm:p-2 bg-indigo-50 dark:bg-indigo-950 border border-indigo-100 dark:border-indigo-800/60 rounded-xl text-indigo-400 shrink-0">
+                            <i data-lucide="trending-up" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                        </div>
                     </div>
-                </div>
-                <div class="mt-2 sm:mt-3 space-y-0.5">
-                    <div class="text-base sm:text-xl font-extrabold font-mono text-neutral-900 dark:text-white truncate" id="nextMonthEstimateTotal">€0,00</div>
-                    <p class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 truncate">Impatto stimato</p>
+                    <div class="mt-2 sm:mt-3 space-y-0.5">
+                        <div class="text-base sm:text-xl font-extrabold font-mono text-neutral-900 dark:text-white truncate" id="nextMonthEstimateTotal">€0,00</div>
+                        <p class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 truncate">Impatto stimato</p>
+                    </div>
                 </div>
             </div>
 
             <!-- 3. USCITE REALI MESE -->
-            <div onclick="openStatsModal('cashout')" class="bg-white dark:bg-brand-card border border-rose-200 dark:border-brand-border p-3.5 sm:p-5 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-rose-500 transition-all group shadow-sm">
-                <div class="flex justify-between items-start">
-                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 truncate pr-1">USCITE REALI MESE</span>
-                    <div class="p-1.5 sm:p-2 bg-rose-50 dark:bg-brand-black rounded-xl border border-rose-100 dark:border-brand-border text-rose-600 dark:text-rose-400 shrink-0">
-                        <i data-lucide="arrow-down-left" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+            <div onclick="openStatsModal('cashout')" style="--led-color: #f43f5e;" class="led-card bg-white dark:bg-brand-card border border-neutral-200 dark:border-brand-border p-3.5 sm:p-5 rounded-2xl flex flex-col justify-between cursor-pointer shadow-sm hover:scale-[1.02] hover:shadow-rose-500/10">
+                <div class="led-card-inner flex flex-col justify-between h-full">
+                    <div class="flex justify-between items-start">
+                        <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-rose-500 truncate pr-1">USCITE REALI MESE</span>
+                        <div class="p-1.5 sm:p-2 bg-rose-50 dark:bg-brand-black rounded-xl border border-rose-100 dark:border-brand-border text-rose-500 shrink-0">
+                            <i data-lucide="arrow-down-left" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                        </div>
                     </div>
-                </div>
-                <div class="mt-2 sm:mt-3 space-y-0.5">
-                    <div class="text-base sm:text-xl font-extrabold font-mono text-neutral-900 dark:text-white truncate" id="statCashFlowOut">€0,00</div>
-                    <p class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-brand-muted truncate">Pagamenti reali</p>
+                    <div class="mt-2 sm:mt-3 space-y-0.5">
+                        <div class="text-base sm:text-xl font-extrabold font-mono text-neutral-900 dark:text-white truncate" id="statCashFlowOut">€0,00</div>
+                        <p class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-brand-muted truncate">Pagamenti reali</p>
+                    </div>
                 </div>
             </div>
 
             <!-- 4. BILANCIO CASSA MESE -->
-            <div onclick="openStatsModal('balance')" class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-3.5 sm:p-5 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-neutral-400 dark:hover:border-white transition-all group shadow-sm">
-                <div class="flex justify-between items-start">
-                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-neutral-600 dark:text-neutral-400 truncate pr-1">BILANCIO MESE</span>
-                    <div class="p-1.5 sm:p-2 bg-neutral-100 dark:bg-black rounded-xl border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 shrink-0">
-                        <i data-lucide="scale" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+            <div onclick="openStatsModal('balance')" style="--led-color: #10b981;" class="led-card bg-white dark:bg-brand-card border border-neutral-200 dark:border-neutral-800 p-3.5 sm:p-5 rounded-2xl flex flex-col justify-between cursor-pointer shadow-sm hover:scale-[1.02] hover:shadow-emerald-500/10">
+                <div class="led-card-inner flex flex-col justify-between h-full">
+                    <div class="flex justify-between items-start">
+                        <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-500 truncate pr-1">BILANCIO MESE</span>
+                        <div class="p-1.5 sm:p-2 bg-emerald-50 dark:bg-black rounded-xl border border-emerald-100 dark:border-neutral-800 text-emerald-500 shrink-0">
+                            <i data-lucide="scale" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                        </div>
                     </div>
-                </div>
-                <div class="mt-2 sm:mt-3 space-y-0.5">
-                    <div id="statMonthlyBalance" class="text-base sm:text-xl font-extrabold font-mono text-neutral-900 dark:text-white truncate">€0,00</div>
-                    <p id="statIncomeText" class="text-[9px] sm:text-[10px] text-emerald-600 dark:text-emerald-400 truncate">Entrate: +€0,00</p>
+                    <div class="mt-2 sm:mt-3 space-y-0.5">
+                        <div id="statMonthlyBalance" class="text-base sm:text-xl font-extrabold font-mono text-neutral-900 dark:text-white truncate">€0,00</div>
+                        <p id="statIncomeText" class="text-[9px] sm:text-[10px] text-emerald-600 dark:text-emerald-400 truncate">Entrate: +€0,00</p>
+                    </div>
                 </div>
             </div>
 
@@ -1392,3 +1440,5 @@ const firebaseConfig = {
     </script>
 </body>
 </html>
+
+```
