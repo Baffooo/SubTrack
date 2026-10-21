@@ -51,37 +51,23 @@
             transition: opacity 0.25s ease;
         }
 
-        @keyframes borderBeam {
-            0% { offset-distance: 0%; }
-            100% { offset-distance: 100%; }
+        .title-glow {
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.25);
+        }
+        .dark .title-glow {
+            text-shadow: 0 1px 3px rgba(255, 255, 255, 0.18);
         }
 
         .led-box {
             position: relative;
             border-radius: 1rem;
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-        }
-
-        .led-box::after {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            border-radius: 1.05rem;
-            background: linear-gradient(90deg, transparent, var(--led-color), transparent);
-            opacity: 0.3;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
         }
 
         .led-box:hover {
-            transform: translateY(-2px) scale(1.01);
-            box-shadow: 0 10px 25px -5px var(--led-glow);
-        }
-
-        .led-box:hover::after {
-            opacity: 1;
-            background: linear-gradient(90deg, var(--led-color), #ffffff, var(--led-color));
-            box-shadow: 0 0 12px var(--led-color);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 10px 30px -5px var(--led-glow);
+            border-color: var(--led-color);
         }
     </style>
 </head>
@@ -173,10 +159,10 @@
 
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
             
-            <div onclick="openStatsModal('accrual')" style="--led-color: #ec4899; --led-glow: rgba(236,72,153,0.15);" class="led-box bg-white dark:bg-brand-card border-2 border-pink-500/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
+            <div onclick="openStatsModal('accrual')" style="--led-color: #f472b6; --led-glow: rgba(244,114,182,0.18);" class="led-box bg-white dark:bg-brand-card border-2 border-pink-400/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
                 <div class="flex justify-between items-start">
-                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-pink-500 truncate pr-1">COSTI FISSI MESE</span>
-                    <div class="p-1.5 sm:p-2 bg-pink-50 dark:bg-brand-black rounded-xl border border-pink-200 dark:border-brand-border text-pink-500 shrink-0">
+                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-pink-400 title-glow truncate pr-1">COSTI FISSI MESE</span>
+                    <div class="p-1.5 sm:p-2 bg-pink-50 dark:bg-brand-black rounded-xl border border-pink-200 dark:border-brand-border text-pink-400 shrink-0">
                         <i data-lucide="calculator" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     </div>
                 </div>
@@ -186,10 +172,10 @@
                 </div>
             </div>
 
-            <div onclick="openStatsModal('estimate')" style="--led-color: #6366f1; --led-glow: rgba(99,102,241,0.15);" class="led-box bg-white dark:bg-brand-card border-2 border-indigo-500/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
+            <div onclick="openStatsModal('estimate')" style="--led-color: #818cf8; --led-glow: rgba(129,140,248,0.18);" class="led-box bg-white dark:bg-brand-card border-2 border-indigo-400/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
                 <div class="flex justify-between items-start">
-                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-indigo-500 truncate pr-1">STIMA MESE PROX</span>
-                    <div class="p-1.5 sm:p-2 bg-indigo-50 dark:bg-indigo-950 border border-indigo-200 dark:border-indigo-800/60 rounded-xl text-indigo-500 shrink-0">
+                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-indigo-400 title-glow truncate pr-1">STIMA MESE PROX</span>
+                    <div class="p-1.5 sm:p-2 bg-indigo-50 dark:bg-brand-black rounded-xl border border-indigo-200 dark:border-brand-border text-indigo-400 shrink-0">
                         <i data-lucide="trending-up" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     </div>
                 </div>
@@ -199,9 +185,9 @@
                 </div>
             </div>
 
-            <div onclick="openStatsModal('cashout')" style="--led-color: #f43f5e; --led-glow: rgba(244,63,94,0.15);" class="led-box bg-white dark:bg-brand-card border-2 border-rose-500/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
+            <div onclick="openStatsModal('cashout')" style="--led-color: #f43f5e; --led-glow: rgba(244,63,94,0.18);" class="led-box bg-white dark:bg-brand-card border-2 border-rose-500/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
                 <div class="flex justify-between items-start">
-                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-rose-500 truncate pr-1">USCITE REALI MESE</span>
+                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-rose-500 title-glow truncate pr-1">USCITE REALI MESE</span>
                     <div class="p-1.5 sm:p-2 bg-rose-50 dark:bg-brand-black rounded-xl border border-rose-200 dark:border-brand-border text-rose-500 shrink-0">
                         <i data-lucide="arrow-down-left" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     </div>
@@ -212,16 +198,16 @@
                 </div>
             </div>
 
-            <div onclick="openStatsModal('balance')" style="--led-color: #10b981; --led-glow: rgba(16,185,129,0.15);" class="led-box bg-white dark:bg-neutral-900 border-2 border-emerald-500/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
+            <div onclick="openStatsModal('balance')" style="--led-color: #10b981; --led-glow: rgba(16,185,129,0.18);" class="led-box bg-white dark:bg-neutral-900 border-2 border-emerald-500/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
                 <div class="flex justify-between items-start">
-                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-500 truncate pr-1">BILANCIO MESE</span>
+                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-500 title-glow truncate pr-1">BILANCIO MESE</span>
                     <div class="p-1.5 sm:p-2 bg-emerald-50 dark:bg-black rounded-xl border border-emerald-200 dark:border-neutral-800 text-emerald-500 shrink-0">
                         <i data-lucide="scale" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     </div>
                 </div>
                 <div class="mt-2 sm:mt-3 space-y-0.5">
                     <div id="statMonthlyBalance" class="text-base sm:text-xl font-extrabold font-mono text-neutral-900 dark:text-white truncate">€0,00</div>
-                    <p id="statIncomeText" class="text-[9px] sm:text-[10px] text-emerald-600 dark:text-emerald-400 truncate">Entrate: +€0,00</p>
+                    <p id="statIncomeText" class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 truncate">Entrate: +€0,00</p>
                 </div>
             </div>
 
@@ -844,7 +830,7 @@ const firebaseConfig = {
             const sortAlpha = (list) => [...list].sort((a, b) => a.title.localeCompare(b.title, 'it', { sensitivity: 'base' }));
 
             if (type === 'accrual') {
-                titleEl.innerHTML = `<i data-lucide="calculator" class="w-4 h-4 text-pink-500"></i> Dettaglio Costi Fissi Mese`;
+                titleEl.innerHTML = `<i data-lucide="calculator" class="w-4 h-4 text-pink-400"></i> Dettaglio Costi Fissi Mese`;
                 if (statsModalData.accrual.length === 0) {
                     bodyEl.innerHTML = `<p class="text-neutral-500 dark:text-brand-muted text-center py-6">Nessun costo fisso o ripartito di competenza per questo mese.</p>`;
                 } else {
@@ -854,7 +840,7 @@ const firebaseConfig = {
                         const feeText = item.fee > 0 ? ` <span class="text-[10px] text-neutral-500 dark:text-brand-muted font-sans">(${formatCurrency(item.baseAmount)} + ${formatCurrency(item.fee)} comm.)</span>` : '';
                         html += `<div class="bg-neutral-100 dark:bg-black/40 border border-neutral-200 dark:border-brand-border p-2.5 rounded-xl flex justify-between items-center gap-2">
                             <span class="text-neutral-900 dark:text-white font-semibold truncate"><span class="text-neutral-400 dark:text-brand-muted mr-1 font-bold">${index + 1}.</span>${escapeHtml(item.title)}${feeText}</span>
-                            <span class="text-pink-500 font-bold shrink-0">-${formatCurrency(item.amount)}</span>
+                            <span class="text-pink-400 font-bold shrink-0">-${formatCurrency(item.amount)}</span>
                         </div>`;
                     });
                     html += `</div>`;
@@ -1399,3 +1385,5 @@ const firebaseConfig = {
     </script>
 </body>
 </html>
+
+```
