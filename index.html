@@ -6,7 +6,7 @@
     <title>SubTrack - Bilancio Personale</title>
     
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='20' height='14' x='2' y='5' rx='2'/><line x1='2' x2='22' y1='10' y2='10'/></svg>">
-    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='128' fill='%230a0a0a'/><rect x='96' y='144' width='320' height='224' rx='32' fill='none' stroke='%23ffffff' stroke-width='32'/><line x1='96' y1='208' x2='416' y2='208' stroke='%23ffffff' stroke-width='32'/><circle cx='176' cy='288' r='24' fill='%236366f1'/></svg>">
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='112' fill='%230a0a0a'/><path d='M116 176h280a32 32 0 0132 32v128a32 32 0 01-32 32H116a32 32 0 01-32-32V208a32 32 0 0132-32z' fill='none' stroke='%23ffffff' stroke-width='32'/><circle cx='352' cy='272' r='24' fill='%236366f1'/></svg>">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="SubTrack">
@@ -51,11 +51,13 @@
             transition: opacity 0.25s ease;
         }
 
-        .title-glow {
-            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.25);
-        }
-        .dark .title-glow {
-            text-shadow: 0 1px 3px rgba(255, 255, 255, 0.18);
+        .title-chrome-3d {
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            background: linear-gradient(180deg, #ffffff 0%, var(--chrome-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 8px var(--chrome-glow));
         }
 
         .led-box {
@@ -66,7 +68,7 @@
 
         .led-box:hover {
             transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 10px 30px -5px var(--led-glow);
+            box-shadow: 0 0 20px 2px var(--led-glow), inset 0 0 10px rgba(255, 255, 255, 0.05);
             border-color: var(--led-color);
         }
     </style>
@@ -159,9 +161,9 @@
 
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
             
-            <div onclick="openStatsModal('accrual')" style="--led-color: #f472b6; --led-glow: rgba(244,114,182,0.18);" class="led-box bg-white dark:bg-brand-card border-2 border-pink-400/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
+            <div onclick="openStatsModal('accrual')" style="--led-color: #f472b6; --led-glow: rgba(244,114,182,0.35); --chrome-color: #f472b6; --chrome-glow: rgba(244,114,182,0.5);" class="led-box bg-white dark:bg-brand-card border-2 border-pink-400/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
                 <div class="flex justify-between items-start">
-                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-pink-400 title-glow truncate pr-1">COSTI FISSI MESE</span>
+                    <span class="text-[10px] sm:text-xs uppercase title-chrome-3d truncate pr-1">COSTI FISSI MESE</span>
                     <div class="p-1.5 sm:p-2 bg-pink-50 dark:bg-brand-black rounded-xl border border-pink-200 dark:border-brand-border text-pink-400 shrink-0">
                         <i data-lucide="calculator" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     </div>
@@ -172,9 +174,9 @@
                 </div>
             </div>
 
-            <div onclick="openStatsModal('estimate')" style="--led-color: #818cf8; --led-glow: rgba(129,140,248,0.18);" class="led-box bg-white dark:bg-brand-card border-2 border-indigo-400/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
+            <div onclick="openStatsModal('estimate')" style="--led-color: #818cf8; --led-glow: rgba(129,140,248,0.35); --chrome-color: #818cf8; --chrome-glow: rgba(129,140,248,0.5);" class="led-box bg-white dark:bg-brand-card border-2 border-indigo-400/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
                 <div class="flex justify-between items-start">
-                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-indigo-400 title-glow truncate pr-1">STIMA MESE PROX</span>
+                    <span class="text-[10px] sm:text-xs uppercase title-chrome-3d truncate pr-1">STIMA MESE PROX</span>
                     <div class="p-1.5 sm:p-2 bg-indigo-50 dark:bg-brand-black rounded-xl border border-indigo-200 dark:border-brand-border text-indigo-400 shrink-0">
                         <i data-lucide="trending-up" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     </div>
@@ -185,9 +187,9 @@
                 </div>
             </div>
 
-            <div onclick="openStatsModal('cashout')" style="--led-color: #f43f5e; --led-glow: rgba(244,63,94,0.18);" class="led-box bg-white dark:bg-brand-card border-2 border-rose-500/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
+            <div onclick="openStatsModal('cashout')" style="--led-color: #f43f5e; --led-glow: rgba(244,63,94,0.35); --chrome-color: #f43f5e; --chrome-glow: rgba(244,63,94,0.5);" class="led-box bg-white dark:bg-brand-card border-2 border-rose-500/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
                 <div class="flex justify-between items-start">
-                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-rose-500 title-glow truncate pr-1">USCITE REALI MESE</span>
+                    <span class="text-[10px] sm:text-xs uppercase title-chrome-3d truncate pr-1">USCITE REALI MESE</span>
                     <div class="p-1.5 sm:p-2 bg-rose-50 dark:bg-brand-black rounded-xl border border-rose-200 dark:border-brand-border text-rose-500 shrink-0">
                         <i data-lucide="arrow-down-left" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     </div>
@@ -198,9 +200,9 @@
                 </div>
             </div>
 
-            <div onclick="openStatsModal('balance')" style="--led-color: #10b981; --led-glow: rgba(16,185,129,0.18);" class="led-box bg-white dark:bg-neutral-900 border-2 border-emerald-500/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
+            <div onclick="openStatsModal('balance')" style="--led-color: #10b981; --led-glow: rgba(16,185,129,0.35); --chrome-color: #10b981; --chrome-glow: rgba(16,185,129,0.5);" class="led-box bg-white dark:bg-neutral-900 border-2 border-emerald-500/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
                 <div class="flex justify-between items-start">
-                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-500 title-glow truncate pr-1">BILANCIO MESE</span>
+                    <span class="text-[10px] sm:text-xs uppercase title-chrome-3d truncate pr-1">BILANCIO MESE</span>
                     <div class="p-1.5 sm:p-2 bg-emerald-50 dark:bg-black rounded-xl border border-emerald-200 dark:border-neutral-800 text-emerald-500 shrink-0">
                         <i data-lucide="scale" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     </div>
@@ -1106,8 +1108,9 @@ const firebaseConfig = {
             document.getElementById('txForm').reset();
             document.getElementById('txId').value = '';
             document.getElementById('txFee').value = '';
-            flatpickrTxDatePicker.setDate(new Date());
-            setTxType('expense');
+            
+            const activeYM = document.getElementById('monthFilterBtn').value || new Date().toISOString().slice(0, 7);
+            const defaultDateForPicker = activeYM + '-01';
 
             if (editId) {
                 const tx = transactions.find(t => t.id === editId);
@@ -1137,6 +1140,7 @@ const firebaseConfig = {
                 }
             } else {
                 document.getElementById('txModalTitle').innerText = 'Nuovo Movimento';
+                flatpickrTxDatePicker.setDate(defaultDateForPicker);
             }
 
             toggleCadenceVisibility();
@@ -1385,5 +1389,3 @@ const firebaseConfig = {
     </script>
 </body>
 </html>
-
-```
