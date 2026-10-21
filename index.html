@@ -108,7 +108,7 @@
         </div>
     </header>
 
-    <!-- SEARCH RESULTS VIEW PAGE (SEPARATA) -->
+    <!-- SEARCH RESULTS VIEW PAGE -->
     <section id="search-results-page" class="hidden max-w-4xl w-full mx-auto p-4 space-y-4">
         <div class="flex justify-between items-center bg-brand-card border border-brand-border p-4 rounded-2xl">
             <div>
@@ -128,7 +128,7 @@
     <!-- MAIN HOME DASHBOARD CONTAINER -->
     <main id="main-dashboard" class="flex-1 max-w-4xl w-full mx-auto p-4 space-y-6">
 
-        <!-- PERIOD FILTER BAR CON CALENDARIO ITALIANO -->
+        <!-- PERIOD FILTER BAR -->
         <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 bg-brand-card border border-brand-border p-4 rounded-2xl">
             <div class="flex items-center gap-2.5">
                 <i data-lucide="calendar" class="w-4 h-4 text-brand-muted"></i>
@@ -303,21 +303,53 @@
                     <label class="block text-xs font-medium text-brand-muted mb-1">Tipologia del Costo *</label>
                     <select id="txRecurrence" onchange="toggleCadenceVisibility()" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white">
                         <option value="once">Una tantum (Singolo addebito)</option>
-                        <option value="fixed">Ricorrente Fissa (Importo fisso periodico)</option>
-                        <option value="variable">Bolletta / Costo Ripartito su Mesi Specifici</option>
+                        <option value="fixed">Ricorrente Fissa (Importo periodico)</option>
+                        <option value="variable">Costo Ripartito su Intervallo Personalizzato</option>
                     </select>
                 </div>
 
-                <div id="monthsSelectionGroup" class="hidden space-y-2">
-                    <div class="flex justify-between items-center">
-                        <label class="block text-xs font-medium text-brand-muted">Mesi di Competenza Validi *</label>
-                        <div class="flex gap-2">
-                            <button type="button" onclick="selectAllMonths(true)" class="text-[10px] text-indigo-400 hover:underline">Tutti (12m)</button>
-                            <button type="button" onclick="selectAllMonths(false)" class="text-[10px] text-brand-muted hover:underline">Azzera</button>
+                <!-- SELETTORE CADENZA PER SPESE FISSE -->
+                <div id="fixedCadenceGroup" class="hidden">
+                    <label class="block text-xs font-medium text-brand-muted mb-1">Frequenza Addebito *</label>
+                    <select id="txFixedCadence" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white">
+                        <option value="1">Mensile (Ogni Mese)</option>
+                        <option value="2">Bimensile (Ogni 2 Mesi)</option>
+                        <option value="3">Trimestrale (Ogni 3 Mesi)</option>
+                        <option value="6">Semestrale (Ogni 6 Mesi)</option>
+                        <option value="12">Annuale (Ogni 12 Mesi)</option>
+                    </select>
+                </div>
+
+                <!-- SELEZIONE INTERVALLO MESI/ANNI PER SPESE RIPARTITE -->
+                <div id="rangeSelectionGroup" class="hidden space-y-3 p-3 bg-brand-black border border-brand-border rounded-xl">
+                    <label class="block text-xs font-medium text-brand-muted">Intervallo Temporale di Competenza</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <span class="block text-[10px] text-brand-muted mb-1">Da (Mese / Anno)</span>
+                            <div class="flex gap-1">
+                                <select id="rangeStartMonth" class="w-1/2 bg-brand-card border border-brand-border rounded-lg px-2 py-1 text-xs text-white">
+                                    <option value="1">Gen</option><option value="2">Feb</option><option value="3">Mar</option>
+                                    <option value="4">Apr</option><option value="5">Mag</option><option value="6">Giu</option>
+                                    <option value="7">Lug</option><option value="8">Ago</option><option value="9">Set</option>
+                                    <option value="10">Ott</option><option value="11">Nov</option><option value="12">Dic</option>
+                                </select>
+                                <input type="number" id="rangeStartYear" value="2026" class="w-1/2 bg-brand-card border border-brand-border rounded-lg px-2 py-1 text-xs text-white">
+                            </div>
+                        </div>
+                        <div>
+                            <span class="block text-[10px] text-brand-muted mb-1">A (Mese / Anno)</span>
+                            <div class="flex gap-1">
+                                <select id="rangeEndMonth" class="w-1/2 bg-brand-card border border-brand-border rounded-lg px-2 py-1 text-xs text-white">
+                                    <option value="1">Gen</option><option value="2">Feb</option><option value="3">Mar</option>
+                                    <option value="4">Apr</option><option value="5">Mag</option><option value="6">Giu</option>
+                                    <option value="7">Lug</option><option value="8">Ago</option><option value="9">Set</option>
+                                    <option value="10">Ott</option><option value="11">Nov</option><option value="12" selected>Dic</option>
+                                </select>
+                                <input type="number" id="rangeEndYear" value="2026" class="w-1/2 bg-brand-card border border-brand-border rounded-lg px-2 py-1 text-xs text-white">
+                            </div>
                         </div>
                     </div>
-                    <div id="monthsGrid" class="grid grid-cols-4 gap-1.5 p-2 bg-brand-black border border-brand-border rounded-xl"></div>
-                    <p class="text-[10px] text-brand-muted">L'importo verrà diviso equamente solo tra i mesi selezionati.</p>
+                    <p class="text-[10px] text-brand-muted">Il costo totale verrà spalmato equamente su tutti i mesi inclusi nell'intervallo.</p>
                 </div>
 
                 <div class="flex gap-2 pt-2">
@@ -416,7 +448,6 @@ const firebaseConfig = {
         let categoryChartInstance = null;
         let annualChartInstance = null;
         let currentTxType = 'expense';
-        let selectedMonths = [];
         let flatpickrMonthPicker = null;
         let flatpickrTxDatePicker = null;
 
@@ -477,7 +508,7 @@ const firebaseConfig = {
                 dateFormat: "Y-m",
                 altInput: true,
                 altFormat: "F Y",
-                onChange: function(selectedDates, dateStr) {
+                onChange: function() {
                     renderApp();
                 }
             });
@@ -490,7 +521,6 @@ const firebaseConfig = {
                 defaultDate: "today"
             });
 
-            initMonthsGrid();
             if (window.lucide) lucide.createIcons();
             renderApp();
         });
@@ -601,36 +631,44 @@ const firebaseConfig = {
                 const [txY, txM] = tx.date.slice(0, 10).split('-').map(Number);
                 const monthDiff = (targetY - txY) * 12 + (targetM - txM);
                 if (monthDiff < 0) return 0;
-                return tx.amount;
+                const cadence = parseInt(tx.fixedCadence) || 1;
+                return (monthDiff % cadence === 0) ? tx.amount : 0;
             }
             return 0;
         }
 
+        // COPERTURA FLESSIBILE MESE/ANNO COMPETENZA
         function getTxAccrualValue(tx, targetYM) {
             const [targetY, targetM] = targetYM.split('-').map(Number);
-            const [txY, txM] = tx.date.slice(0, 10).split('-').map(Number);
 
             if (tx.recurrence === 'once') {
                 return (tx.date.slice(0, 7) === targetYM) ? tx.amount : 0;
             }
             if (tx.recurrence === 'fixed') {
-                return tx.amount;
+                const cadence = parseInt(tx.fixedCadence) || 1;
+                return tx.amount / cadence;
             }
             if (tx.recurrence === 'variable') {
-                const targetYearMatch = (targetY === txY);
-                if (targetYearMatch && tx.validMonths && tx.validMonths.includes(targetM)) {
-                    return tx.amount / tx.validMonths.length;
+                if (tx.rangeStart && tx.rangeEnd) {
+                    const targetVal = targetY * 12 + targetM;
+                    const [sY, sM] = tx.rangeStart.split('-').map(Number);
+                    const [eY, eM] = tx.rangeEnd.split('-').map(Number);
+                    const startVal = sY * 12 + sM;
+                    const endVal = eY * 12 + eM;
+
+                    if (targetVal >= startVal && targetVal <= endVal) {
+                        const totalMonths = (endVal - startVal) + 1;
+                        return tx.amount / totalMonths;
+                    }
                 }
             }
             return 0;
         }
 
-        // STIMA MESE SUCCESSIVO (ESCLUDE ENTRATE E CALCOLA IMPATTO MENSILE REALE PER FISSE E MEDIA PER VARIABILI)
         function calculateNextMonthEstimate() {
             let totalEstimate = 0;
             const estimateBreakdown = [];
 
-            // Prendi solo le spese (escludi le entrate)
             const expenseTransactions = transactions.filter(t => t.type === 'expense');
             const uniqueTitles = [...new Set(expenseTransactions.map(t => t.title.trim()))];
 
@@ -638,29 +676,20 @@ const firebaseConfig = {
                 const items = expenseTransactions.filter(t => t.title.trim() === title);
                 const sample = items[0];
 
-                // Escludi Una Tantum
                 if (sample.recurrence === 'once') return;
 
                 if (sample.recurrence === 'fixed') {
-                    // Spesa fissa: calcola quanto incide al mese in base ai mesi di validità o default
-                    let monthlyImpact = 0;
-                    if (sample.validMonths && sample.validMonths.length > 0) {
-                        // Se ha mesi di validità specificati (es. annuale diviso 12)
-                        monthlyImpact = sample.amount / sample.validMonths.length;
-                    } else {
-                        // Se inserita come fissa standard mensile
-                        monthlyImpact = sample.amount;
-                    }
+                    const cadence = parseInt(sample.fixedCadence) || 1;
+                    const monthlyImpact = sample.amount / cadence;
 
                     totalEstimate += monthlyImpact;
-                    estimateBreakdown.push({ title, amount: monthlyImpact, note: sample.validMonths?.length === 12 ? 'Spesa Annuale (/12)' : 'Fissa Mensile' });
+                    estimateBreakdown.push({ title, amount: monthlyImpact, note: cadence > 1 ? `Fissa (${cadence}m)` : 'Fissa Mensile' });
                 } else if (sample.recurrence === 'variable') {
-                    // Variabile: media storica calcolata su tutte le occorrenze (inclusi gli zeri inseriti)
                     const totalSum = items.reduce((acc, curr) => acc + curr.amount, 0);
                     const avgAmount = totalSum / items.length;
 
                     totalEstimate += avgAmount;
-                    estimateBreakdown.push({ title, amount: avgAmount, note: `Media storica (${items.length} occorrenze)` });
+                    estimateBreakdown.push({ title, amount: avgAmount, note: `Media (${items.length} occorrenze)` });
                 }
             });
 
@@ -697,7 +726,6 @@ const firebaseConfig = {
 
             const netCashBalance = cashInTotal - cashOutTotal;
 
-            // Aggiornato: Uscite Reali Mese senza segno meno al totale
             document.getElementById('statCashFlowOut').innerText = formatCurrency(cashOutTotal);
             document.getElementById('statMonthlyAccrualCost').innerText = formatCurrency(accrualCostTotal) + ' / mese';
             document.getElementById('statMonthlyBalance').innerText = formatCurrency(netCashBalance);
@@ -766,7 +794,7 @@ const firebaseConfig = {
                 const isExpense = tx.type === 'expense';
 
                 let recBadge = '';
-                if (tx.recurrence === 'fixed') recBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] bg-neutral-800 text-neutral-300">Fissa</span>`;
+                if (tx.recurrence === 'fixed') recBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] bg-neutral-800 text-neutral-300">Fissa (${tx.fixedCadence || 1}m)</span>`;
                 else if (tx.recurrence === 'variable') recBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] bg-amber-950 text-amber-300 border border-amber-800/50">Variabile</span>`;
                 else recBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] bg-brand-black text-brand-muted">Una tantum</span>`;
 
@@ -924,47 +952,6 @@ const firebaseConfig = {
             });
         }
 
-        function initMonthsGrid() {
-            const grid = document.getElementById('monthsGrid');
-            grid.innerHTML = '';
-            MONTH_NAMES_IT.forEach((mName, idx) => {
-                const mNum = idx + 1;
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.id = `mBtn_${mNum}`;
-                btn.onclick = () => toggleMonthSelection(mNum);
-                btn.className = 'py-1.5 text-xs font-semibold rounded-lg border border-brand-border bg-brand-card text-brand-muted transition-all cursor-pointer';
-                btn.innerText = mName;
-                grid.appendChild(btn);
-            });
-        }
-
-        function toggleMonthSelection(mNum) {
-            const idx = selectedMonths.indexOf(mNum);
-            if (idx >= 0) selectedMonths.splice(idx, 1);
-            else selectedMonths.push(mNum);
-            updateMonthsButtonsUI();
-        }
-
-        function selectAllMonths(enableAll) {
-            if (enableAll) selectedMonths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-            else selectedMonths = [];
-            updateMonthsButtonsUI();
-        }
-
-        function updateMonthsButtonsUI() {
-            for (let i = 1; i <= 12; i++) {
-                const btn = document.getElementById(`mBtn_${i}`);
-                if (btn) {
-                    if (selectedMonths.includes(i)) {
-                        btn.className = 'py-1.5 text-xs font-bold rounded-lg border border-amber-500 bg-amber-500/20 text-amber-300 shadow-sm cursor-pointer';
-                    } else {
-                        btn.className = 'py-1.5 text-xs font-semibold rounded-lg border border-brand-border bg-brand-card text-brand-muted hover:text-white cursor-pointer';
-                    }
-                }
-            }
-        }
-
         function openTransactionModal(editId = null) {
             populateCategorySelect();
             document.getElementById('txForm').reset();
@@ -982,13 +969,23 @@ const firebaseConfig = {
                     setTxType(tx.type);
                     document.getElementById('txCategory').value = tx.categoryId;
                     document.getElementById('txRecurrence').value = tx.recurrence || 'once';
-                    selectedMonths = tx.validMonths ? [...tx.validMonths] : [];
+                    document.getElementById('txFixedCadence').value = tx.fixedCadence || '1';
+
+                    if (tx.rangeStart) {
+                        const [sY, sM] = tx.rangeStart.split('-');
+                        document.getElementById('rangeStartMonth').value = parseInt(sM);
+                        document.getElementById('rangeStartYear').value = sY;
+                    }
+                    if (tx.rangeEnd) {
+                        const [eY, eM] = tx.rangeEnd.split('-');
+                        document.getElementById('rangeEndMonth').value = parseInt(eM);
+                        document.getElementById('rangeEndYear').value = eY;
+                    }
+
                     document.getElementById('txModalTitle').innerText = 'Modifica Movimento';
                 }
             } else {
                 document.getElementById('txModalTitle').innerText = 'Nuovo Movimento';
-                selectedMonths = [];
-                updateMonthsButtonsUI();
             }
 
             toggleCadenceVisibility();
@@ -1016,12 +1013,18 @@ const firebaseConfig = {
 
         function toggleCadenceVisibility() {
             const rec = document.getElementById('txRecurrence').value;
-            const group = document.getElementById('monthsSelectionGroup');
-            if (rec === 'variable') {
-                group.classList.remove('hidden');
-                updateMonthsButtonsUI();
+            const fixedGroup = document.getElementById('fixedCadenceGroup');
+            const rangeGroup = document.getElementById('rangeSelectionGroup');
+
+            if (rec === 'fixed') {
+                fixedGroup.classList.remove('hidden');
+                rangeGroup.classList.add('hidden');
+            } else if (rec === 'variable') {
+                fixedGroup.classList.add('hidden');
+                rangeGroup.classList.remove('hidden');
             } else {
-                group.classList.add('hidden');
+                fixedGroup.classList.add('hidden');
+                rangeGroup.classList.add('hidden');
             }
         }
 
@@ -1042,9 +1045,17 @@ const firebaseConfig = {
             const id = document.getElementById('txId').value || 'tx_' + Date.now();
             const recurrence = document.getElementById('txRecurrence').value;
 
-            if (recurrence === 'variable' && selectedMonths.length === 0) {
-                alert("Seleziona almeno un mese di competenza per la ripartizione.");
-                return;
+            let rangeStart = null;
+            let rangeEnd = null;
+
+            if (recurrence === 'variable') {
+                const sM = String(document.getElementById('rangeStartMonth').value).padStart(2, '0');
+                const sY = document.getElementById('rangeStartYear').value;
+                const eM = String(document.getElementById('rangeEndMonth').value).padStart(2, '0');
+                const eY = document.getElementById('rangeEndYear').value;
+
+                rangeStart = `${sY}-${sM}`;
+                rangeEnd = `${eY}-${eM}`;
             }
 
             const txObj = {
@@ -1055,7 +1066,9 @@ const firebaseConfig = {
                 categoryId: document.getElementById('txCategory').value,
                 type: currentTxType,
                 recurrence: recurrence,
-                validMonths: recurrence === 'variable' ? [...selectedMonths].sort((a,b) => a - b) : null
+                fixedCadence: recurrence === 'fixed' ? parseInt(document.getElementById('txFixedCadence').value || '1') : null,
+                rangeStart,
+                rangeEnd
             };
 
             if (!useLocalStorage && db) {
