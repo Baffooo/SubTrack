@@ -1,3 +1,12 @@
+Ecco il codice **completo e aggiornato** con tutte le modifiche richieste:
+
+1. **Nuovo Ordine dei Riquadri in Alto**: Costi Fissi, Stima Mese Prossimo, Uscite Reali, Bilancio Mese.
+2. **Correzione Voci a 0,00€ (Una Tantum)**: Ora le spese "Una tantum" che avvengono nel mese selezionato vengono visualizzate e conteggiate correttamente anche nel dettaglio spese e consumi.
+3. **Gestione Commissioni**: Aggiunto il campo **Commissioni (€)** nel form di inserimento/modifica. Nei riepiloghi e nei dettagli la voce mostra il totale complessivo e, tra parentesi, il dettaglio esatto di `Importo Reale + Commissioni`.
+
+Copia e sostituisci interamente il codice nel tuo file `index.html`:
+
+```html
 <!DOCTYPE html>
 <html lang="it" class="dark">
 <head>
@@ -34,7 +43,7 @@
         }
     </script>
     
-    <!-- Lucide Icons, Chart.js, Flatpickr (Italian Calendar with Monday start) -->
+    <!-- Lucide Icons, Chart.js, Flatpickr -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -86,7 +95,7 @@
             </div>
         </div>
 
-        <!-- SEARCH BAR (IN PRIMO PIANO) -->
+        <!-- SEARCH BAR -->
         <div class="relative w-full sm:max-w-md z-50">
             <div id="search-box-container" class="relative transition-all rounded-xl">
                 <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-brand-muted pointer-events-none"></i>
@@ -142,26 +151,10 @@
             </div>
         </div>
 
-        <!-- SUMMARY STATS CARDS (4 RIQUADRI SEPARATI E CLICCABILI) -->
+        <!-- SUMMARY STATS CARDS (NUOVO ORDINE RICHIESTO) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             
-            <!-- 1. USCITE REALI MESE -->
-            <div onclick="openStatsModal('cashout')" class="bg-brand-card border border-brand-border p-5 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-white transition-all group">
-                <div class="flex justify-between items-start">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-brand-muted flex items-center gap-1">
-                        Uscite Reali <i data-lucide="info" class="w-3.5 h-3.5 text-brand-muted group-hover:text-white"></i>
-                    </span>
-                    <div class="p-2 bg-brand-black rounded-xl border border-brand-border text-white">
-                        <i data-lucide="arrow-down-left" class="w-4 h-4 text-rose-400"></i>
-                    </div>
-                </div>
-                <div class="mt-3 space-y-1">
-                    <div class="text-xl font-extrabold text-white" id="statCashFlowOut">€0,00</div>
-                    <p class="text-[10px] text-brand-muted">Pagamenti reali mese</p>
-                </div>
-            </div>
-
-            <!-- 2. COSTI FISSI MESE -->
+            <!-- 1. COSTI FISSI MESE -->
             <div onclick="openStatsModal('accrual')" class="bg-brand-card border border-brand-border p-5 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-indigo-400 transition-all group">
                 <div class="flex justify-between items-start">
                     <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-1">
@@ -177,7 +170,39 @@
                 </div>
             </div>
 
-            <!-- 3. BILANCIO CASSA -->
+            <!-- 2. STIMA MESE SUCCESSIVO -->
+            <div onclick="openStatsModal('estimate')" class="bg-gradient-to-br from-indigo-950/40 via-brand-card to-brand-card border border-indigo-900/60 p-5 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-indigo-400 transition-all group">
+                <div class="flex justify-between items-start">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-indigo-300 flex items-center gap-1">
+                        Stima Prossimo <i data-lucide="info" class="w-3.5 h-3.5 text-indigo-400/70 group-hover:text-indigo-300"></i>
+                    </span>
+                    <div class="p-2 bg-indigo-950 border border-indigo-800/60 rounded-xl text-indigo-400">
+                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div class="mt-3 space-y-1">
+                    <div class="text-xl font-extrabold text-indigo-300" id="nextMonthEstimateTotal">€0,00</div>
+                    <p class="text-[10px] text-neutral-400">Impatto mensile stimato</p>
+                </div>
+            </div>
+
+            <!-- 3. USCITE REALI MESE -->
+            <div onclick="openStatsModal('cashout')" class="bg-brand-card border border-brand-border p-5 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-white transition-all group">
+                <div class="flex justify-between items-start">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-brand-muted flex items-center gap-1">
+                        Uscite Reali <i data-lucide="info" class="w-3.5 h-3.5 text-brand-muted group-hover:text-white"></i>
+                    </span>
+                    <div class="p-2 bg-brand-black rounded-xl border border-brand-border text-white">
+                        <i data-lucide="arrow-down-left" class="w-4 h-4 text-rose-400"></i>
+                    </div>
+                </div>
+                <div class="mt-3 space-y-1">
+                    <div class="text-xl font-extrabold text-white" id="statCashFlowOut">€0,00</div>
+                    <p class="text-[10px] text-brand-muted">Pagamenti reali mese</p>
+                </div>
+            </div>
+
+            <!-- 4. BILANCIO CASSA MESE -->
             <div onclick="openStatsModal('balance')" class="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-white transition-all group">
                 <div class="flex justify-between items-start">
                     <span class="text-xs font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1">
@@ -190,22 +215,6 @@
                 <div class="mt-3 space-y-1">
                     <div id="statMonthlyBalance" class="text-xl font-extrabold text-white">€0,00</div>
                     <p id="statIncomeText" class="text-[10px] text-emerald-400">Entrate mese: +€0,00</p>
-                </div>
-            </div>
-
-            <!-- 4. STIMA MESE SUCCESSIVO (TRASFORMATO IN SCHEDA RIQUADRO) -->
-            <div onclick="openStatsModal('estimate')" class="bg-gradient-to-br from-indigo-950/40 via-brand-card to-brand-card border border-indigo-900/60 p-5 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-indigo-400 transition-all group">
-                <div class="flex justify-between items-start">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-indigo-300 flex items-center gap-1">
-                        Stima Prossimo Mese <i data-lucide="info" class="w-3.5 h-3.5 text-indigo-400/70 group-hover:text-indigo-300"></i>
-                    </span>
-                    <div class="p-2 bg-indigo-950 border border-indigo-800/60 rounded-xl text-indigo-400">
-                        <i data-lucide="trending-up" class="w-4 h-4"></i>
-                    </div>
-                </div>
-                <div class="mt-3 space-y-1">
-                    <div class="text-xl font-extrabold text-indigo-300" id="nextMonthEstimateTotal">€0,00</div>
-                    <p class="text-[10px] text-neutral-400">Impatto mensile stmato</p>
                 </div>
             </div>
 
@@ -275,9 +284,7 @@
                 </button>
             </div>
 
-            <div id="statsModalBody" class="space-y-3 overflow-y-auto custom-scrollbar pr-2 flex-1 text-xs text-neutral-300">
-                <!-- Contenuto dinamico -->
-            </div>
+            <div id="statsModalBody" class="space-y-3 overflow-y-auto custom-scrollbar pr-2 flex-1 text-xs text-neutral-300"></div>
 
             <div class="pt-3 border-t border-brand-border flex justify-end">
                 <button onclick="closeStatsModal()" class="px-4 py-2 rounded-xl bg-white text-black font-semibold text-xs hover:bg-neutral-200 transition-all cursor-pointer">Chiudi</button>
@@ -310,13 +317,18 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-medium text-brand-muted mb-1">Importo (€) *</label>
+                        <label class="block text-xs font-medium text-brand-muted mb-1">Importo Reale (€) *</label>
                         <input type="number" step="0.01" id="txAmount" required placeholder="0.00" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white font-semibold">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-brand-muted mb-1">Data Pagamento *</label>
-                        <input type="text" id="txDate" required placeholder="Seleziona data" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white cursor-pointer">
+                        <label class="block text-xs font-medium text-brand-muted mb-1">Commissioni (€)</label>
+                        <input type="number" step="0.01" id="txFee" placeholder="0.00" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white font-semibold">
                     </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-brand-muted mb-1">Data Pagamento *</label>
+                    <input type="text" id="txDate" required placeholder="Seleziona data" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white cursor-pointer">
                 </div>
 
                 <div>
@@ -431,7 +443,7 @@
         </div>
     </div>
 
-    <!-- FIREBASE SDK (Placeholder Sicuro) -->
+    <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -454,8 +466,6 @@ const firebaseConfig = {
 
 };
 
-
-        const MONTH_NAMES_IT = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
 
         let db = null;
         let useLocalStorage = false;
@@ -534,9 +544,7 @@ const firebaseConfig = {
                 dateFormat: "Y-m",
                 altInput: true,
                 altFormat: "F Y",
-                onChange: function() {
-                    renderApp();
-                }
+                onChange: function() { renderApp(); }
             });
 
             flatpickrTxDatePicker = flatpickr("#txDate", {
@@ -579,9 +587,7 @@ const firebaseConfig = {
         function handleSearchKeyDown(e) {
             if (e.key === 'Enter') {
                 const query = e.target.value.trim();
-                if (query.length > 0) {
-                    executeGlobalSearch(query);
-                }
+                if (query.length > 0) executeGlobalSearch(query);
             }
         }
 
@@ -614,6 +620,7 @@ const firebaseConfig = {
                 const cat = categories.find(c => c.id === tx.categoryId) || { name: 'Generale', color: '#737373' };
                 const isExpense = tx.type === 'expense';
                 const txYM = tx.date.slice(0, 7);
+                const totalAmt = (tx.amount || 0) + (tx.fee || 0);
 
                 const card = document.createElement('div');
                 card.className = 'bg-brand-card border border-brand-border rounded-xl p-4 space-y-2 cursor-pointer hover:border-white transition-all';
@@ -625,7 +632,7 @@ const firebaseConfig = {
                             <h3 class="font-bold text-white text-sm">${escapeHtml(tx.title)}</h3>
                         </div>
                         <span class="text-sm font-mono font-extrabold ${isExpense ? 'text-rose-400' : 'text-emerald-400'}">
-                            ${isExpense ? '-' : '+'}${formatCurrency(tx.amount)}
+                            ${isExpense ? '-' : '+'}${formatCurrency(totalAmt)}
                         </span>
                     </div>
                     <div class="flex flex-wrap items-center gap-2 text-xs text-brand-muted pointer-events-none">
@@ -644,11 +651,8 @@ const firebaseConfig = {
 
         function jumpToMonth(ym) {
             exitSearchView();
-            if (flatpickrMonthPicker) {
-                flatpickrMonthPicker.setDate(ym);
-            } else {
-                document.getElementById('monthFilterBtn').value = ym;
-            }
+            if (flatpickrMonthPicker) flatpickrMonthPicker.setDate(ym);
+            else document.getElementById('monthFilterBtn').value = ym;
             renderApp();
         }
 
@@ -659,10 +663,15 @@ const firebaseConfig = {
             document.getElementById('search-clear-btn').classList.add('hidden');
         }
 
+        function getTxTotal(tx) {
+            return (tx.amount || 0) + (tx.fee || 0);
+        }
+
         function getTxCashFlowValue(tx, targetYM) {
             const txYM = tx.date.slice(0, 7);
+            const total = getTxTotal(tx);
             if (tx.recurrence === 'once' || tx.recurrence === 'variable') {
-                return txYM === targetYM ? tx.amount : 0;
+                return txYM === targetYM ? total : 0;
             }
             if (tx.recurrence === 'fixed') {
                 const [targetY, targetM] = targetYM.split('-').map(Number);
@@ -670,22 +679,22 @@ const firebaseConfig = {
                 const monthDiff = (targetY - txY) * 12 + (targetM - txM);
                 if (monthDiff < 0) return 0;
                 const cadence = parseInt(tx.fixedCadence) || 1;
-                return (monthDiff % cadence === 0) ? tx.amount : 0;
+                return (monthDiff % cadence === 0) ? total : 0;
             }
             return 0;
         }
 
-        // ESCLUSIONE DELLE SPESE "UNA TANTUM" DAI COSTI FISSI
         function getTxAccrualValue(tx, targetYM) {
             const [targetY, targetM] = targetYM.split('-').map(Number);
+            const total = getTxTotal(tx);
 
-            // "Una tantum" escluse totalmente dai costi fissi
+            // Una tantum considerata nel mese di pagamento effettivo
             if (tx.recurrence === 'once') {
-                return 0;
+                return tx.date.slice(0, 7) === targetYM ? total : 0;
             }
             if (tx.recurrence === 'fixed') {
                 const cadence = parseInt(tx.fixedCadence) || 1;
-                return tx.amount / cadence;
+                return total / cadence;
             }
             if (tx.recurrence === 'variable') {
                 if (tx.rangeStart && tx.rangeEnd) {
@@ -697,7 +706,7 @@ const firebaseConfig = {
 
                     if (targetVal >= startVal && targetVal <= endVal) {
                         const totalMonths = (endVal - startVal) + 1;
-                        return tx.amount / totalMonths;
+                        return total / totalMonths;
                     }
                 }
             }
@@ -717,12 +726,14 @@ const firebaseConfig = {
 
                 if (sample.recurrence === 'once') return;
 
+                const total = getTxTotal(sample);
+
                 if (sample.recurrence === 'fixed') {
                     const cadence = parseInt(sample.fixedCadence) || 1;
-                    const monthlyImpact = sample.amount / cadence;
+                    const monthlyImpact = total / cadence;
 
                     totalEstimate += monthlyImpact;
-                    estimateBreakdown.push({ title, amount: monthlyImpact, note: cadence > 1 ? `Fissa (${cadence}m) -> Impatto mensile` : 'Fissa Mensile' });
+                    estimateBreakdown.push({ title, amount: monthlyImpact, fee: sample.fee || 0, baseAmount: sample.amount || 0, note: cadence > 1 ? `Fissa (${cadence}m) -> Impatto mensile` : 'Fissa Mensile' });
                 } else if (sample.recurrence === 'variable') {
                     if (sample.rangeStart && sample.rangeEnd) {
                         const [sY, sM] = sample.rangeStart.split('-').map(Number);
@@ -730,16 +741,16 @@ const firebaseConfig = {
                         const startVal = sY * 12 + sM;
                         const endVal = eY * 12 + eM;
                         const totalMonths = Math.max(1, (endVal - startVal) + 1);
-                        const monthlyImpact = sample.amount / totalMonths;
+                        const monthlyImpact = total / totalMonths;
 
                         totalEstimate += monthlyImpact;
-                        estimateBreakdown.push({ title, amount: monthlyImpact, note: `Ripartito (${totalMonths} mesi)` });
+                        estimateBreakdown.push({ title, amount: monthlyImpact, fee: sample.fee || 0, baseAmount: sample.amount || 0, note: `Ripartito (${totalMonths} mesi)` });
                     } else {
-                        const totalSum = items.reduce((acc, curr) => acc + curr.amount, 0);
+                        const totalSum = items.reduce((acc, curr) => acc + getTxTotal(curr), 0);
                         const avgAmount = totalSum / items.length;
 
                         totalEstimate += avgAmount;
-                        estimateBreakdown.push({ title, amount: avgAmount, note: `Media (${items.length} occorrenze)` });
+                        estimateBreakdown.push({ title, amount: avgAmount, fee: sample.fee || 0, baseAmount: sample.amount || 0, note: `Media (${items.length} occorrenze)` });
                     }
                 }
             });
@@ -766,8 +777,8 @@ const firebaseConfig = {
                 if (tx.type === 'expense') {
                     cashOutTotal += cashVal;
                     accrualCostTotal += accrualVal;
-                    if (cashVal > 0) statsModalData.cashout.push({ title: tx.title, amount: cashVal });
-                    if (accrualVal > 0) statsModalData.accrual.push({ title: tx.title, amount: accrualVal });
+                    if (cashVal > 0) statsModalData.cashout.push({ title: tx.title, amount: cashVal, fee: tx.fee || 0, baseAmount: tx.amount || 0 });
+                    if (accrualVal > 0) statsModalData.accrual.push({ title: tx.title, amount: accrualVal, fee: tx.fee || 0, baseAmount: tx.amount || 0 });
                 } else if (tx.type === 'income') {
                     cashInTotal += cashVal;
                 }
@@ -785,11 +796,11 @@ const firebaseConfig = {
             const estimate = calculateNextMonthEstimate();
             statsModalData.estimate = estimate.breakdown;
 
-            document.getElementById('statCashFlowOut').innerText = formatCurrency(cashOutTotal);
             document.getElementById('statMonthlyAccrualCost').innerText = formatCurrency(accrualCostTotal) + ' / mese';
+            document.getElementById('nextMonthEstimateTotal').innerText = formatCurrency(estimate.total);
+            document.getElementById('statCashFlowOut').innerText = formatCurrency(cashOutTotal);
             document.getElementById('statMonthlyBalance').innerText = formatCurrency(netCashBalance);
             document.getElementById('statIncomeText').innerText = `Entrate mese: +${formatCurrency(cashInTotal)}`;
-            document.getElementById('nextMonthEstimateTotal').innerText = formatCurrency(estimate.total);
 
             renderTransactionsList(txDisplayList);
             renderCategoriesGrid();
@@ -800,35 +811,54 @@ const firebaseConfig = {
             if (window.lucide) lucide.createIcons();
         }
 
-        // ==========================================
         // STATS POPUP DETAILS MANAGEMENT
-        // ==========================================
         function openStatsModal(type) {
             const modal = document.getElementById('statsModal');
             const titleEl = document.getElementById('statsModalTitle');
             const bodyEl = document.getElementById('statsModalBody');
             bodyEl.innerHTML = '';
 
-            if (type === 'cashout') {
-                titleEl.innerHTML = `<i data-lucide="arrow-down-left" class="w-4 h-4 text-rose-400"></i> Dettaglio Uscite Reali Mese`;
-                if (statsModalData.cashout.length === 0) {
-                    bodyEl.innerHTML = `<p class="text-brand-muted text-center py-6">Nessun addebito effettivo registrato in questo mese.</p>`;
-                } else {
-                    let html = `<p class="text-neutral-400 pb-2">Elenco dei pagamenti effettivi avvenuti in questo mese (incluse spese una tantum e addebiti ricorrenti):</p><div class="space-y-1.5 font-mono">`;
-                    statsModalData.cashout.forEach(item => {
-                        html += `<div class="bg-black/40 border border-brand-border p-2.5 rounded-xl flex justify-between items-center"><span class="text-white font-semibold">${escapeHtml(item.title)}</span><span class="text-rose-400 font-bold">-${formatCurrency(item.amount)}</span></div>`;
-                    });
-                    html += `</div>`;
-                    bodyEl.innerHTML = html;
-                }
-            } else if (type === 'accrual') {
+            if (type === 'accrual') {
                 titleEl.innerHTML = `<i data-lucide="calculator" class="w-4 h-4 text-indigo-400"></i> Dettaglio Costi Fissi Mese`;
                 if (statsModalData.accrual.length === 0) {
                     bodyEl.innerHTML = `<p class="text-brand-muted text-center py-6">Nessun costo fisso o ripartito di competenza per questo mese.</p>`;
                 } else {
-                    let html = `<p class="text-neutral-400 pb-2">Quote di competenza mensili (escluse le spese una tantum):</p><div class="space-y-1.5 font-mono">`;
+                    let html = `<p class="text-neutral-400 pb-2">Quote di competenza mensili:</p><div class="space-y-1.5 font-mono">`;
                     statsModalData.accrual.forEach(item => {
-                        html += `<div class="bg-black/40 border border-brand-border p-2.5 rounded-xl flex justify-between items-center"><span class="text-white font-semibold">${escapeHtml(item.title)}</span><span class="text-indigo-400 font-bold">-${formatCurrency(item.amount)}</span></div>`;
+                        const feeText = item.fee > 0 ? ` <span class="text-[10px] text-brand-muted font-sans">(${formatCurrency(item.baseAmount)} + ${formatCurrency(item.fee)} comm.)</span>` : '';
+                        html += `<div class="bg-black/40 border border-brand-border p-2.5 rounded-xl flex justify-between items-center"><span class="text-white font-semibold">${escapeHtml(item.title)}${feeText}</span><span class="text-indigo-400 font-bold">-${formatCurrency(item.amount)}</span></div>`;
+                    });
+                    html += `</div>`;
+                    bodyEl.innerHTML = html;
+                }
+            } else if (type === 'estimate') {
+                titleEl.innerHTML = `<i data-lucide="trending-up" class="w-4 h-4 text-indigo-400"></i> Dettaglio Stima Uscite Prossimo Mese`;
+                if (statsModalData.estimate.length === 0) {
+                    bodyEl.innerHTML = `<p class="text-brand-muted text-center py-6">Nessuna spesa fissa o ripartita stimata per il mese successivo.</p>`;
+                } else {
+                    let html = `<p class="text-neutral-400 pb-2">Ripartizione dell'impatto mensile delle spese fisse e ripartite:</p><div class="space-y-1.5 font-mono">`;
+                    statsModalData.estimate.forEach(item => {
+                        const feeText = item.fee > 0 ? ` <span class="text-[10px] text-brand-muted font-sans">(${formatCurrency(item.baseAmount)} + ${formatCurrency(item.fee)} comm.)</span>` : '';
+                        html += `<div class="bg-black/40 border border-brand-border p-2.5 rounded-xl flex justify-between items-center">
+                            <div class="min-w-0 pr-2">
+                                <span class="text-white font-semibold block truncate">${escapeHtml(item.title)}${feeText}</span>
+                                <span class="text-[10px] text-brand-muted block">${item.note}</span>
+                            </div>
+                            <span class="text-indigo-300 font-bold shrink-0">-${formatCurrency(item.amount)}</span>
+                        </div>`;
+                    });
+                    html += `</div>`;
+                    bodyEl.innerHTML = html;
+                }
+            } else if (type === 'cashout') {
+                titleEl.innerHTML = `<i data-lucide="arrow-down-left" class="w-4 h-4 text-rose-400"></i> Dettaglio Uscite Reali Mese`;
+                if (statsModalData.cashout.length === 0) {
+                    bodyEl.innerHTML = `<p class="text-brand-muted text-center py-6">Nessun addebito effettivo registrato in questo mese.</p>`;
+                } else {
+                    let html = `<p class="text-neutral-400 pb-2">Elenco dei pagamenti effettivi avvenuti in questo mese:</p><div class="space-y-1.5 font-mono">`;
+                    statsModalData.cashout.forEach(item => {
+                        const feeText = item.fee > 0 ? ` <span class="text-[10px] text-brand-muted font-sans">(${formatCurrency(item.baseAmount)} + ${formatCurrency(item.fee)} comm.)</span>` : '';
+                        html += `<div class="bg-black/40 border border-brand-border p-2.5 rounded-xl flex justify-between items-center"><span class="text-white font-semibold">${escapeHtml(item.title)}${feeText}</span><span class="text-rose-400 font-bold">-${formatCurrency(item.amount)}</span></div>`;
                     });
                     html += `</div>`;
                     bodyEl.innerHTML = html;
@@ -843,24 +873,6 @@ const firebaseConfig = {
                         <div class="border-t border-brand-border pt-2 flex justify-between items-center text-white font-bold text-sm"><span>Bilancio Netto:</span><span>${formatCurrency(statsModalData.balance.net)}</span></div>
                     </div>
                 `;
-            } else if (type === 'estimate') {
-                titleEl.innerHTML = `<i data-lucide="trending-up" class="w-4 h-4 text-indigo-400"></i> Dettaglio Stima Uscite Prossimo Mese`;
-                if (statsModalData.estimate.length === 0) {
-                    bodyEl.innerHTML = `<p class="text-brand-muted text-center py-6">Nessuna spesa fissa o ripartita stimata per il mese successivo.</p>`;
-                } else {
-                    let html = `<p class="text-neutral-400 pb-2">Ripartizione dell'impatto mensile delle spese fisse e ripartite per il mese successivo (escluse entrate e una tantum):</p><div class="space-y-1.5 font-mono">`;
-                    statsModalData.estimate.forEach(item => {
-                        html += `<div class="bg-black/40 border border-brand-border p-2.5 rounded-xl flex justify-between items-center">
-                            <div class="min-w-0 pr-2">
-                                <span class="text-white font-semibold block truncate">${escapeHtml(item.title)}</span>
-                                <span class="text-[10px] text-brand-muted block">${item.note}</span>
-                            </div>
-                            <span class="text-indigo-300 font-bold shrink-0">-${formatCurrency(item.amount)}</span>
-                        </div>`;
-                    });
-                    html += `</div>`;
-                    bodyEl.innerHTML = html;
-                }
             }
 
             modal.classList.remove('hidden');
@@ -899,6 +911,8 @@ const firebaseConfig = {
             txList.forEach((tx, index) => {
                 const cat = categories.find(c => c.id === tx.categoryId) || { name: 'Generale', color: '#737373' };
                 const isExpense = tx.type === 'expense';
+                const totalAmount = getTxTotal(tx);
+                const feeText = (tx.fee && tx.fee > 0) ? ` <span class="text-[10px] text-brand-muted font-sans font-normal">(${formatCurrency(tx.amount)} + ${formatCurrency(tx.fee)} comm.)</span>` : '';
 
                 let recBadge = '';
                 if (tx.recurrence === 'fixed') recBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] bg-neutral-800 text-neutral-300">Fissa (${tx.fixedCadence || 1}m)</span>`;
@@ -911,7 +925,7 @@ const firebaseConfig = {
                     <div class="flex justify-between items-start gap-2">
                         <div class="flex items-center gap-2 min-w-0">
                             <span class="text-xs font-mono font-bold text-brand-muted bg-brand-card px-2 py-0.5 rounded border border-brand-border">#${index + 1}</span>
-                            <h3 class="font-bold text-white text-sm truncate">${escapeHtml(tx.title)}</h3>
+                            <h3 class="font-bold text-white text-sm truncate">${escapeHtml(tx.title)}${feeText}</h3>
                         </div>
                         <div class="text-right shrink-0">
                             <div class="text-sm font-mono font-extrabold ${isExpense ? 'text-rose-400' : 'text-emerald-400'}">
@@ -926,7 +940,7 @@ const firebaseConfig = {
                             ${escapeHtml(cat.name)}
                         </span>
                         ${recBadge}
-                        <span class="ml-auto font-mono text-[11px]">Data: ${formatDateEU(tx.date)} (Totale: ${formatCurrency(tx.amount)})</span>
+                        <span class="ml-auto font-mono text-[11px]">Data: ${formatDateEU(tx.date)} (Totale: ${formatCurrency(totalAmount)})</span>
                     </div>
 
                     <div class="flex justify-end gap-3 pt-2 border-t border-brand-border/40 text-xs">
@@ -974,15 +988,10 @@ const firebaseConfig = {
             const sums = {};
             txList.filter(t => t.type === 'expense').forEach(t => {
                 const val = (mode === 'accrual') ? t.accrualVal : t.cashVal;
-                if (val > 0) {
-                    sums[t.categoryId] = (sums[t.categoryId] || 0) + val;
-                }
+                if (val > 0) sums[t.categoryId] = (sums[t.categoryId] || 0) + val;
             });
 
-            const labels = [];
-            const data = [];
-            const colors = [];
-
+            const labels = [], data = [], colors = [];
             Object.keys(sums).forEach(catId => {
                 const cat = categories.find(c => c.id === catId) || { name: 'Altro', color: '#737373' };
                 labels.push(cat.name);
@@ -1007,9 +1016,7 @@ const firebaseConfig = {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { color: '#a3a3a3', font: { size: 10 }, boxWidth: 10 } }
-                    },
+                    plugins: { legend: { position: 'bottom', labels: { color: '#a3a3a3', font: { size: 10 }, boxWidth: 10 } } },
                     cutout: '75%'
                 }
             });
@@ -1021,8 +1028,7 @@ const firebaseConfig = {
             const ctx = canvas.getContext('2d');
             const months = ['01','02','03','04','05','06','07','08','09','10','11','12'];
             const labels = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
-            const incomeData = [];
-            const expenseData = [];
+            const incomeData = [], expenseData = [];
 
             months.forEach(m => {
                 const targetYM = `${year}-${m}`;
@@ -1063,6 +1069,7 @@ const firebaseConfig = {
             populateCategorySelect();
             document.getElementById('txForm').reset();
             document.getElementById('txId').value = '';
+            document.getElementById('txFee').value = '';
             flatpickrTxDatePicker.setDate(new Date());
             setTxType('expense');
 
@@ -1072,6 +1079,7 @@ const firebaseConfig = {
                     document.getElementById('txId').value = tx.id;
                     document.getElementById('txTitle').value = tx.title;
                     document.getElementById('txAmount').value = tx.amount;
+                    document.getElementById('txFee').value = tx.fee || '';
                     flatpickrTxDatePicker.setDate(tx.date);
                     setTxType(tx.type);
                     document.getElementById('txCategory').value = tx.categoryId;
@@ -1168,7 +1176,8 @@ const firebaseConfig = {
             const txObj = {
                 id,
                 title: document.getElementById('txTitle').value.trim(),
-                amount: parseFloat(document.getElementById('txAmount').value),
+                amount: parseFloat(document.getElementById('txAmount').value) || 0,
+                fee: parseFloat(document.getElementById('txFee').value) || 0,
                 date: document.getElementById('txDate').value,
                 categoryId: document.getElementById('txCategory').value,
                 type: currentTxType,
@@ -1190,9 +1199,7 @@ const firebaseConfig = {
             renderApp();
         }
 
-        function editTransaction(id) {
-            openTransactionModal(id);
-        }
+        function editTransaction(id) { openTransactionModal(id); }
 
         async function deleteTransaction(id) {
             if (confirm("Eliminare questo movimento?")) {
@@ -1211,9 +1218,7 @@ const firebaseConfig = {
             document.getElementById('categoryModal').classList.remove('hidden');
         }
 
-        function closeCategoryModal() {
-            document.getElementById('categoryModal').classList.add('hidden');
-        }
+        function closeCategoryModal() { document.getElementById('categoryModal').classList.add('hidden'); }
 
         function openCategoryEditForm(editId = null) {
             document.getElementById('catForm').reset();
@@ -1235,9 +1240,7 @@ const firebaseConfig = {
             }
         }
 
-        function hideCategoryForm() {
-            document.getElementById('catForm').classList.add('hidden');
-        }
+        function hideCategoryForm() { document.getElementById('catForm').classList.add('hidden'); }
 
         async function saveCategory(e) {
             e.preventDefault();
@@ -1261,9 +1264,7 @@ const firebaseConfig = {
             renderApp();
         }
 
-        function editCategory(id) {
-            openCategoryEditForm(id);
-        }
+        function editCategory(id) { openCategoryEditForm(id); }
 
         async function deleteCategory(id) {
             if (categories.length <= 1) {
@@ -1326,7 +1327,8 @@ const firebaseConfig = {
         }
 
         function formatCurrency(val) {
-            return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(val || 0);
+            const num = val || 0;
+            return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(num === 0 ? 0 : num);
         }
 
         function escapeHtml(str) {
