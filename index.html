@@ -1,3 +1,11 @@
+Ecco il codice **completo e aggiornato** con le ultime due modifiche richieste:
+
+1. **Stima Uscite Mese Successivo**: Trasformata in una scheda sintetica e pulita (come quelle in alto). Facendo **clic sulla scheda**, si apre un popup dedicato con il dettaglio completo e la ripartizione di tutte le spese previste.
+2. **Esclusione "Una Tantum" dai Costi Fissi Mese**: La voce *Costi Fissi Mese* ora considera **esclusivamente** le spese ricorrenti fisse e le quote di competenza delle spese ripartite, escludendo totalmente gli addebiti "Una tantum" (che compaiono solo nelle *Uscite Reali* del mese di pagamento).
+
+Sostituisci il codice nel tuo file `index.html`:
+
+```html
 <!DOCTYPE html>
 <html lang="it" class="dark">
 <head>
@@ -142,14 +150,14 @@
             </div>
         </div>
 
-        <!-- SUMMARY STATS CARDS (CLICKABLE FOR POPUP DETAILS) -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- SUMMARY STATS CARDS (4 RIQUADRI SEPARATI E CLICCABILI) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             
             <!-- 1. USCITE REALI MESE -->
             <div onclick="openStatsModal('cashout')" class="bg-brand-card border border-brand-border p-5 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-white transition-all group">
                 <div class="flex justify-between items-start">
                     <span class="text-xs font-semibold uppercase tracking-wider text-brand-muted flex items-center gap-1">
-                        Uscite Reali Mese <i data-lucide="info" class="w-3.5 h-3.5 text-brand-muted group-hover:text-white"></i>
+                        Uscite Reali <i data-lucide="info" class="w-3.5 h-3.5 text-brand-muted group-hover:text-white"></i>
                     </span>
                     <div class="p-2 bg-brand-black rounded-xl border border-brand-border text-white">
                         <i data-lucide="arrow-down-left" class="w-4 h-4 text-rose-400"></i>
@@ -157,7 +165,7 @@
                 </div>
                 <div class="mt-3 space-y-1">
                     <div class="text-xl font-extrabold text-white" id="statCashFlowOut">€0,00</div>
-                    <p class="text-[10px] text-brand-muted">Clicca per vedere il dettaglio</p>
+                    <p class="text-[10px] text-brand-muted">Pagamenti reali mese</p>
                 </div>
             </div>
 
@@ -165,7 +173,7 @@
             <div onclick="openStatsModal('accrual')" class="bg-brand-card border border-brand-border p-5 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-indigo-400 transition-all group">
                 <div class="flex justify-between items-start">
                     <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-1">
-                        Costi Fissi Mese <i data-lucide="info" class="w-3.5 h-3.5 text-brand-muted group-hover:text-indigo-400"></i>
+                        Costi Fissi <i data-lucide="info" class="w-3.5 h-3.5 text-brand-muted group-hover:text-indigo-400"></i>
                     </span>
                     <div class="p-2 bg-brand-black rounded-xl border border-brand-border text-indigo-400">
                         <i data-lucide="calculator" class="w-4 h-4"></i>
@@ -173,7 +181,7 @@
                 </div>
                 <div class="mt-3 space-y-1">
                     <div class="text-xl font-extrabold text-indigo-400" id="statMonthlyAccrualCost">€0,00</div>
-                    <p class="text-[10px] text-neutral-400">Clicca per vedere il dettaglio</p>
+                    <p class="text-[10px] text-neutral-400">Ricorrenti + Ripartiti</p>
                 </div>
             </div>
 
@@ -181,7 +189,7 @@
             <div onclick="openStatsModal('balance')" class="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-white transition-all group">
                 <div class="flex justify-between items-start">
                     <span class="text-xs font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1">
-                        Bilancio Cassa Mese <i data-lucide="info" class="w-3.5 h-3.5 text-neutral-500 group-hover:text-white"></i>
+                        Bilancio Cassa <i data-lucide="info" class="w-3.5 h-3.5 text-neutral-500 group-hover:text-white"></i>
                     </span>
                     <div class="p-2 bg-black rounded-xl border border-neutral-800 text-neutral-300">
                         <i data-lucide="scale" class="w-4 h-4"></i>
@@ -193,26 +201,22 @@
                 </div>
             </div>
 
-        </div>
-
-        <!-- STIMA SPESA MESE SUCCESSIVO -->
-        <div class="bg-gradient-to-r from-neutral-900 via-brand-card to-neutral-900 border border-indigo-900/50 p-5 rounded-2xl space-y-4">
-            <div class="flex justify-between items-start">
-                <div class="flex items-center gap-2.5">
+            <!-- 4. STIMA MESE SUCCESSIVO (TRASFORMATO IN SCHEDA RIQUADRO) -->
+            <div onclick="openStatsModal('estimate')" class="bg-gradient-to-br from-indigo-950/40 via-brand-card to-brand-card border border-indigo-900/60 p-5 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-indigo-400 transition-all group">
+                <div class="flex justify-between items-start">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-indigo-300 flex items-center gap-1">
+                        Stima Prossimo Mese <i data-lucide="info" class="w-3.5 h-3.5 text-indigo-400/70 group-hover:text-indigo-300"></i>
+                    </span>
                     <div class="p-2 bg-indigo-950 border border-indigo-800/60 rounded-xl text-indigo-400">
                         <i data-lucide="trending-up" class="w-4 h-4"></i>
                     </div>
-                    <div>
-                        <h2 class="text-xs font-bold uppercase tracking-wider text-indigo-300">Stima Uscite Mese Successivo</h2>
-                        <p class="text-[10px] text-neutral-400">Esclude entrate. Considera l'impatto mensile reale delle fisse e la media delle variabili</p>
-                    </div>
                 </div>
-                <div class="text-right">
-                    <span id="nextMonthEstimateTotal" class="text-xl font-extrabold text-indigo-300">€0,00</span>
+                <div class="mt-3 space-y-1">
+                    <div class="text-xl font-extrabold text-indigo-300" id="nextMonthEstimateTotal">€0,00</div>
+                    <p class="text-[10px] text-neutral-400">Impatto mensile stmato</p>
                 </div>
             </div>
 
-            <div id="nextMonthDetailsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-2 border-t border-brand-border/60"></div>
         </div>
 
         <!-- CHARTS SECTION -->
@@ -479,7 +483,7 @@ const firebaseConfig = {
         let flatpickrMonthPicker = null;
         let flatpickrTxDatePicker = null;
         
-        let statsModalData = { cashout: [], accrual: [], balance: { inc: 0, exp: 0, net: 0 } };
+        let statsModalData = { cashout: [], accrual: [], balance: { inc: 0, exp: 0, net: 0 }, estimate: [] };
 
         try {
             if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "INSERISCI_LA_TUA_API_KEY") {
@@ -679,11 +683,13 @@ const firebaseConfig = {
             return 0;
         }
 
+        // ESCLUSIONE DELLE SPESE "UNA TANTUM" DAI COSTI FISSI
         function getTxAccrualValue(tx, targetYM) {
             const [targetY, targetM] = targetYM.split('-').map(Number);
 
+            // "Una tantum" escluse totalmente dai costi fissi
             if (tx.recurrence === 'once') {
-                return (tx.date.slice(0, 7) === targetYM) ? tx.amount : 0;
+                return 0;
             }
             if (tx.recurrence === 'fixed') {
                 const cadence = parseInt(tx.fixedCadence) || 1;
@@ -784,12 +790,15 @@ const firebaseConfig = {
             const netCashBalance = cashInTotal - cashOutTotal;
             statsModalData.balance = { inc: cashInTotal, exp: cashOutTotal, net: netCashBalance };
 
+            const estimate = calculateNextMonthEstimate();
+            statsModalData.estimate = estimate.breakdown;
+
             document.getElementById('statCashFlowOut').innerText = formatCurrency(cashOutTotal);
             document.getElementById('statMonthlyAccrualCost').innerText = formatCurrency(accrualCostTotal) + ' / mese';
             document.getElementById('statMonthlyBalance').innerText = formatCurrency(netCashBalance);
             document.getElementById('statIncomeText').innerText = `Entrate mese: +${formatCurrency(cashInTotal)}`;
+            document.getElementById('nextMonthEstimateTotal').innerText = formatCurrency(estimate.total);
 
-            renderNextMonthEstimateUI();
             renderTransactionsList(txDisplayList);
             renderCategoriesGrid();
             populateCategoryFilterSelect();
@@ -813,9 +822,9 @@ const firebaseConfig = {
                 if (statsModalData.cashout.length === 0) {
                     bodyEl.innerHTML = `<p class="text-brand-muted text-center py-6">Nessun addebito effettivo registrato in questo mese.</p>`;
                 } else {
-                    let html = `<p class="text-neutral-400 pb-2">Elenco dei pagamenti effettivi avvenuti in questo mese:</p><div class="space-y-1.5 font-mono">`;
+                    let html = `<p class="text-neutral-400 pb-2">Elenco dei pagamenti effettivi avvenuti in questo mese (incluse spese una tantum e addebiti ricorrenti):</p><div class="space-y-1.5 font-mono">`;
                     statsModalData.cashout.forEach(item => {
-                        html += `<div class="bg-black/40 border border-brand-border p-2.5 rounded-xl flex justify-between items-center"><span class="text-white">${escapeHtml(item.title)}</span><span class="text-rose-400 font-bold">-${formatCurrency(item.amount)}</span></div>`;
+                        html += `<div class="bg-black/40 border border-brand-border p-2.5 rounded-xl flex justify-between items-center"><span class="text-white font-semibold">${escapeHtml(item.title)}</span><span class="text-rose-400 font-bold">-${formatCurrency(item.amount)}</span></div>`;
                     });
                     html += `</div>`;
                     bodyEl.innerHTML = html;
@@ -823,11 +832,11 @@ const firebaseConfig = {
             } else if (type === 'accrual') {
                 titleEl.innerHTML = `<i data-lucide="calculator" class="w-4 h-4 text-indigo-400"></i> Dettaglio Costi Fissi Mese`;
                 if (statsModalData.accrual.length === 0) {
-                    bodyEl.innerHTML = `<p class="text-brand-muted text-center py-6">Nessun costo fisso di competenza per questo mese.</p>`;
+                    bodyEl.innerHTML = `<p class="text-brand-muted text-center py-6">Nessun costo fisso o ripartito di competenza per questo mese.</p>`;
                 } else {
-                    let html = `<p class="text-neutral-400 pb-2">Quote di competenza assegnate a questo mese:</p><div class="space-y-1.5 font-mono">`;
+                    let html = `<p class="text-neutral-400 pb-2">Quote di competenza mensili (escluse le spese una tantum):</p><div class="space-y-1.5 font-mono">`;
                     statsModalData.accrual.forEach(item => {
-                        html += `<div class="bg-black/40 border border-brand-border p-2.5 rounded-xl flex justify-between items-center"><span class="text-white">${escapeHtml(item.title)}</span><span class="text-indigo-400 font-bold">-${formatCurrency(item.amount)}</span></div>`;
+                        html += `<div class="bg-black/40 border border-brand-border p-2.5 rounded-xl flex justify-between items-center"><span class="text-white font-semibold">${escapeHtml(item.title)}</span><span class="text-indigo-400 font-bold">-${formatCurrency(item.amount)}</span></div>`;
                     });
                     html += `</div>`;
                     bodyEl.innerHTML = html;
@@ -842,6 +851,24 @@ const firebaseConfig = {
                         <div class="border-t border-brand-border pt-2 flex justify-between items-center text-white font-bold text-sm"><span>Bilancio Netto:</span><span>${formatCurrency(statsModalData.balance.net)}</span></div>
                     </div>
                 `;
+            } else if (type === 'estimate') {
+                titleEl.innerHTML = `<i data-lucide="trending-up" class="w-4 h-4 text-indigo-400"></i> Dettaglio Stima Uscite Prossimo Mese`;
+                if (statsModalData.estimate.length === 0) {
+                    bodyEl.innerHTML = `<p class="text-brand-muted text-center py-6">Nessuna spesa fissa o ripartita stimata per il mese successivo.</p>`;
+                } else {
+                    let html = `<p class="text-neutral-400 pb-2">Ripartizione dell'impatto mensile delle spese fisse e ripartite per il mese successivo (escluse entrate e una tantum):</p><div class="space-y-1.5 font-mono">`;
+                    statsModalData.estimate.forEach(item => {
+                        html += `<div class="bg-black/40 border border-brand-border p-2.5 rounded-xl flex justify-between items-center">
+                            <div class="min-w-0 pr-2">
+                                <span class="text-white font-semibold block truncate">${escapeHtml(item.title)}</span>
+                                <span class="text-[10px] text-brand-muted block">${item.note}</span>
+                            </div>
+                            <span class="text-indigo-300 font-bold shrink-0">-${formatCurrency(item.amount)}</span>
+                        </div>`;
+                    });
+                    html += `</div>`;
+                    bodyEl.innerHTML = html;
+                }
             }
 
             modal.classList.remove('hidden');
@@ -850,29 +877,6 @@ const firebaseConfig = {
 
         function closeStatsModal() {
             document.getElementById('statsModal').classList.add('hidden');
-        }
-
-        function renderNextMonthEstimateUI() {
-            const estimate = calculateNextMonthEstimate();
-            document.getElementById('nextMonthEstimateTotal').innerText = formatCurrency(estimate.total);
-
-            const container = document.getElementById('nextMonthDetailsList');
-            container.innerHTML = '';
-
-            estimate.breakdown.forEach(item => {
-                const el = document.createElement('div');
-                el.className = 'bg-brand-black border border-brand-border p-2.5 rounded-xl flex justify-between items-center text-xs';
-                el.innerHTML = `
-                    <div class="min-w-0 truncate pr-2">
-                        <p class="font-bold text-white truncate">${escapeHtml(item.title)}</p>
-                        <span class="text-[10px] text-brand-muted">${item.note}</span>
-                    </div>
-                    <span class="font-mono font-bold text-rose-400 shrink-0">
-                        -${formatCurrency(item.amount)}
-                    </span>
-                `;
-                container.appendChild(el);
-            });
         }
 
         function populateCategoryFilterSelect() {
@@ -1351,3 +1355,5 @@ const firebaseConfig = {
     </script>
 </body>
 </html>
+
+```
