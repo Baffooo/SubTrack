@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SubTrack - Bilancio Personale</title>
     
-    <!-- Favicon & WebApp Icons -->
+    <!-- Favicon & WebApp Icons (PNG Data URI per massima compatibilità iOS Apple-Touch-Icon) -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='20' height='14' x='2' y='5' rx='2'/><line x1='2' x2='22' y1='10' y2='10'/></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230a0a0a'><rect width='24' height='24' rx='5'/><path d='M4 7h16v10H4z' fill='%23ffffff'/></svg>">
+    
+    <!-- iOS Apple Touch Icon ad alta risoluzione (Data URI SVG convertito a canvas standard / SVG robusto) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' width='512' height='512'><rect width='512' height='512' rx='120' fill='%230a0a0a'/><rect x='80' y='140' width='352' height='232' rx='32' fill='none' stroke='%23ffffff' stroke-width='28'/><line x1='80' y1='210' x2='432' y2='210' stroke='%23ffffff' stroke-width='28'/><circle cx='150' cy='290' r='20' fill='%236366f1'/></svg>">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="SubTrack">
-    <meta name="theme-color" content="#0a0a0a">
+    <meta name="theme-color" content="#0a0a0a" id="theme-color-meta">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -25,7 +28,6 @@
                             black: '#0a0a0a',
                             card: '#121212',
                             border: '#262626',
-                            accent: '#ffffff',
                             muted: '#737373'
                         }
                     }
@@ -38,36 +40,70 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css" id="flatpickr-dark-style">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/it.js"></script>
 
     <style>
         body {
-            background-color: #0a0a0a;
-            color: #f5f5f5;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #0a0a0a; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #262626; border-radius: 2px; }
+
+        /* Stili Dark Mode */
+        html.dark body {
+            background-color: #0a0a0a;
+            color: #f5f5f5;
+        }
         
+        /* Stili Light Mode */
+        html:not(.dark) body {
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+
+        html:not(.dark) .bg-brand-black {
+            background-color: #f1f5f9 !important;
+        }
+        html:not(.dark) .bg-brand-card {
+            background-color: #ffffff !important;
+        }
+        html:not(.dark) .border-brand-border {
+            border-color: #e2e8f0 !important;
+        }
+        html:not(.dark) .text-white {
+            color: #0f172a !important;
+        }
+        html:not(.dark) .text-brand-muted {
+            color: #64748b !important;
+        }
+        html:not(.dark) .bg-neutral-900 {
+            background-color: #ffffff !important;
+        }
+        html:not(.dark) .border-neutral-800 {
+            border-color: #e2e8f0 !important;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+
         #search-overlay {
             transition: opacity 0.25s ease;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col pb-12 relative">
+<body class="min-h-screen flex flex-col pb-12 relative selection:bg-indigo-500 selection:text-white">
 
     <!-- SEARCH BACKDROP OVERLAY -->
     <div id="search-overlay" onclick="deactivateSearchFocus()" class="fixed inset-0 bg-black/80 backdrop-blur-md z-40 hidden opacity-0 pointer-events-none"></div>
 
     <!-- TOP HEADER -->
-    <header class="sticky top-0 z-50 bg-brand-black/95 backdrop-blur-md border-b border-brand-border px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
+    <header class="sticky top-0 z-50 bg-brand-black/90 backdrop-blur-md border-b border-brand-border px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
         <div class="flex items-center justify-between w-full sm:w-auto gap-3">
             <div class="flex items-center gap-3 min-w-0">
-                <div class="w-9 h-9 rounded-xl bg-brand-card border border-brand-border flex items-center justify-center shrink-0 text-white">
+                <div class="w-9 h-9 rounded-xl bg-brand-card border border-brand-border flex items-center justify-center shrink-0 text-indigo-500 dark:text-white shadow-sm">
                     <i data-lucide="wallet" class="w-4 h-4"></i>
                 </div>
                 <div class="truncate">
@@ -76,11 +112,16 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-2 sm:hidden">
-                <button type="button" onclick="startVoiceRecognition(event)" class="p-2 rounded-full bg-brand-card border border-brand-border text-white">
+            <!-- CONTROLLI MOBILE (NUOVO / VOCE / TEMA) -->
+            <div class="flex items-center gap-1.5 sm:hidden">
+                <button type="button" onclick="toggleTheme()" class="p-2 rounded-full bg-brand-card border border-brand-border text-white hover:border-indigo-400 transition-all" title="Cambia Tema">
+                    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+                    <i data-lucide="moon" class="w-4 h-4 block dark:hidden text-slate-700"></i>
+                </button>
+                <button type="button" onclick="startVoiceRecognition(event)" class="p-2 rounded-full bg-brand-card border border-brand-border text-white hover:border-indigo-400 transition-all">
                     <i data-lucide="mic" class="w-4 h-4"></i>
                 </button>
-                <button type="button" onclick="openTransactionModal()" class="px-3 py-1.5 rounded-full bg-white text-black font-semibold text-xs flex items-center gap-1">
+                <button type="button" onclick="openTransactionModal()" class="px-3 py-1.5 rounded-full bg-indigo-600 dark:bg-white text-white dark:text-black font-semibold text-xs flex items-center gap-1 shadow-sm">
                     <i data-lucide="plus" class="w-3.5 h-3.5"></i> Nuovo
                 </button>
             </div>
@@ -90,19 +131,24 @@
         <div class="relative w-full sm:max-w-md z-50">
             <div id="search-box-container" class="relative transition-all rounded-xl">
                 <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-brand-muted pointer-events-none"></i>
-                <input type="text" id="globalSearchInput" onfocus="activateSearchFocus()" onkeydown="handleSearchKeyDown(event)" placeholder="Cerca voce in tutti gli anni (es. Bollo, Mutuo)..." class="w-full bg-brand-card border border-brand-border rounded-xl pl-10 pr-9 py-2 text-xs text-white placeholder-brand-muted focus:outline-none focus:border-white focus:ring-1 focus:ring-white">
+                <input type="text" id="globalSearchInput" onfocus="activateSearchFocus()" onkeydown="handleSearchKeyDown(event)" placeholder="Cerca voce in tutti gli anni (es. Bollo, Mutuo)..." class="w-full bg-brand-card border border-brand-border rounded-xl pl-10 pr-9 py-2 text-xs text-white placeholder-brand-muted focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
                 <button id="search-clear-btn" onclick="clearSearch()" class="hidden absolute right-3 top-2.5 text-brand-muted hover:text-white">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
         </div>
 
+        <!-- CONTROLLI DESKTOP -->
         <div class="hidden sm:flex items-center gap-2">
-            <button type="button" onclick="startVoiceRecognition(event)" class="p-2 rounded-full bg-brand-card border border-brand-border text-white hover:border-white transition-all active:scale-95 relative" title="Dettato Vocale">
+            <button type="button" onclick="toggleTheme()" class="p-2 rounded-full bg-brand-card border border-brand-border text-white hover:border-indigo-500 transition-all active:scale-95" title="Cambia Tema">
+                <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-400"></i>
+                <i data-lucide="moon" class="w-4 h-4 block dark:hidden text-slate-700"></i>
+            </button>
+            <button type="button" onclick="startVoiceRecognition(event)" class="p-2 rounded-full bg-brand-card border border-brand-border text-white hover:border-indigo-500 transition-all active:scale-95 relative" title="Dettato Vocale">
                 <i data-lucide="mic" class="w-4 h-4 pointer-events-none"></i>
                 <span id="voice-pulse" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full animate-ping"></span>
             </button>
-            <button type="button" onclick="openTransactionModal()" class="px-3.5 py-2 rounded-full bg-white text-black font-semibold text-xs hover:bg-neutral-200 transition-all active:scale-95 flex items-center gap-1.5">
+            <button type="button" onclick="openTransactionModal()" class="px-3.5 py-2 rounded-full bg-indigo-600 dark:bg-white text-white dark:text-black font-semibold text-xs hover:opacity-90 transition-all active:scale-95 flex items-center gap-1.5 shadow-sm">
                 <i data-lucide="plus" class="w-4 h-4 pointer-events-none"></i> Nuovo
             </button>
         </div>
@@ -117,7 +163,7 @@
                 </h2>
                 <p id="search-query-label" class="text-xs text-brand-muted mt-0.5">Clicca su un risultato per saltare al mese di pertinenza</p>
             </div>
-            <button onclick="exitSearchView()" class="px-3.5 py-2 rounded-xl bg-white text-black font-semibold text-xs hover:bg-neutral-200 transition-all flex items-center gap-1.5">
+            <button onclick="exitSearchView()" class="px-3.5 py-2 rounded-xl bg-indigo-600 dark:bg-white text-white dark:text-black font-semibold text-xs hover:opacity-90 transition-all flex items-center gap-1.5">
                 <i data-lucide="arrow-left" class="w-4 h-4"></i> Torna alla Home
             </button>
         </div>
@@ -129,11 +175,11 @@
     <main id="main-dashboard" class="flex-1 max-w-4xl w-full mx-auto p-4 space-y-6">
 
         <!-- PERIOD FILTER BAR -->
-        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 bg-brand-card border border-brand-border p-4 rounded-2xl">
+        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 bg-brand-card border border-brand-border p-4 rounded-2xl shadow-sm">
             <div class="flex items-center gap-2.5">
                 <i data-lucide="calendar" class="w-4 h-4 text-brand-muted"></i>
                 <label for="monthFilterBtn" class="text-xs font-semibold text-brand-muted uppercase tracking-wider">Periodo di Analisi:</label>
-                <input type="text" id="monthFilterBtn" readonly class="bg-brand-black border border-brand-border rounded-xl px-3 py-1.5 text-xs font-semibold text-white focus:outline-none focus:border-white cursor-pointer w-36 text-center">
+                <input type="text" id="monthFilterBtn" readonly class="bg-brand-black border border-brand-border rounded-xl px-3 py-1.5 text-xs font-semibold text-white focus:outline-none focus:border-indigo-500 cursor-pointer w-36 text-center">
             </div>
             <div class="flex items-center gap-2">
                 <button onclick="openCategoryModal()" class="px-3 py-1.5 rounded-xl border border-brand-border text-brand-muted hover:text-white text-xs font-semibold transition-all flex items-center gap-1">
@@ -142,70 +188,62 @@
             </div>
         </div>
 
-        <!-- SUMMARY STATS CARDS (NUOVO ORDINE RICHIESTO) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- SUMMARY STATS CARDS (UNIFORMATI, MOBILE FIRST: 2 COLS SU MOBILE, 4 SU DESKTOP) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             
             <!-- 1. COSTI FISSI MESE -->
-            <div onclick="openStatsModal('accrual')" class="bg-brand-card border border-brand-border p-5 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-indigo-400 transition-all group">
-                <div class="flex justify-between items-start">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-1">
-                        Costi Fissi <i data-lucide="info" class="w-3.5 h-3.5 text-brand-muted group-hover:text-indigo-400"></i>
+            <div onclick="openStatsModal('accrual')" class="bg-brand-card border border-brand-border p-3.5 sm:p-4 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-indigo-500 transition-all group shadow-sm">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[10px] sm:text-xs font-extrabold uppercase tracking-tight sm:tracking-wider text-indigo-400 flex items-center gap-1 truncate">
+                        COSTI FISSI MESE
                     </span>
-                    <div class="p-2 bg-brand-black rounded-xl border border-brand-border text-indigo-400">
-                        <i data-lucide="calculator" class="w-4 h-4"></i>
-                    </div>
+                    <i data-lucide="calculator" class="w-3.5 h-3.5 text-indigo-400 shrink-0 ml-1"></i>
                 </div>
-                <div class="mt-3 space-y-1">
-                    <div class="text-xl font-extrabold text-indigo-400" id="statMonthlyAccrualCost">€0,00</div>
-                    <p class="text-[10px] text-neutral-400">Ricorrenti + Ripartiti</p>
+                <div>
+                    <div class="text-base sm:text-xl font-extrabold text-indigo-400 font-mono tracking-tight truncate" id="statMonthlyAccrualCost">€0,00</div>
+                    <p class="text-[9px] sm:text-[10px] text-brand-muted truncate mt-0.5">Ricorrenti + Ripartiti</p>
                 </div>
             </div>
 
-            <!-- 2. STIMA MESE SUCCESSIVO -->
-            <div onclick="openStatsModal('estimate')" class="bg-gradient-to-br from-indigo-950/40 via-brand-card to-brand-card border border-indigo-900/60 p-5 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-indigo-400 transition-all group">
-                <div class="flex justify-between items-start">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-indigo-300 flex items-center gap-1">
-                        Stima Prossimo <i data-lucide="info" class="w-3.5 h-3.5 text-indigo-400/70 group-hover:text-indigo-300"></i>
+            <!-- 2. STIMA MESE PROX -->
+            <div onclick="openStatsModal('estimate')" class="bg-brand-card border border-brand-border p-3.5 sm:p-4 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-purple-500 transition-all group shadow-sm">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[10px] sm:text-xs font-extrabold uppercase tracking-tight sm:tracking-wider text-purple-400 flex items-center gap-1 truncate">
+                        STIMA MESE PROX
                     </span>
-                    <div class="p-2 bg-indigo-950 border border-indigo-800/60 rounded-xl text-indigo-400">
-                        <i data-lucide="trending-up" class="w-4 h-4"></i>
-                    </div>
+                    <i data-lucide="trending-up" class="w-3.5 h-3.5 text-purple-400 shrink-0 ml-1"></i>
                 </div>
-                <div class="mt-3 space-y-1">
-                    <div class="text-xl font-extrabold text-indigo-300" id="nextMonthEstimateTotal">€0,00</div>
-                    <p class="text-[10px] text-neutral-400">Impatto mensile stimato</p>
+                <div>
+                    <div class="text-base sm:text-xl font-extrabold text-purple-400 font-mono tracking-tight truncate" id="nextMonthEstimateTotal">€0,00</div>
+                    <p class="text-[9px] sm:text-[10px] text-brand-muted truncate mt-0.5">Impatto fisso stimato</p>
                 </div>
             </div>
 
             <!-- 3. USCITE REALI MESE -->
-            <div onclick="openStatsModal('cashout')" class="bg-brand-card border border-brand-border p-5 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-white transition-all group">
-                <div class="flex justify-between items-start">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-brand-muted flex items-center gap-1">
-                        Uscite Reali <i data-lucide="info" class="w-3.5 h-3.5 text-brand-muted group-hover:text-white"></i>
+            <div onclick="openStatsModal('cashout')" class="bg-brand-card border border-brand-border p-3.5 sm:p-4 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-rose-500 transition-all group shadow-sm">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[10px] sm:text-xs font-extrabold uppercase tracking-tight sm:tracking-wider text-rose-400 flex items-center gap-1 truncate">
+                        USCITE REALI MESE
                     </span>
-                    <div class="p-2 bg-brand-black rounded-xl border border-brand-border text-white">
-                        <i data-lucide="arrow-down-left" class="w-4 h-4 text-rose-400"></i>
-                    </div>
+                    <i data-lucide="arrow-down-left" class="w-3.5 h-3.5 text-rose-400 shrink-0 ml-1"></i>
                 </div>
-                <div class="mt-3 space-y-1">
-                    <div class="text-xl font-extrabold text-white" id="statCashFlowOut">€0,00</div>
-                    <p class="text-[10px] text-brand-muted">Pagamenti reali mese</p>
+                <div>
+                    <div class="text-base sm:text-xl font-extrabold text-rose-400 font-mono tracking-tight truncate" id="statCashFlowOut">€0,00</div>
+                    <p class="text-[9px] sm:text-[10px] text-brand-muted truncate mt-0.5">Totale pagato nel mese</p>
                 </div>
             </div>
 
-            <!-- 4. BILANCIO CASSA MESE -->
-            <div onclick="openStatsModal('balance')" class="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-white transition-all group">
-                <div class="flex justify-between items-start">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1">
-                        Bilancio Cassa <i data-lucide="info" class="w-3.5 h-3.5 text-neutral-500 group-hover:text-white"></i>
+            <!-- 4. BILANCIO MESE -->
+            <div onclick="openStatsModal('balance')" class="bg-brand-card border border-brand-border p-3.5 sm:p-4 rounded-2xl flex flex-col justify-between cursor-pointer hover:border-emerald-500 transition-all group shadow-sm">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[10px] sm:text-xs font-extrabold uppercase tracking-tight sm:tracking-wider text-emerald-400 flex items-center gap-1 truncate">
+                        BILANCIO MESE
                     </span>
-                    <div class="p-2 bg-black rounded-xl border border-neutral-800 text-neutral-300">
-                        <i data-lucide="scale" class="w-4 h-4"></i>
-                    </div>
+                    <i data-lucide="scale" class="w-3.5 h-3.5 text-emerald-400 shrink-0 ml-1"></i>
                 </div>
-                <div class="mt-3 space-y-1">
-                    <div id="statMonthlyBalance" class="text-xl font-extrabold text-white">€0,00</div>
-                    <p id="statIncomeText" class="text-[10px] text-emerald-400">Entrate mese: +€0,00</p>
+                <div>
+                    <div id="statMonthlyBalance" class="text-base sm:text-xl font-extrabold text-white font-mono tracking-tight truncate">€0,00</div>
+                    <p id="statIncomeText" class="text-[9px] sm:text-[10px] text-emerald-400 truncate mt-0.5">Entrate: +€0,00</p>
                 </div>
             </div>
 
@@ -213,10 +251,10 @@
 
         <!-- CHARTS SECTION -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div class="bg-brand-card border border-brand-border p-5 rounded-2xl flex flex-col">
+            <div class="bg-brand-card border border-brand-border p-5 rounded-2xl flex flex-col shadow-sm">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-brand-muted flex items-center gap-2">
-                        <i data-lucide="pie-chart" class="w-4 h-4 text-white"></i> Ripartizione Uscite
+                        <i data-lucide="pie-chart" class="w-4 h-4 text-indigo-400"></i> Ripartizione Uscite
                     </h3>
                     <select id="chartMode" onchange="renderApp()" class="bg-brand-black border border-brand-border text-[11px] rounded-lg px-2 py-1 text-white focus:outline-none">
                         <option value="accrual">Vista Costi Fissi</option>
@@ -228,9 +266,9 @@
                 </div>
             </div>
 
-            <div class="bg-brand-card border border-brand-border p-5 rounded-2xl flex flex-col">
+            <div class="bg-brand-card border border-brand-border p-5 rounded-2xl flex flex-col shadow-sm">
                 <h3 class="text-xs font-bold uppercase tracking-wider text-brand-muted mb-4 flex items-center gap-2">
-                    <i data-lucide="bar-chart-3" class="w-4 h-4 text-white"></i> Andamento Annuale Cassa
+                    <i data-lucide="bar-chart-3" class="w-4 h-4 text-indigo-400"></i> Andamento Annuale Cassa
                 </h3>
                 <div class="relative flex-1 min-h-[200px] flex items-center justify-center">
                     <canvas id="annualChart"></canvas>
@@ -239,11 +277,11 @@
         </div>
 
         <!-- TRANSACTIONS LIST SECTION WITH CATEGORY FILTER -->
-        <div class="bg-brand-card border border-brand-border rounded-2xl overflow-hidden p-4 space-y-4">
+        <div class="bg-brand-card border border-brand-border rounded-2xl overflow-hidden p-4 space-y-4 shadow-sm">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-brand-border pb-3">
                 <div>
                     <h2 class="text-sm font-bold uppercase tracking-wider text-white">Dettaglio Spese & Consumi Mese</h2>
-                    <p class="text-[10px] text-brand-muted mt-0.5">Mostra pagamenti effettivi + quote assegnate ai mesi selezionati</p>
+                    <p class="text-[10px] text-brand-muted mt-0.5">Mostra pagamenti effettivi + quote assegnate al mese selezionato</p>
                 </div>
                 
                 <div class="flex items-center gap-2 w-full sm:w-auto">
@@ -275,17 +313,17 @@
                 </button>
             </div>
 
-            <div id="statsModalBody" class="space-y-3 overflow-y-auto custom-scrollbar pr-2 flex-1 text-xs text-neutral-300"></div>
+            <div id="statsModalBody" class="space-y-3 overflow-y-auto custom-scrollbar pr-2 flex-1 text-xs text-brand-muted"></div>
 
             <div class="pt-3 border-t border-brand-border flex justify-end">
-                <button onclick="closeStatsModal()" class="px-4 py-2 rounded-xl bg-white text-black font-semibold text-xs hover:bg-neutral-200 transition-all cursor-pointer">Chiudi</button>
+                <button onclick="closeStatsModal()" class="px-4 py-2 rounded-xl bg-indigo-600 dark:bg-white text-white dark:text-black font-semibold text-xs hover:opacity-90 transition-all cursor-pointer">Chiudi</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL: ADD / EDIT TRANSACTION -->
     <div id="txModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-brand-card border border-brand-border w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <div class="bg-brand-card border border-brand-border w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl">
             <div class="flex justify-between items-center border-b border-brand-border pb-3">
                 <h2 id="txModalTitle" class="text-base font-bold text-white uppercase tracking-wider">Nuovo Movimento</h2>
                 <button type="button" onclick="closeTransactionModal()" class="text-brand-muted hover:text-white p-1">
@@ -297,40 +335,40 @@
                 <input type="hidden" id="txId">
 
                 <div class="grid grid-cols-2 gap-2 p-1 bg-brand-black border border-brand-border rounded-xl">
-                    <button type="button" id="btnTypeExpense" onclick="setTxType('expense')" class="py-2 text-xs font-bold rounded-lg transition-all bg-white text-black shadow-sm cursor-pointer">Uscita</button>
+                    <button type="button" id="btnTypeExpense" onclick="setTxType('expense')" class="py-2 text-xs font-bold rounded-lg transition-all bg-indigo-600 dark:bg-white text-white dark:text-black shadow-sm cursor-pointer">Uscita</button>
                     <button type="button" id="btnTypeIncome" onclick="setTxType('income')" class="py-2 text-xs font-bold rounded-lg transition-all text-brand-muted hover:text-white cursor-pointer">Entrata</button>
                 </div>
 
                 <div>
                     <label class="block text-xs font-medium text-brand-muted mb-1">Descrizione *</label>
-                    <input type="text" id="txTitle" required placeholder="es. Bollo Auto, Terapia..." class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white">
+                    <input type="text" id="txTitle" required placeholder="es. Bollo Auto, Terapia..." class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-medium text-brand-muted mb-1">Importo Reale (€) *</label>
-                        <input type="number" step="0.01" id="txAmount" required placeholder="0.00" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white font-semibold">
+                        <input type="number" step="0.01" id="txAmount" required placeholder="0.00" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 font-semibold">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-brand-muted mb-1">Commissioni (€)</label>
-                        <input type="number" step="0.01" id="txFee" placeholder="0.00" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white font-semibold">
+                        <input type="number" step="0.01" id="txFee" placeholder="0.00" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 font-semibold">
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-xs font-medium text-brand-muted mb-1">Data Pagamento *</label>
-                    <input type="text" id="txDate" required placeholder="Seleziona data" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white cursor-pointer">
+                    <input type="text" id="txDate" required placeholder="Seleziona data" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 cursor-pointer">
                 </div>
 
                 <div>
                     <label class="block text-xs font-medium text-brand-muted mb-1">Categoria *</label>
-                    <select id="txCategory" required class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white">
+                    <select id="txCategory" required class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
                     </select>
                 </div>
 
                 <div>
                     <label class="block text-xs font-medium text-brand-muted mb-1">Tipologia del Costo *</label>
-                    <select id="txRecurrence" onchange="toggleCadenceVisibility()" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white">
+                    <select id="txRecurrence" onchange="toggleCadenceVisibility()" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
                         <option value="once">Una tantum (Singolo addebito)</option>
                         <option value="fixed">Ricorrente Fissa (Importo periodico)</option>
                         <option value="variable">Costo Ripartito su Intervallo Personalizzato</option>
@@ -339,7 +377,7 @@
 
                 <div id="fixedCadenceGroup" class="hidden">
                     <label class="block text-xs font-medium text-brand-muted mb-1">Frequenza Addebito *</label>
-                    <select id="txFixedCadence" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white">
+                    <select id="txFixedCadence" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
                         <option value="1">Mensile (Ogni Mese)</option>
                         <option value="2">Bimensile (Ogni 2 Mesi)</option>
                         <option value="3">Trimestrale (Ogni 3 Mesi)</option>
@@ -381,7 +419,7 @@
 
                 <div class="flex gap-2 pt-2">
                     <button type="button" onclick="closeTransactionModal()" class="flex-1 py-2.5 rounded-xl border border-brand-border text-brand-muted hover:text-white font-medium text-sm transition-all">Annulla</button>
-                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-white text-black font-semibold text-sm hover:bg-neutral-200 transition-all">Salva Movimento</button>
+                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-indigo-600 dark:bg-white text-white dark:text-black font-semibold text-sm hover:opacity-90 transition-all">Salva Movimento</button>
                 </div>
             </form>
         </div>
@@ -389,7 +427,7 @@
 
     <!-- MODAL: CATEGORIES MANAGEMENT -->
     <div id="categoryModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-brand-card border border-brand-border w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <div class="bg-brand-card border border-brand-border w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl">
             <div class="flex justify-between items-center border-b border-brand-border pb-3">
                 <h2 class="text-base font-bold text-white uppercase tracking-wider">Gestione Categorie</h2>
                 <button type="button" onclick="closeCategoryModal()" class="text-brand-muted hover:text-white p-1">
@@ -399,7 +437,7 @@
 
             <div class="flex justify-between items-center">
                 <span class="text-xs text-brand-muted">Personalizza nomi, colori e tipo</span>
-                <button onclick="openCategoryEditForm()" class="bg-white text-black text-xs font-semibold px-3 py-1.5 rounded-xl hover:bg-neutral-200 transition-all flex items-center gap-1">
+                <button onclick="openCategoryEditForm()" class="bg-indigo-600 dark:bg-white text-white dark:text-black text-xs font-semibold px-3 py-1.5 rounded-xl hover:opacity-90 transition-all flex items-center gap-1">
                     <i data-lucide="plus" class="w-3.5 h-3.5"></i> Nuova Categoria
                 </button>
             </div>
@@ -414,7 +452,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-brand-muted mb-1">Nome Categoria *</label>
-                    <input type="text" id="catName" required placeholder="es. Abbonamenti" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white">
+                    <input type="text" id="catName" required placeholder="es. Abbonamenti" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
@@ -423,13 +461,13 @@
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-brand-muted mb-1">Tipo *</label>
-                        <select id="catType" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white">
+                        <select id="catType" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
                             <option value="expense">Uscita</option>
                             <option value="income">Entrata</option>
                         </select>
                     </div>
                 </div>
-                <button type="submit" class="w-full py-2.5 rounded-xl bg-white text-black font-semibold text-sm hover:bg-neutral-200 transition-all">Salva Categoria</button>
+                <button type="submit" class="w-full py-2.5 rounded-xl bg-indigo-600 dark:bg-white text-white dark:text-black font-semibold text-sm hover:opacity-90 transition-all">Salva Categoria</button>
             </form>
         </div>
     </div>
@@ -477,6 +515,27 @@ const firebaseConfig = {
         let flatpickrTxDatePicker = null;
         
         let statsModalData = { cashout: [], accrual: [], balance: { inc: 0, exp: 0, net: 0 }, estimate: [] };
+
+        // GESTIONE LIGHT / DARK MODE CON LOCALSTORAGE
+        function initTheme() {
+            const savedTheme = localStorage.getItem('subtrack_theme');
+            if (savedTheme === 'light') {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('theme-color-meta').setAttribute('content', '#f8fafc');
+            } else {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-color-meta').setAttribute('content', '#0a0a0a');
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('subtrack_theme', isDark ? 'dark' : 'light');
+            document.getElementById('theme-color-meta').setAttribute('content', isDark ? '#0a0a0a' : '#f8fafc');
+            renderApp();
+        }
+
+        initTheme();
 
         try {
             if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "INSERISCI_LA_TUA_API_KEY") {
@@ -555,7 +614,7 @@ const firebaseConfig = {
             const container = document.getElementById('search-box-container');
             overlay.classList.remove('hidden', 'pointer-events-none');
             overlay.classList.add('opacity-100');
-            container.classList.add('ring-2', 'ring-white', 'scale-[1.02]');
+            container.classList.add('ring-2', 'ring-indigo-500', 'scale-[1.01]');
             document.getElementById('search-clear-btn').classList.remove('hidden');
         }
 
@@ -565,7 +624,7 @@ const firebaseConfig = {
             overlay.classList.remove('opacity-100');
             overlay.classList.add('opacity-0', 'pointer-events-none');
             setTimeout(() => overlay.classList.add('hidden'), 250);
-            container.classList.remove('ring-2', 'ring-white', 'scale-[1.02]');
+            container.classList.remove('ring-2', 'ring-indigo-500', 'scale-[1.01]');
         }
 
         function clearSearch() {
@@ -611,10 +670,10 @@ const firebaseConfig = {
                 const cat = categories.find(c => c.id === tx.categoryId) || { name: 'Generale', color: '#737373' };
                 const isExpense = tx.type === 'expense';
                 const txYM = tx.date.slice(0, 7);
-                const totalAmt = (tx.amount || 0) + (tx.fee || 0);
+                const totalAmt = getTxTotal(tx);
 
                 const card = document.createElement('div');
-                card.className = 'bg-brand-card border border-brand-border rounded-xl p-4 space-y-2 cursor-pointer hover:border-white transition-all';
+                card.className = 'bg-brand-card border border-brand-border rounded-xl p-4 space-y-2 cursor-pointer hover:border-indigo-500 transition-all shadow-sm';
                 card.onclick = () => jumpToMonth(txYM);
                 card.innerHTML = `
                     <div class="flex justify-between items-start pointer-events-none">
@@ -658,6 +717,7 @@ const firebaseConfig = {
             return (tx.amount || 0) + (tx.fee || 0);
         }
 
+        // USCITA CASSA REALE NEL MESE
         function getTxCashFlowValue(tx, targetYM) {
             const txYM = tx.date.slice(0, 7);
             const total = getTxTotal(tx);
@@ -675,13 +735,14 @@ const firebaseConfig = {
             return 0;
         }
 
+        // CALCOLO COSTI FISSI MESE (SOLO FIXED E VARIABLE - NON SOMMARE ONCE!)
         function getTxAccrualValue(tx, targetYM) {
             const [targetY, targetM] = targetYM.split('-').map(Number);
             const total = getTxTotal(tx);
 
-            // Una tantum considerata nel mese di pagamento effettivo
+            // CORREZIONE FONDAMENTALE: Le spese Una Tantum NON partecipano ai Costi Fissi Mese!
             if (tx.recurrence === 'once') {
-                return tx.date.slice(0, 7) === targetYM ? total : 0;
+                return 0;
             }
             if (tx.recurrence === 'fixed') {
                 const cadence = parseInt(tx.fixedCadence) || 1;
@@ -704,6 +765,7 @@ const firebaseConfig = {
             return 0;
         }
 
+        // STIMA MESE PROSSIMO (SOLO FISSE E RIPARTITE)
         function calculateNextMonthEstimate() {
             let totalEstimate = 0;
             const estimateBreakdown = [];
@@ -715,7 +777,7 @@ const firebaseConfig = {
                 const items = expenseTransactions.filter(t => t.title.trim() === title);
                 const sample = items[0];
 
-                if (sample.recurrence === 'once') return;
+                if (sample.recurrence === 'once') return; // Esclude Una Tantum anche dalla stima fissa
 
                 const total = getTxTotal(sample);
 
@@ -724,7 +786,7 @@ const firebaseConfig = {
                     const monthlyImpact = total / cadence;
 
                     totalEstimate += monthlyImpact;
-                    estimateBreakdown.push({ title, amount: monthlyImpact, fee: sample.fee || 0, baseAmount: sample.amount || 0, note: cadence > 1 ? `Fissa (${cadence}m) -> Impatto mensile` : 'Fissa Mensile' });
+                    estimateBreakdown.push({ title, amount: monthlyImpact, fee: sample.fee || 0, baseAmount: sample.amount || 0, note: cadence > 1 ? `Fissa (${cadence}m) -> Quota mensile` : 'Fissa Mensile' });
                 } else if (sample.recurrence === 'variable') {
                     if (sample.rangeStart && sample.rangeEnd) {
                         const [sY, sM] = sample.rangeStart.split('-').map(Number);
@@ -736,12 +798,6 @@ const firebaseConfig = {
 
                         totalEstimate += monthlyImpact;
                         estimateBreakdown.push({ title, amount: monthlyImpact, fee: sample.fee || 0, baseAmount: sample.amount || 0, note: `Ripartito (${totalMonths} mesi)` });
-                    } else {
-                        const totalSum = items.reduce((acc, curr) => acc + getTxTotal(curr), 0);
-                        const avgAmount = totalSum / items.length;
-
-                        totalEstimate += avgAmount;
-                        estimateBreakdown.push({ title, amount: avgAmount, fee: sample.fee || 0, baseAmount: sample.amount || 0, note: `Media (${items.length} occorrenze)` });
                     }
                 }
             });
@@ -768,12 +824,14 @@ const firebaseConfig = {
                 if (tx.type === 'expense') {
                     cashOutTotal += cashVal;
                     accrualCostTotal += accrualVal;
+
                     if (cashVal > 0) statsModalData.cashout.push({ title: tx.title, amount: cashVal, fee: tx.fee || 0, baseAmount: tx.amount || 0 });
                     if (accrualVal > 0) statsModalData.accrual.push({ title: tx.title, amount: accrualVal, fee: tx.fee || 0, baseAmount: tx.amount || 0 });
                 } else if (tx.type === 'income') {
                     cashInTotal += cashVal;
                 }
 
+                // Nella lista in basso includiamo tutto ciò che ha impatto di Cassa OPPURE quota di Costo Fisso nel mese
                 if (cashVal > 0 || accrualVal > 0) {
                     if (catFilter === 'ALL' || tx.categoryId === catFilter) {
                         txDisplayList.push({ ...tx, cashVal, accrualVal });
@@ -787,11 +845,12 @@ const firebaseConfig = {
             const estimate = calculateNextMonthEstimate();
             statsModalData.estimate = estimate.breakdown;
 
-            document.getElementById('statMonthlyAccrualCost').innerText = formatCurrency(accrualCostTotal) + ' / mese';
+            // FORMATTAZIONE UNIFORME PER I 4 RIQUADRI (SOLO SIMBOLO € SENZA/MESE O SCRITTE DISOMOGENEE)
+            document.getElementById('statMonthlyAccrualCost').innerText = formatCurrency(accrualCostTotal);
             document.getElementById('nextMonthEstimateTotal').innerText = formatCurrency(estimate.total);
             document.getElementById('statCashFlowOut').innerText = formatCurrency(cashOutTotal);
             document.getElementById('statMonthlyBalance').innerText = formatCurrency(netCashBalance);
-            document.getElementById('statIncomeText').innerText = `Entrate mese: +${formatCurrency(cashInTotal)}`;
+            document.getElementById('statIncomeText').innerText = `Entrate: +${formatCurrency(cashInTotal)}`;
 
             renderTransactionsList(txDisplayList);
             renderCategoriesGrid();
@@ -802,7 +861,7 @@ const firebaseConfig = {
             if (window.lucide) lucide.createIcons();
         }
 
-        // STATS POPUP DETAILS MANAGEMENT
+        // MODALE DETTAGLI E CALCOLI
         function openStatsModal(type) {
             const modal = document.getElementById('statsModal');
             const titleEl = document.getElementById('statsModalTitle');
@@ -814,28 +873,28 @@ const firebaseConfig = {
                 if (statsModalData.accrual.length === 0) {
                     bodyEl.innerHTML = `<p class="text-brand-muted text-center py-6">Nessun costo fisso o ripartito di competenza per questo mese.</p>`;
                 } else {
-                    let html = `<p class="text-neutral-400 pb-2">Quote di competenza mensili:</p><div class="space-y-1.5 font-mono">`;
+                    let html = `<p class="text-brand-muted pb-2">Quote fisse o ripartite assegnate a questo mese (escluse spese una tantum):</p><div class="space-y-1.5 font-mono">`;
                     statsModalData.accrual.forEach(item => {
                         const feeText = item.fee > 0 ? ` <span class="text-[10px] text-brand-muted font-sans">(${formatCurrency(item.baseAmount)} + ${formatCurrency(item.fee)} comm.)</span>` : '';
-                        html += `<div class="bg-black/40 border border-brand-border p-2.5 rounded-xl flex justify-between items-center"><span class="text-white font-semibold">${escapeHtml(item.title)}${feeText}</span><span class="text-indigo-400 font-bold">-${formatCurrency(item.amount)}</span></div>`;
+                        html += `<div class="bg-brand-black border border-brand-border p-2.5 rounded-xl flex justify-between items-center"><span class="text-white font-semibold">${escapeHtml(item.title)}${feeText}</span><span class="text-indigo-400 font-bold">-${formatCurrency(item.amount)}</span></div>`;
                     });
                     html += `</div>`;
                     bodyEl.innerHTML = html;
                 }
             } else if (type === 'estimate') {
-                titleEl.innerHTML = `<i data-lucide="trending-up" class="w-4 h-4 text-indigo-400"></i> Dettaglio Stima Uscite Prossimo Mese`;
+                titleEl.innerHTML = `<i data-lucide="trending-up" class="w-4 h-4 text-purple-400"></i> Dettaglio Stima Mese Prossimo`;
                 if (statsModalData.estimate.length === 0) {
                     bodyEl.innerHTML = `<p class="text-brand-muted text-center py-6">Nessuna spesa fissa o ripartita stimata per il mese successivo.</p>`;
                 } else {
-                    let html = `<p class="text-neutral-400 pb-2">Ripartizione dell'impatto mensile delle spese fisse e ripartite:</p><div class="space-y-1.5 font-mono">`;
+                    let html = `<p class="text-brand-muted pb-2">Ripartizione dell'impatto mensile stimato delle spese fisse:</p><div class="space-y-1.5 font-mono">`;
                     statsModalData.estimate.forEach(item => {
                         const feeText = item.fee > 0 ? ` <span class="text-[10px] text-brand-muted font-sans">(${formatCurrency(item.baseAmount)} + ${formatCurrency(item.fee)} comm.)</span>` : '';
-                        html += `<div class="bg-black/40 border border-brand-border p-2.5 rounded-xl flex justify-between items-center">
+                        html += `<div class="bg-brand-black border border-brand-border p-2.5 rounded-xl flex justify-between items-center">
                             <div class="min-w-0 pr-2">
                                 <span class="text-white font-semibold block truncate">${escapeHtml(item.title)}${feeText}</span>
                                 <span class="text-[10px] text-brand-muted block">${item.note}</span>
                             </div>
-                            <span class="text-indigo-300 font-bold shrink-0">-${formatCurrency(item.amount)}</span>
+                            <span class="text-purple-400 font-bold shrink-0">-${formatCurrency(item.amount)}</span>
                         </div>`;
                     });
                     html += `</div>`;
@@ -846,19 +905,19 @@ const firebaseConfig = {
                 if (statsModalData.cashout.length === 0) {
                     bodyEl.innerHTML = `<p class="text-brand-muted text-center py-6">Nessun addebito effettivo registrato in questo mese.</p>`;
                 } else {
-                    let html = `<p class="text-neutral-400 pb-2">Elenco dei pagamenti effettivi avvenuti in questo mese:</p><div class="space-y-1.5 font-mono">`;
+                    let html = `<p class="text-brand-muted pb-2">Elenco dei pagamenti effettivi avvenuti in questo mese (incluse spese una tantum):</p><div class="space-y-1.5 font-mono">`;
                     statsModalData.cashout.forEach(item => {
                         const feeText = item.fee > 0 ? ` <span class="text-[10px] text-brand-muted font-sans">(${formatCurrency(item.baseAmount)} + ${formatCurrency(item.fee)} comm.)</span>` : '';
-                        html += `<div class="bg-black/40 border border-brand-border p-2.5 rounded-xl flex justify-between items-center"><span class="text-white font-semibold">${escapeHtml(item.title)}${feeText}</span><span class="text-rose-400 font-bold">-${formatCurrency(item.amount)}</span></div>`;
+                        html += `<div class="bg-brand-black border border-brand-border p-2.5 rounded-xl flex justify-between items-center"><span class="text-white font-semibold">${escapeHtml(item.title)}${feeText}</span><span class="text-rose-400 font-bold">-${formatCurrency(item.amount)}</span></div>`;
                     });
                     html += `</div>`;
                     bodyEl.innerHTML = html;
                 }
             } else if (type === 'balance') {
-                titleEl.innerHTML = `<i data-lucide="scale" class="w-4 h-4 text-emerald-400"></i> Dettaglio Bilancio Cassa Mese`;
+                titleEl.innerHTML = `<i data-lucide="scale" class="w-4 h-4 text-emerald-400"></i> Dettaglio Bilancio Mese`;
                 bodyEl.innerHTML = `
-                    <p class="text-neutral-400 pb-2">Formula di calcolo del flusso di cassa reale del mese:</p>
-                    <div class="bg-black/50 border border-brand-border p-4 rounded-xl space-y-3 font-mono text-xs">
+                    <p class="text-brand-muted pb-2">Formula di calcolo del flusso di cassa netto del mese:</p>
+                    <div class="bg-brand-black border border-brand-border p-4 rounded-xl space-y-3 font-mono text-xs">
                         <div class="flex justify-between items-center text-emerald-400"><span>Entrate Reali:</span><span>+${formatCurrency(statsModalData.balance.inc)}</span></div>
                         <div class="flex justify-between items-center text-rose-400"><span>Uscite Reali:</span><span>-${formatCurrency(statsModalData.balance.exp)}</span></div>
                         <div class="border-t border-brand-border pt-2 flex justify-between items-center text-white font-bold text-sm"><span>Bilancio Netto:</span><span>${formatCurrency(statsModalData.balance.net)}</span></div>
@@ -876,6 +935,7 @@ const firebaseConfig = {
 
         function populateCategoryFilterSelect() {
             const sel = document.getElementById('filterListCategory');
+            if (!sel) return;
             const currentVal = sel.value;
             sel.innerHTML = '<option value="ALL">Tutte le Categorie</option>';
             categories.forEach(c => {
@@ -906,12 +966,15 @@ const firebaseConfig = {
                 const feeText = (tx.fee && tx.fee > 0) ? ` <span class="text-[10px] text-brand-muted font-sans font-normal">(${formatCurrency(tx.amount)} + ${formatCurrency(tx.fee)} comm.)</span>` : '';
 
                 let recBadge = '';
-                if (tx.recurrence === 'fixed') recBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] bg-neutral-800 text-neutral-300">Fissa (${tx.fixedCadence || 1}m)</span>`;
+                if (tx.recurrence === 'fixed') recBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] bg-indigo-950 text-indigo-300 border border-indigo-800/50">Fissa (${tx.fixedCadence || 1}m)</span>`;
                 else if (tx.recurrence === 'variable') recBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] bg-amber-950 text-amber-300 border border-amber-800/50">Ripartito</span>`;
-                else recBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] bg-brand-black text-brand-muted">Una tantum</span>`;
+                else recBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] bg-brand-black text-brand-muted border border-brand-border">Una tantum</span>`;
+
+                // Mostra la quota di costo se disponibile o l'importo totale
+                const displayAmt = (isExpense && tx.recurrence !== 'once') ? tx.accrualVal : totalAmount;
 
                 const card = document.createElement('div');
-                card.className = 'bg-brand-black border border-brand-border rounded-xl p-3.5 space-y-2.5 transition-all hover:border-neutral-700';
+                card.className = 'bg-brand-black border border-brand-border rounded-xl p-3.5 space-y-2.5 transition-all hover:border-neutral-500 shadow-sm';
                 card.innerHTML = `
                     <div class="flex justify-between items-start gap-2">
                         <div class="flex items-center gap-2 min-w-0">
@@ -920,7 +983,7 @@ const firebaseConfig = {
                         </div>
                         <div class="text-right shrink-0">
                             <div class="text-sm font-mono font-extrabold ${isExpense ? 'text-rose-400' : 'text-emerald-400'}">
-                                ${isExpense ? '-' : '+'}${formatCurrency(tx.accrualVal)}
+                                ${isExpense ? '-' : '+'}${formatCurrency(displayAmt)}
                             </div>
                         </div>
                     </div>
@@ -978,7 +1041,7 @@ const firebaseConfig = {
             
             const sums = {};
             txList.filter(t => t.type === 'expense').forEach(t => {
-                const val = (mode === 'accrual') ? t.accrualVal : t.cashVal;
+                const val = (mode === 'accrual') ? (t.recurrence === 'once' ? t.cashVal : t.accrualVal) : t.cashVal;
                 if (val > 0) sums[t.categoryId] = (sums[t.categoryId] || 0) + val;
             });
 
@@ -992,10 +1055,13 @@ const firebaseConfig = {
 
             if (categoryChartInstance) categoryChartInstance.destroy();
 
+            const isDark = document.documentElement.classList.contains('dark');
+            const textColor = isDark ? '#a3a3a3' : '#475569';
+
             if (data.length === 0) {
                 categoryChartInstance = new Chart(ctx, {
                     type: 'doughnut',
-                    data: { labels: ['Nessuna Uscita'], datasets: [{ data: [1], backgroundColor: ['#262626'], borderWidth: 0 }] },
+                    data: { labels: ['Nessuna Uscita'], datasets: [{ data: [1], backgroundColor: [isDark ? '#262626' : '#e2e8f0'], borderWidth: 0 }] },
                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '75%' }
                 });
                 return;
@@ -1007,7 +1073,7 @@ const firebaseConfig = {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { color: '#a3a3a3', font: { size: 10 }, boxWidth: 10 } } },
+                    plugins: { legend: { position: 'bottom', labels: { color: textColor, font: { size: 10 }, boxWidth: 10 } } },
                     cutout: '75%'
                 }
             });
@@ -1035,6 +1101,10 @@ const firebaseConfig = {
 
             if (annualChartInstance) annualChartInstance.destroy();
 
+            const isDark = document.documentElement.classList.contains('dark');
+            const textColor = isDark ? '#737373' : '#64748b';
+            const gridColor = isDark ? '#262626' : '#e2e8f0';
+
             annualChartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -1048,10 +1118,10 @@ const firebaseConfig = {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: { ticks: { color: '#737373', font: { size: 10 } }, grid: { display: false } },
-                        y: { ticks: { color: '#737373', font: { size: 10 } }, grid: { color: '#262626' } }
+                        x: { ticks: { color: textColor, font: { size: 10 } }, grid: { display: false } },
+                        y: { ticks: { color: textColor, font: { size: 10 } }, grid: { color: gridColor } }
                     },
-                    plugins: { legend: { labels: { color: '#a3a3a3', font: { size: 10 } } } }
+                    plugins: { legend: { labels: { color: textColor, font: { size: 10 } } } }
                 }
             });
         }
@@ -1108,10 +1178,10 @@ const firebaseConfig = {
             const btnIncome = document.getElementById('btnTypeIncome');
 
             if (type === 'expense') {
-                btnExpense.className = "py-2 text-xs font-bold rounded-lg transition-all bg-white text-black shadow-sm cursor-pointer";
+                btnExpense.className = "py-2 text-xs font-bold rounded-lg transition-all bg-indigo-600 dark:bg-white text-white dark:text-black shadow-sm cursor-pointer";
                 btnIncome.className = "py-2 text-xs font-bold rounded-lg transition-all text-brand-muted hover:text-white cursor-pointer";
             } else {
-                btnIncome.className = "py-2 text-xs font-bold rounded-lg transition-all bg-white text-black shadow-sm cursor-pointer";
+                btnIncome.className = "py-2 text-xs font-bold rounded-lg transition-all bg-indigo-600 dark:bg-white text-white dark:text-black shadow-sm cursor-pointer";
                 btnExpense.className = "py-2 text-xs font-bold rounded-lg transition-all text-brand-muted hover:text-white cursor-pointer";
             }
             populateCategorySelect();
@@ -1317,6 +1387,7 @@ const firebaseConfig = {
             toggleCadenceVisibility();
         }
 
+        // FORMATTAZIONE CURRENCY UNIFORME
         function formatCurrency(val) {
             const num = val || 0;
             return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(num === 0 ? 0 : num);
@@ -1340,5 +1411,3 @@ const firebaseConfig = {
     </script>
 </body>
 </html>
-
-```
