@@ -1,3 +1,11 @@
+Ecco il codice **completo e aggiornato** con le ultime due richieste implementate:
+
+1. **Click sui Risultati di Ricerca con Reindirizzamento al Mese**: Ora, quando effettui una ricerca globale e fai clic su uno qualsiasi dei risultati, verrai riportato automaticamente alla Home con il **Periodo di Analisi** impostato esattamente sul mese a cui appartiene quella transazione.
+2. **Tooltip con Box Dedicato in Primo Piano (Modal-style su Hover)**: I tooltip dei tre riquadri in alto non appaiono più sovrapposti in piccolo, ma creano un elegante effetto a comparsa a tutta larghezza/schermo (con sfondo scuro semitrasparente e riquadro ingrandito) che mette in risalto il dettaglio del calcolo finché mantieni il mouse sopra.
+
+Copia e sostituisci interamente il codice nel tuo file `index.html`:
+
+```html
 <!DOCTYPE html>
 <html lang="it" class="dark">
 <head>
@@ -115,7 +123,7 @@
                 <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
                     <i data-lucide="search" class="w-4 h-4 text-indigo-400"></i> Risultati Ricerca Globale
                 </h2>
-                <p id="search-query-label" class="text-xs text-brand-muted mt-0.5">Ricerca per: "-"</p>
+                <p id="search-query-label" class="text-xs text-brand-muted mt-0.5">Clicca su un risultato per saltare al mese di pertinenza</p>
             </div>
             <button onclick="exitSearchView()" class="px-3.5 py-2 rounded-xl bg-white text-black font-semibold text-xs hover:bg-neutral-200 transition-all flex items-center gap-1.5">
                 <i data-lucide="arrow-left" class="w-4 h-4"></i> Torna alla Home
@@ -142,10 +150,11 @@
             </div>
         </div>
 
-        <!-- SUMMARY STATS CARDS WITH HOVER TOOLTIPS -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- SUMMARY STATS CARDS WITH LARGE HOVER MODAL EFFECT -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 relative">
+            
             <!-- 1. USCITE REALI MESE -->
-            <div class="group relative bg-brand-card border border-brand-border p-5 rounded-2xl flex flex-col justify-between cursor-help">
+            <div class="group relative bg-brand-card border border-brand-border p-5 rounded-2xl flex flex-col justify-between cursor-help transition-all hover:z-30">
                 <div class="flex justify-between items-start">
                     <span class="text-xs font-semibold uppercase tracking-wider text-brand-muted flex items-center gap-1">
                         Uscite Reali Mese <i data-lucide="help-circle" class="w-3.5 h-3.5 text-brand-muted"></i>
@@ -158,16 +167,22 @@
                     <div class="text-xl font-extrabold text-white" id="statCashFlowOut">€0,00</div>
                     <p class="text-[10px] text-brand-muted">Addebiti reali di questo mese</p>
                 </div>
-                <!-- Tooltip Hover -->
-                <div class="absolute bottom-full left-0 mb-2 w-full hidden group-hover:block z-30 bg-neutral-900 border border-brand-border p-3 rounded-xl shadow-2xl text-[11px] text-neutral-300 space-y-1.5 pointer-events-none">
-                    <p class="font-bold text-white border-b border-brand-border pb-1">🔍 Calcolo Uscite Reali Mese:</p>
-                    <p>Somma di tutti i pagamenti effettivi (Una tantum, quote periodiche fisse e costi variabili) effettuati esclusivamente nella data di questo mese.</p>
-                    <div id="tooltipCashOutList" class="space-y-0.5 pt-1 font-mono text-[10px] text-brand-muted max-h-32 overflow-y-auto"></div>
+                <!-- Large Modal Hover Box -->
+                <div class="absolute inset-0 bg-brand-card/95 backdrop-blur-xl border border-white/20 p-5 rounded-2xl shadow-2xl hidden group-hover:flex flex-col justify-between z-40 pointer-events-none">
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between border-b border-brand-border pb-2">
+                            <span class="text-xs font-bold text-white uppercase tracking-wider">🔍 Dettaglio Uscite Reali</span>
+                            <span class="text-[10px] text-brand-muted">Mese Corrente</span>
+                        </div>
+                        <p class="text-[11px] text-neutral-300">Somma di tutti i pagamenti effettivi addebitati nel mese:</p>
+                        <div id="tooltipCashOutList" class="space-y-1 font-mono text-xs text-rose-300 max-h-36 overflow-y-auto custom-scrollbar"></div>
+                    </div>
+                    <p class="text-[10px] text-brand-muted italic pt-2">Sposta il mouse fuori per chiudere</p>
                 </div>
             </div>
 
             <!-- 2. COSTI FISSI MESE -->
-            <div class="group relative bg-brand-card border border-brand-border p-5 rounded-2xl flex flex-col justify-between cursor-help">
+            <div class="group relative bg-brand-card border border-brand-border p-5 rounded-2xl flex flex-col justify-between cursor-help transition-all hover:z-30">
                 <div class="flex justify-between items-start">
                     <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-1">
                         Costi Fissi Mese <i data-lucide="help-circle" class="w-3.5 h-3.5 text-brand-muted"></i>
@@ -180,16 +195,22 @@
                     <div class="text-xl font-extrabold text-indigo-400" id="statMonthlyAccrualCost">€0,00</div>
                     <p class="text-[10px] text-neutral-400">Competenza dei mesi selezionati</p>
                 </div>
-                <!-- Tooltip Hover -->
-                <div class="absolute bottom-full left-0 mb-2 w-full hidden group-hover:block z-30 bg-neutral-900 border border-brand-border p-3 rounded-xl shadow-2xl text-[11px] text-neutral-300 space-y-1.5 pointer-events-none">
-                    <p class="font-bold text-indigo-300 border-b border-brand-border pb-1">🔍 Calcolo Costi Fissi Mese:</p>
-                    <p>Somma delle quote di competenza assegnate a questo mese (es. spesa annuale divisa per 12, o costi variabili spalmati sull'intervallo).</p>
-                    <div id="tooltipAccrualList" class="space-y-0.5 pt-1 font-mono text-[10px] text-neutral-400 max-h-32 overflow-y-auto"></div>
+                <!-- Large Modal Hover Box -->
+                <div class="absolute inset-0 bg-brand-card/95 backdrop-blur-xl border border-white/20 p-5 rounded-2xl shadow-2xl hidden group-hover:flex flex-col justify-between z-40 pointer-events-none">
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between border-b border-brand-border pb-2">
+                            <span class="text-xs font-bold text-indigo-300 uppercase tracking-wider">🔍 Dettaglio Costi Fissi</span>
+                            <span class="text-[10px] text-brand-muted">Mese Corrente</span>
+                        </div>
+                        <p class="text-[11px] text-neutral-300">Somma delle quote di competenza assegnate a questo mese:</p>
+                        <div id="tooltipAccrualList" class="space-y-1 font-mono text-xs text-indigo-300 max-h-36 overflow-y-auto custom-scrollbar"></div>
+                    </div>
+                    <p class="text-[10px] text-brand-muted italic pt-2">Sposta il mouse fuori per chiudere</p>
                 </div>
             </div>
 
             <!-- 3. BILANCIO CASSA -->
-            <div class="group relative bg-neutral-900 border border-neutral-800 p-5 rounded-2xl flex flex-col justify-between cursor-help">
+            <div class="group relative bg-neutral-900 border border-neutral-800 p-5 rounded-2xl flex flex-col justify-between cursor-help transition-all hover:z-30">
                 <div class="flex justify-between items-start">
                     <span class="text-xs font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1">
                         Bilancio Cassa Mese <i data-lucide="help-circle" class="w-3.5 h-3.5 text-neutral-500"></i>
@@ -202,12 +223,24 @@
                     <div id="statMonthlyBalance" class="text-xl font-extrabold text-white">€0,00</div>
                     <p id="statIncomeText" class="text-[10px] text-emerald-400">Entrate mese: +€0,00</p>
                 </div>
-                <!-- Tooltip Hover -->
-                <div class="absolute bottom-full left-0 mb-2 w-full hidden group-hover:block z-30 bg-neutral-900 border border-brand-border p-3 rounded-xl shadow-2xl text-[11px] text-neutral-300 space-y-1.5 pointer-events-none">
-                    <p class="font-bold text-white border-b border-brand-border pb-1">🔍 Calcolo Bilancio Cassa:</p>
-                    <p>Formula: <code class="text-emerald-400">Entrate Reali</code> - <code class="text-rose-400">Uscite Reali</code> del mese selezionato.</p>
+                <!-- Large Modal Hover Box -->
+                <div class="absolute inset-0 bg-neutral-900/95 backdrop-blur-xl border border-white/20 p-5 rounded-2xl shadow-2xl hidden group-hover:flex flex-col justify-between z-40 pointer-events-none">
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between border-b border-neutral-800 pb-2">
+                            <span class="text-xs font-bold text-white uppercase tracking-wider">🔍 Dettaglio Bilancio Cassa</span>
+                            <span class="text-[10px] text-neutral-400">Mese Corrente</span>
+                        </div>
+                        <p class="text-[11px] text-neutral-300">Formula di calcolo:</p>
+                        <div class="bg-black/50 p-3 rounded-xl font-mono text-xs space-y-1 border border-neutral-800">
+                            <p class="text-emerald-400" id="tooltipIncVal">Entrate Reali: €0,00</p>
+                            <p class="text-rose-400" id="tooltipExpVal">Uscite Reali: €0,00</p>
+                            <div class="border-t border-neutral-800 pt-1 text-white font-bold" id="tooltipNetVal">Netto: €0,00</div>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-neutral-500 italic pt-2">Sposta il mouse fuori per chiudere</p>
                 </div>
             </div>
+
         </div>
 
         <!-- STIMA SPESA MESE SUCCESSIVO -->
@@ -331,7 +364,6 @@
                     </select>
                 </div>
 
-                <!-- SELETTORE CADENZA PER SPESE FISSE -->
                 <div id="fixedCadenceGroup" class="hidden">
                     <label class="block text-xs font-medium text-brand-muted mb-1">Frequenza Addebito *</label>
                     <select id="txFixedCadence" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white">
@@ -343,7 +375,6 @@
                     </select>
                 </div>
 
-                <!-- SELEZIONE INTERVALLO MESI/ANNI PER SPESE RIPARTITE -->
                 <div id="rangeSelectionGroup" class="hidden space-y-3 p-3 bg-brand-black border border-brand-border rounded-xl">
                     <label class="block text-xs font-medium text-brand-muted">Intervallo Temporale di Competenza</label>
                     <div class="grid grid-cols-2 gap-3">
@@ -610,11 +641,13 @@ const firebaseConfig = {
             matched.forEach((tx, index) => {
                 const cat = categories.find(c => c.id === tx.categoryId) || { name: 'Generale', color: '#737373' };
                 const isExpense = tx.type === 'expense';
+                const txYM = tx.date.slice(0, 7);
 
                 const card = document.createElement('div');
-                card.className = 'bg-brand-card border border-brand-border rounded-xl p-4 space-y-2';
+                card.className = 'bg-brand-card border border-brand-border rounded-xl p-4 space-y-2 cursor-pointer hover:border-white transition-all';
+                card.onclick = () => jumpToMonth(txYM);
                 card.innerHTML = `
-                    <div class="flex justify-between items-start">
+                    <div class="flex justify-between items-start pointer-events-none">
                         <div class="flex items-center gap-2">
                             <span class="text-xs font-mono font-bold text-brand-muted bg-brand-black px-2 py-0.5 rounded border border-brand-border">#${index + 1}</span>
                             <h3 class="font-bold text-white text-sm">${escapeHtml(tx.title)}</h3>
@@ -623,18 +656,28 @@ const firebaseConfig = {
                             ${isExpense ? '-' : '+'}${formatCurrency(tx.amount)}
                         </span>
                     </div>
-                    <div class="flex flex-wrap items-center gap-2 text-xs text-brand-muted">
+                    <div class="flex flex-wrap items-center gap-2 text-xs text-brand-muted pointer-events-none">
                         <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-brand-border" style="color: ${cat.color}">
                             <span class="w-1.5 h-1.5 rounded-full" style="background-color: ${cat.color}"></span>
                             ${escapeHtml(cat.name)}
                         </span>
-                        <span class="ml-auto font-mono text-[11px]">Data: ${formatDateEU(tx.date)}</span>
+                        <span class="ml-auto font-mono text-[11px] text-indigo-400 font-bold">📅 Clicca per andare a: ${formatDateEU(tx.date)}</span>
                     </div>
                 `;
                 resultsContainer.appendChild(card);
             });
 
             if (window.lucide) lucide.createIcons();
+        }
+
+        function jumpToMonth(ym) {
+            exitSearchView();
+            if (flatpickrMonthPicker) {
+                flatpickrMonthPicker.setDate(ym);
+            } else {
+                document.getElementById('monthFilterBtn').value = ym;
+            }
+            renderApp();
         }
 
         function exitSearchView() {
@@ -687,7 +730,6 @@ const firebaseConfig = {
             return 0;
         }
 
-        // STIMA MESE SUCCESSIVO (CALCOLA L'IMPATTO MENSILE CORRETTO ANCHE PER LE SPESE RIPARTITE)
         function calculateNextMonthEstimate() {
             let totalEstimate = 0;
             const estimateBreakdown = [];
@@ -708,7 +750,6 @@ const firebaseConfig = {
                     totalEstimate += monthlyImpact;
                     estimateBreakdown.push({ title, amount: monthlyImpact, note: cadence > 1 ? `Fissa (${cadence}m) -> Impatto mensile` : 'Fissa Mensile' });
                 } else if (sample.recurrence === 'variable') {
-                    // Se ha un intervallo di ripartizione definito (es. Bollo auto su 12 mesi), usa l'impatto mensile reale (Totale / Mesi)
                     if (sample.rangeStart && sample.rangeEnd) {
                         const [sY, sM] = sample.rangeStart.split('-').map(Number);
                         const [eY, eM] = sample.rangeEnd.split('-').map(Number);
@@ -720,7 +761,6 @@ const firebaseConfig = {
                         totalEstimate += monthlyImpact;
                         estimateBreakdown.push({ title, amount: monthlyImpact, note: `Ripartito (${totalMonths} mesi)` });
                     } else {
-                        // Altrimenti calcola la media storica delle occorrenze
                         const totalSum = items.reduce((acc, curr) => acc + curr.amount, 0);
                         const avgAmount = totalSum / items.length;
 
@@ -775,6 +815,10 @@ const firebaseConfig = {
             // Popola Tooltips
             document.getElementById('tooltipCashOutList').innerHTML = cashTooltipItems.length ? cashTooltipItems.join('<br>') : 'Nessun addebito questo mese.';
             document.getElementById('tooltipAccrualList').innerHTML = accrualTooltipItems.length ? accrualTooltipItems.join('<br>') : 'Nessun costo di competenza.';
+            
+            document.getElementById('tooltipIncVal').innerText = `Entrate Reali: +${formatCurrency(cashInTotal)}`;
+            document.getElementById('tooltipExpVal').innerText = `Uscite Reali: -${formatCurrency(cashOutTotal)}`;
+            document.getElementById('tooltipNetVal').innerText = `Netto Cassa: ${formatCurrency(netCashBalance)}`;
 
             renderNextMonthEstimateUI();
             renderTransactionsList(txDisplayList);
@@ -1285,3 +1329,5 @@ const firebaseConfig = {
     </script>
 </body>
 </html>
+
+```
