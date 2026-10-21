@@ -1,15 +1,3 @@
-Ecco il codice **completo e aggiornato** con le correzioni e i raffinamenti grafici richiesti:
-
-1. **Ripristino dei Colori dei Titoli nei 4 Riquadri**: I titoli (`COSTI FISSI MESE`, `STIMA MESE PROX`, `USCITE REALI MESE`, `BILANCIO MESE`) tornano ad avere i loro specifici colori distintivi (indaco, rosa, ecc.), mentre le cifre in `€` sono **bianche in Dark Mode** e **nere in Light Mode**.
-2. **Effetto LED Animato e Hover sui 4 Riquadri**:
-* Aggiunto un bordo con sfumatura colorata (stile LED) su ciascuno dei 4 specchietti.
-* Quando passi il mouse sopra (hover), il riquadro si solleva leggermente (`scale-[1.02]`) e si attiva un'animazione fluida in cui un riflesso/luce LED scorre lungo tutto il perimetro della card finché permane l'hover, tornando statica quando il cursore si sposta.
-
-
-
-Copia e sostituisci interamente il codice nel tuo file `index.html`:
-
-```html
 <!DOCTYPE html>
 <html lang="it" class="dark">
 <head>
@@ -17,7 +5,6 @@ Copia e sostituisci interamente il codice nel tuo file `index.html`:
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SubTrack - Bilancio Personale</title>
     
-    <!-- Favicon & WebApp Icons -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='20' height='14' x='2' y='5' rx='2'/><line x1='2' x2='22' y1='10' y2='10'/></svg>">
     <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='128' fill='%230a0a0a'/><rect x='96' y='144' width='320' height='224' rx='32' fill='none' stroke='%23ffffff' stroke-width='32'/><line x1='96' y1='208' x2='416' y2='208' stroke='%23ffffff' stroke-width='32'/><circle cx='176' cy='288' r='24' fill='%236366f1'/></svg>">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -25,7 +12,6 @@ Copia e sostituisci interamente il codice nel tuo file `index.html`:
     <meta name="apple-mobile-web-app-title" content="SubTrack">
     <meta name="theme-color" content="#0a0a0a" id="theme-color-meta">
 
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -45,7 +31,6 @@ Copia e sostituisci interamente il codice nel tuo file `index.html`:
         }
     </script>
     
-    <!-- Lucide Icons, Chart.js, Flatpickr -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -66,41 +51,44 @@ Copia e sostituisci interamente il codice nel tuo file `index.html`:
             transition: opacity 0.25s ease;
         }
 
-        /* LED Border Animation */
-        @keyframes ledSpin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        @keyframes borderBeam {
+            0% { offset-distance: 0%; }
+            100% { offset-distance: 100%; }
         }
-        .led-card {
+
+        .led-box {
             position: relative;
-            overflow: hidden;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-radius: 1rem;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
-        .led-card::before {
+
+        .led-box::after {
             content: '';
             position: absolute;
-            inset: -50%;
-            background: conic-gradient(from 0deg at 50% 50%, transparent 0%, transparent 70%, var(--led-color) 100%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            inset: -2px;
+            border-radius: 1.05rem;
+            background: linear-gradient(90deg, transparent, var(--led-color), transparent);
+            opacity: 0.3;
             pointer-events: none;
+            transition: opacity 0.3s ease;
         }
-        .led-card:hover::before {
+
+        .led-box:hover {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 10px 25px -5px var(--led-glow);
+        }
+
+        .led-box:hover::after {
             opacity: 1;
-            animation: ledSpin 3s linear infinite;
-        }
-        .led-card-inner {
-            position: relative;
-            z-index: 1;
+            background: linear-gradient(90deg, var(--led-color), #ffffff, var(--led-color));
+            box-shadow: 0 0 12px var(--led-color);
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col pb-12 relative bg-neutral-100 text-neutral-900 dark:bg-brand-black dark:text-neutral-100 transition-colors duration-200">
 
-    <!-- SEARCH BACKDROP OVERLAY -->
     <div id="search-overlay" onclick="deactivateSearchFocus()" class="fixed inset-0 bg-black/80 backdrop-blur-md z-40 hidden opacity-0 pointer-events-none"></div>
 
-    <!-- TOP HEADER -->
     <header class="sticky top-0 z-50 bg-white/90 dark:bg-brand-black/95 backdrop-blur-md border-b border-neutral-200 dark:border-brand-border px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3 transition-colors duration-200">
         <div class="flex items-center justify-between w-full sm:w-auto gap-3">
             <div class="flex items-center gap-3 min-w-0">
@@ -127,7 +115,6 @@ Copia e sostituisci interamente il codice nel tuo file `index.html`:
             </div>
         </div>
 
-        <!-- SEARCH BAR -->
         <div class="relative w-full sm:max-w-md z-50">
             <div id="search-box-container" class="relative transition-all rounded-xl">
                 <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-neutral-400 dark:text-brand-muted pointer-events-none"></i>
@@ -153,7 +140,6 @@ Copia e sostituisci interamente il codice nel tuo file `index.html`:
         </div>
     </header>
 
-    <!-- SEARCH RESULTS VIEW PAGE -->
     <section id="search-results-page" class="hidden max-w-4xl w-full mx-auto p-4 space-y-4">
         <div class="flex justify-between items-center bg-white dark:bg-brand-card border border-neutral-200 dark:border-brand-border p-4 rounded-2xl shadow-sm">
             <div>
@@ -170,10 +156,8 @@ Copia e sostituisci interamente il codice nel tuo file `index.html`:
         <div id="search-results-list" class="space-y-3"></div>
     </section>
 
-    <!-- MAIN HOME DASHBOARD CONTAINER -->
     <main id="main-dashboard" class="flex-1 max-w-4xl w-full mx-auto p-3 sm:p-4 space-y-4 sm:space-y-6">
 
-        <!-- PERIOD FILTER BAR -->
         <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 bg-white dark:bg-brand-card border border-neutral-200 dark:border-brand-border p-3.5 sm:p-4 rounded-2xl shadow-sm">
             <div class="flex items-center gap-2.5">
                 <i data-lucide="calendar" class="w-4 h-4 text-neutral-400 dark:text-brand-muted"></i>
@@ -187,76 +171,62 @@ Copia e sostituisci interamente il codice nel tuo file `index.html`:
             </div>
         </div>
 
-        <!-- SUMMARY STATS CARDS (COLORE TITOLI ORIGINALE + EFFETTO LED & HOVER) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
             
-            <!-- 1. COSTI FISSI MESE -->
-            <div onclick="openStatsModal('accrual')" style="--led-color: #6366f1;" class="led-card bg-white dark:bg-brand-card border border-neutral-200 dark:border-brand-border p-3.5 sm:p-5 rounded-2xl flex flex-col justify-between cursor-pointer shadow-sm hover:scale-[1.02] hover:shadow-indigo-500/10">
-                <div class="led-card-inner flex flex-col justify-between h-full">
-                    <div class="flex justify-between items-start">
-                        <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-indigo-500 truncate pr-1">COSTI FISSI MESE</span>
-                        <div class="p-1.5 sm:p-2 bg-indigo-50 dark:bg-brand-black rounded-xl border border-indigo-100 dark:border-brand-border text-indigo-500 shrink-0">
-                            <i data-lucide="calculator" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
-                        </div>
+            <div onclick="openStatsModal('accrual')" style="--led-color: #ec4899; --led-glow: rgba(236,72,153,0.15);" class="led-box bg-white dark:bg-brand-card border-2 border-pink-500/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
+                <div class="flex justify-between items-start">
+                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-pink-500 truncate pr-1">COSTI FISSI MESE</span>
+                    <div class="p-1.5 sm:p-2 bg-pink-50 dark:bg-brand-black rounded-xl border border-pink-200 dark:border-brand-border text-pink-500 shrink-0">
+                        <i data-lucide="calculator" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     </div>
-                    <div class="mt-2 sm:mt-3 space-y-0.5">
-                        <div class="text-base sm:text-xl font-extrabold font-mono text-neutral-900 dark:text-white truncate" id="statMonthlyAccrualCost">€0,00</div>
-                        <p class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 truncate">Ricorrenti + Ripartiti</p>
-                    </div>
+                </div>
+                <div class="mt-2 sm:mt-3 space-y-0.5">
+                    <div class="text-base sm:text-xl font-extrabold font-mono text-neutral-900 dark:text-white truncate" id="statMonthlyAccrualCost">€0,00</div>
+                    <p class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 truncate">Ricorrenti + Ripartiti</p>
                 </div>
             </div>
 
-            <!-- 2. STIMA MESE PROSSIMO -->
-            <div onclick="openStatsModal('estimate')" style="--led-color: #818cf8;" class="led-card bg-white dark:bg-brand-card border border-neutral-200 dark:border-brand-border p-3.5 sm:p-5 rounded-2xl flex flex-col justify-between cursor-pointer shadow-sm hover:scale-[1.02] hover:shadow-indigo-500/10">
-                <div class="led-card-inner flex flex-col justify-between h-full">
-                    <div class="flex justify-between items-start">
-                        <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-indigo-400 truncate pr-1">STIMA MESE PROX</span>
-                        <div class="p-1.5 sm:p-2 bg-indigo-50 dark:bg-indigo-950 border border-indigo-100 dark:border-indigo-800/60 rounded-xl text-indigo-400 shrink-0">
-                            <i data-lucide="trending-up" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
-                        </div>
+            <div onclick="openStatsModal('estimate')" style="--led-color: #6366f1; --led-glow: rgba(99,102,241,0.15);" class="led-box bg-white dark:bg-brand-card border-2 border-indigo-500/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
+                <div class="flex justify-between items-start">
+                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-indigo-500 truncate pr-1">STIMA MESE PROX</span>
+                    <div class="p-1.5 sm:p-2 bg-indigo-50 dark:bg-indigo-950 border border-indigo-200 dark:border-indigo-800/60 rounded-xl text-indigo-500 shrink-0">
+                        <i data-lucide="trending-up" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     </div>
-                    <div class="mt-2 sm:mt-3 space-y-0.5">
-                        <div class="text-base sm:text-xl font-extrabold font-mono text-neutral-900 dark:text-white truncate" id="nextMonthEstimateTotal">€0,00</div>
-                        <p class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 truncate">Impatto stimato</p>
-                    </div>
+                </div>
+                <div class="mt-2 sm:mt-3 space-y-0.5">
+                    <div class="text-base sm:text-xl font-extrabold font-mono text-neutral-900 dark:text-white truncate" id="nextMonthEstimateTotal">€0,00</div>
+                    <p class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 truncate">Impatto stimato</p>
                 </div>
             </div>
 
-            <!-- 3. USCITE REALI MESE -->
-            <div onclick="openStatsModal('cashout')" style="--led-color: #f43f5e;" class="led-card bg-white dark:bg-brand-card border border-neutral-200 dark:border-brand-border p-3.5 sm:p-5 rounded-2xl flex flex-col justify-between cursor-pointer shadow-sm hover:scale-[1.02] hover:shadow-rose-500/10">
-                <div class="led-card-inner flex flex-col justify-between h-full">
-                    <div class="flex justify-between items-start">
-                        <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-rose-500 truncate pr-1">USCITE REALI MESE</span>
-                        <div class="p-1.5 sm:p-2 bg-rose-50 dark:bg-brand-black rounded-xl border border-rose-100 dark:border-brand-border text-rose-500 shrink-0">
-                            <i data-lucide="arrow-down-left" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
-                        </div>
+            <div onclick="openStatsModal('cashout')" style="--led-color: #f43f5e; --led-glow: rgba(244,63,94,0.15);" class="led-box bg-white dark:bg-brand-card border-2 border-rose-500/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
+                <div class="flex justify-between items-start">
+                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-rose-500 truncate pr-1">USCITE REALI MESE</span>
+                    <div class="p-1.5 sm:p-2 bg-rose-50 dark:bg-brand-black rounded-xl border border-rose-200 dark:border-brand-border text-rose-500 shrink-0">
+                        <i data-lucide="arrow-down-left" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     </div>
-                    <div class="mt-2 sm:mt-3 space-y-0.5">
-                        <div class="text-base sm:text-xl font-extrabold font-mono text-neutral-900 dark:text-white truncate" id="statCashFlowOut">€0,00</div>
-                        <p class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-brand-muted truncate">Pagamenti reali</p>
-                    </div>
+                </div>
+                <div class="mt-2 sm:mt-3 space-y-0.5">
+                    <div class="text-base sm:text-xl font-extrabold font-mono text-neutral-900 dark:text-white truncate" id="statCashFlowOut">€0,00</div>
+                    <p class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-brand-muted truncate">Pagamenti reali</p>
                 </div>
             </div>
 
-            <!-- 4. BILANCIO CASSA MESE -->
-            <div onclick="openStatsModal('balance')" style="--led-color: #10b981;" class="led-card bg-white dark:bg-brand-card border border-neutral-200 dark:border-neutral-800 p-3.5 sm:p-5 rounded-2xl flex flex-col justify-between cursor-pointer shadow-sm hover:scale-[1.02] hover:shadow-emerald-500/10">
-                <div class="led-card-inner flex flex-col justify-between h-full">
-                    <div class="flex justify-between items-start">
-                        <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-500 truncate pr-1">BILANCIO MESE</span>
-                        <div class="p-1.5 sm:p-2 bg-emerald-50 dark:bg-black rounded-xl border border-emerald-100 dark:border-neutral-800 text-emerald-500 shrink-0">
-                            <i data-lucide="scale" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
-                        </div>
+            <div onclick="openStatsModal('balance')" style="--led-color: #10b981; --led-glow: rgba(16,185,129,0.15);" class="led-box bg-white dark:bg-neutral-900 border-2 border-emerald-500/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
+                <div class="flex justify-between items-start">
+                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-500 truncate pr-1">BILANCIO MESE</span>
+                    <div class="p-1.5 sm:p-2 bg-emerald-50 dark:bg-black rounded-xl border border-emerald-200 dark:border-neutral-800 text-emerald-500 shrink-0">
+                        <i data-lucide="scale" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     </div>
-                    <div class="mt-2 sm:mt-3 space-y-0.5">
-                        <div id="statMonthlyBalance" class="text-base sm:text-xl font-extrabold font-mono text-neutral-900 dark:text-white truncate">€0,00</div>
-                        <p id="statIncomeText" class="text-[9px] sm:text-[10px] text-emerald-600 dark:text-emerald-400 truncate">Entrate: +€0,00</p>
-                    </div>
+                </div>
+                <div class="mt-2 sm:mt-3 space-y-0.5">
+                    <div id="statMonthlyBalance" class="text-base sm:text-xl font-extrabold font-mono text-neutral-900 dark:text-white truncate">€0,00</div>
+                    <p id="statIncomeText" class="text-[9px] sm:text-[10px] text-emerald-600 dark:text-emerald-400 truncate">Entrate: +€0,00</p>
                 </div>
             </div>
 
         </div>
 
-        <!-- CHARTS SECTION -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div class="bg-white dark:bg-brand-card border border-neutral-200 dark:border-brand-border p-4 sm:p-5 rounded-2xl flex flex-col shadow-sm">
                 <div class="flex justify-between items-center mb-4">
@@ -283,7 +253,6 @@ Copia e sostituisci interamente il codice nel tuo file `index.html`:
             </div>
         </div>
 
-        <!-- TRANSACTIONS LIST SECTION WITH CATEGORY FILTER & SORTING -->
         <div class="bg-white dark:bg-brand-card border border-neutral-200 dark:border-brand-border rounded-2xl overflow-hidden p-4 space-y-4 shadow-sm">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-neutral-200 dark:border-brand-border pb-3">
                 <div>
@@ -292,13 +261,11 @@ Copia e sostituisci interamente il codice nel tuo file `index.html`:
                 </div>
                 
                 <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
-                    <!-- SORT SELECTOR -->
                     <select id="listSortOrder" onchange="renderApp()" class="bg-neutral-100 dark:bg-brand-black border border-neutral-300 dark:border-brand-border text-xs rounded-xl px-3 py-1.5 text-neutral-900 dark:text-white focus:outline-none flex-1 sm:flex-none">
                         <option value="date">Ordina per Data Addebito</option>
                         <option value="alpha">Ordina Alfabetico (A-Z)</option>
                     </select>
                     
-                    <!-- CATEGORY FILTER SELECTOR -->
                     <select id="filterListCategory" onchange="renderApp()" class="bg-neutral-100 dark:bg-brand-black border border-neutral-300 dark:border-brand-border text-xs rounded-xl px-3 py-1.5 text-neutral-900 dark:text-white focus:outline-none flex-1 sm:flex-none">
                         <option value="ALL">Tutte le Categorie</option>
                     </select>
@@ -315,7 +282,6 @@ Copia e sostituisci interamente il codice nel tuo file `index.html`:
         </div>
     </main>
 
-    <!-- MODAL: STATS / CALCULATION DETAILS POPUP -->
     <div id="statsModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-brand-card border border-neutral-200 dark:border-brand-border w-full max-w-lg rounded-2xl p-6 space-y-4 max-h-[85vh] flex flex-col shadow-2xl">
             <div class="flex justify-between items-center border-b border-neutral-200 dark:border-brand-border pb-3">
@@ -335,7 +301,6 @@ Copia e sostituisci interamente il codice nel tuo file `index.html`:
         </div>
     </div>
 
-    <!-- MODAL: ADD / EDIT TRANSACTION -->
     <div id="txModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-white dark:bg-brand-card border border-neutral-200 dark:border-brand-border w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center border-b border-neutral-200 dark:border-brand-border pb-3">
@@ -438,7 +403,6 @@ Copia e sostituisci interamente il codice nel tuo file `index.html`:
         </div>
     </div>
 
-    <!-- MODAL: CATEGORIES MANAGEMENT -->
     <div id="categoryModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-white dark:bg-brand-card border border-neutral-200 dark:border-brand-border w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center border-b border-neutral-200 dark:border-brand-border pb-3">
@@ -485,7 +449,6 @@ Copia e sostituisci interamente il codice nel tuo file `index.html`:
         </div>
     </div>
 
-    <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -529,7 +492,6 @@ const firebaseConfig = {
         
         let statsModalData = { cashout: [], accrual: [], balance: { inc: 0, exp: 0, net: 0 }, estimate: [] };
 
-        // THEME MANAGEMENT (Light / Dark mode toggle)
         function initTheme() {
             const savedTheme = localStorage.getItem('subtrack_theme') || 'dark';
             if (savedTheme === 'light') {
@@ -747,13 +709,12 @@ const firebaseConfig = {
             return 0;
         }
 
-        // ESCLUSIONE RIGOROSA DELLE SPESE UNA TANTUM DAI COSTI FISSI MESE
         function getTxAccrualValue(tx, targetYM) {
             const [targetY, targetM] = targetYM.split('-').map(Number);
             const total = getTxTotal(tx);
 
             if (tx.recurrence === 'once') {
-                return 0; // Spese una tantum totalmente escluse dai costi fissi
+                return 0;
             }
             if (tx.recurrence === 'fixed') {
                 const cadence = parseInt(tx.fixedCadence) || 1;
@@ -874,7 +835,6 @@ const firebaseConfig = {
             if (window.lucide) lucide.createIcons();
         }
 
-        // STATS POPUP DETAILS MANAGEMENT (ALFABETICO E NUMERATO)
         function openStatsModal(type) {
             const modal = document.getElementById('statsModal');
             const titleEl = document.getElementById('statsModalTitle');
@@ -884,7 +844,7 @@ const firebaseConfig = {
             const sortAlpha = (list) => [...list].sort((a, b) => a.title.localeCompare(b.title, 'it', { sensitivity: 'base' }));
 
             if (type === 'accrual') {
-                titleEl.innerHTML = `<i data-lucide="calculator" class="w-4 h-4 text-indigo-500"></i> Dettaglio Costi Fissi Mese`;
+                titleEl.innerHTML = `<i data-lucide="calculator" class="w-4 h-4 text-pink-500"></i> Dettaglio Costi Fissi Mese`;
                 if (statsModalData.accrual.length === 0) {
                     bodyEl.innerHTML = `<p class="text-neutral-500 dark:text-brand-muted text-center py-6">Nessun costo fisso o ripartito di competenza per questo mese.</p>`;
                 } else {
@@ -894,7 +854,7 @@ const firebaseConfig = {
                         const feeText = item.fee > 0 ? ` <span class="text-[10px] text-neutral-500 dark:text-brand-muted font-sans">(${formatCurrency(item.baseAmount)} + ${formatCurrency(item.fee)} comm.)</span>` : '';
                         html += `<div class="bg-neutral-100 dark:bg-black/40 border border-neutral-200 dark:border-brand-border p-2.5 rounded-xl flex justify-between items-center gap-2">
                             <span class="text-neutral-900 dark:text-white font-semibold truncate"><span class="text-neutral-400 dark:text-brand-muted mr-1 font-bold">${index + 1}.</span>${escapeHtml(item.title)}${feeText}</span>
-                            <span class="text-indigo-600 dark:text-indigo-400 font-bold shrink-0">-${formatCurrency(item.amount)}</span>
+                            <span class="text-pink-500 font-bold shrink-0">-${formatCurrency(item.amount)}</span>
                         </div>`;
                     });
                     html += `</div>`;
@@ -914,7 +874,7 @@ const firebaseConfig = {
                                 <span class="text-neutral-900 dark:text-white font-semibold block truncate"><span class="text-neutral-400 dark:text-brand-muted mr-1 font-bold">${index + 1}.</span>${escapeHtml(item.title)}${feeText}</span>
                                 <span class="text-[10px] text-neutral-500 dark:text-brand-muted block">${item.note}</span>
                             </div>
-                            <span class="text-indigo-600 dark:text-indigo-300 font-bold shrink-0">-${formatCurrency(item.amount)}</span>
+                            <span class="text-indigo-500 font-bold shrink-0">-${formatCurrency(item.amount)}</span>
                         </div>`;
                     });
                     html += `</div>`;
@@ -931,7 +891,7 @@ const firebaseConfig = {
                         const feeText = item.fee > 0 ? ` <span class="text-[10px] text-neutral-500 dark:text-brand-muted font-sans">(${formatCurrency(item.baseAmount)} + ${formatCurrency(item.fee)} comm.)</span>` : '';
                         html += `<div class="bg-neutral-100 dark:bg-black/40 border border-neutral-200 dark:border-brand-border p-2.5 rounded-xl flex justify-between items-center gap-2">
                             <span class="text-neutral-900 dark:text-white font-semibold truncate"><span class="text-neutral-400 dark:text-brand-muted mr-1 font-bold">${index + 1}.</span>${escapeHtml(item.title)}${feeText}</span>
-                            <span class="text-rose-600 dark:text-rose-400 font-bold shrink-0">-${formatCurrency(item.amount)}</span>
+                            <span class="text-rose-500 font-bold shrink-0">-${formatCurrency(item.amount)}</span>
                         </div>`;
                     });
                     html += `</div>`;
@@ -982,7 +942,6 @@ const firebaseConfig = {
             }
             emptyState.classList.add('hidden');
 
-            // SELETTORE ORDINAMENTO (DATA ADDEBITO O ALFABETICO)
             const sortMode = document.getElementById('listSortOrder')?.value || 'date';
             const sortedList = [...txList].sort((a, b) => {
                 if (sortMode === 'alpha') {
@@ -1440,5 +1399,3 @@ const firebaseConfig = {
     </script>
 </body>
 </html>
-
-```
