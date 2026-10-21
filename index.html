@@ -34,9 +34,13 @@
         }
     </script>
     
-    <!-- Lucide Icons & Chart.js -->
+    <!-- Lucide Icons, Chart.js, Flatpickr (Italian Calendar with Monday start) -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/it.js"></script>
 
     <style>
         body {
@@ -48,42 +52,88 @@
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #0a0a0a; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #262626; border-radius: 2px; }
+        
+        #search-overlay {
+            transition: opacity 0.25s ease;
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col pb-12">
+<body class="min-h-screen flex flex-col pb-12 relative">
+
+    <!-- SEARCH BACKDROP OVERLAY -->
+    <div id="search-overlay" onclick="deactivateSearchFocus()" class="fixed inset-0 bg-black/80 backdrop-blur-md z-40 hidden opacity-0 pointer-events-none"></div>
 
     <!-- TOP HEADER -->
-    <header class="sticky top-0 z-30 bg-brand-black/95 backdrop-blur-md border-b border-brand-border px-4 py-3.5 flex justify-between items-center gap-2">
-        <div class="flex items-center gap-3 min-w-0 flex-1">
-            <div class="w-10 h-10 rounded-xl bg-brand-card border border-brand-border flex items-center justify-center shrink-0 text-white">
-                <i data-lucide="wallet" class="w-5 h-5"></i>
+    <header class="sticky top-0 z-50 bg-brand-black/95 backdrop-blur-md border-b border-brand-border px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
+        <div class="flex items-center justify-between w-full sm:w-auto gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="w-9 h-9 rounded-xl bg-brand-card border border-brand-border flex items-center justify-center shrink-0 text-white">
+                    <i data-lucide="wallet" class="w-4 h-4"></i>
+                </div>
+                <div class="truncate">
+                    <h1 class="text-sm font-extrabold tracking-wider text-white uppercase leading-none">SUBTRACK</h1>
+                    <p id="status-indicator" class="text-[10px] text-brand-muted font-medium mt-0.5">Inizializzazione...</p>
+                </div>
             </div>
-            <div class="truncate">
-                <h1 class="text-sm font-extrabold tracking-wider text-white uppercase leading-none truncate">SUBTRACK</h1>
-                <p id="status-indicator" class="text-[10px] text-brand-muted font-medium leading-tight mt-1 truncate">Inizializzazione...</p>
+
+            <div class="flex items-center gap-2 sm:hidden">
+                <button type="button" onclick="startVoiceRecognition(event)" class="p-2 rounded-full bg-brand-card border border-brand-border text-white">
+                    <i data-lucide="mic" class="w-4 h-4"></i>
+                </button>
+                <button type="button" onclick="openTransactionModal()" class="px-3 py-1.5 rounded-full bg-white text-black font-semibold text-xs flex items-center gap-1">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Nuovo
+                </button>
             </div>
         </div>
 
-        <div class="flex items-center gap-2 shrink-0 z-10">
-            <button type="button" id="voice-btn" onclick="startVoiceRecognition(event)" class="p-2.5 rounded-full bg-brand-card border border-brand-border text-white hover:border-white transition-all active:scale-95 relative cursor-pointer" title="Dettato Vocale">
-                <i data-lucide="mic" class="w-5 h-5 pointer-events-none"></i>
-                <span id="voice-pulse" class="hidden absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full animate-ping pointer-events-none"></span>
+        <!-- SEARCH BAR (IN PRIMO PIANO) -->
+        <div class="relative w-full sm:max-w-md z-50">
+            <div id="search-box-container" class="relative transition-all rounded-xl">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-brand-muted pointer-events-none"></i>
+                <input type="text" id="globalSearchInput" onfocus="activateSearchFocus()" onkeydown="handleSearchKeyDown(event)" placeholder="Cerca voce in tutti gli anni (es. Mutuo, Terapia)..." class="w-full bg-brand-card border border-brand-border rounded-xl pl-10 pr-9 py-2 text-xs text-white placeholder-brand-muted focus:outline-none focus:border-white focus:ring-1 focus:ring-white">
+                <button id="search-clear-btn" onclick="clearSearch()" class="hidden absolute right-3 top-2.5 text-brand-muted hover:text-white">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="hidden sm:flex items-center gap-2">
+            <button type="button" onclick="startVoiceRecognition(event)" class="p-2 rounded-full bg-brand-card border border-brand-border text-white hover:border-white transition-all active:scale-95 relative" title="Dettato Vocale">
+                <i data-lucide="mic" class="w-4 h-4 pointer-events-none"></i>
+                <span id="voice-pulse" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full animate-ping"></span>
             </button>
-            <button type="button" onclick="openTransactionModal()" class="px-3.5 py-2 rounded-full bg-white text-black font-semibold text-sm hover:bg-neutral-200 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer">
+            <button type="button" onclick="openTransactionModal()" class="px-3.5 py-2 rounded-full bg-white text-black font-semibold text-xs hover:bg-neutral-200 transition-all active:scale-95 flex items-center gap-1.5">
                 <i data-lucide="plus" class="w-4 h-4 pointer-events-none"></i> Nuovo
             </button>
         </div>
     </header>
 
-    <!-- MAIN CONTAINER -->
-    <main class="flex-1 max-w-4xl w-full mx-auto p-4 space-y-6">
+    <!-- SEARCH RESULTS VIEW PAGE (SEPARATA) -->
+    <section id="search-results-page" class="hidden max-w-4xl w-full mx-auto p-4 space-y-4">
+        <div class="flex justify-between items-center bg-brand-card border border-brand-border p-4 rounded-2xl">
+            <div>
+                <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <i data-lucide="search" class="w-4 h-4 text-indigo-400"></i> Risultati Ricerca Globale
+                </h2>
+                <p id="search-query-label" class="text-xs text-brand-muted mt-0.5">Ricerca per: "-"</p>
+            </div>
+            <button onclick="exitSearchView()" class="px-3.5 py-2 rounded-xl bg-white text-black font-semibold text-xs hover:bg-neutral-200 transition-all flex items-center gap-1.5">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Torna alla Home
+            </button>
+        </div>
 
-        <!-- PERIOD FILTER BAR -->
+        <div id="search-results-list" class="space-y-3"></div>
+    </section>
+
+    <!-- MAIN HOME DASHBOARD CONTAINER -->
+    <main id="main-dashboard" class="flex-1 max-w-4xl w-full mx-auto p-4 space-y-6">
+
+        <!-- PERIOD FILTER BAR CON CALENDARIO ITALIANO -->
         <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 bg-brand-card border border-brand-border p-4 rounded-2xl">
             <div class="flex items-center gap-2.5">
                 <i data-lucide="calendar" class="w-4 h-4 text-brand-muted"></i>
-                <label for="monthFilter" class="text-xs font-semibold text-brand-muted uppercase tracking-wider">Periodo di Analisi:</label>
-                <input type="month" id="monthFilter" onchange="renderApp()" class="bg-brand-black border border-brand-border rounded-xl px-3 py-1.5 text-sm font-medium text-white focus:outline-none focus:border-white">
+                <label for="monthFilterBtn" class="text-xs font-semibold text-brand-muted uppercase tracking-wider">Periodo di Analisi:</label>
+                <input type="text" id="monthFilterBtn" readonly class="bg-brand-black border border-brand-border rounded-xl px-3 py-1.5 text-xs font-semibold text-white focus:outline-none focus:border-white cursor-pointer w-36 text-center">
             </div>
             <div class="flex items-center gap-2">
                 <button onclick="openCategoryModal()" class="px-3 py-1.5 rounded-xl border border-brand-border text-brand-muted hover:text-white text-xs font-semibold transition-all flex items-center gap-1">
@@ -94,7 +144,6 @@
 
         <!-- SUMMARY STATS CARDS -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- 1. FLUSSO CASSA REALE -->
             <div class="bg-brand-card border border-brand-border p-5 rounded-2xl flex flex-col justify-between">
                 <div class="flex justify-between items-start">
                     <span class="text-xs font-semibold uppercase tracking-wider text-brand-muted">Cassa Reale Mese</span>
@@ -104,11 +153,10 @@
                 </div>
                 <div class="mt-3 space-y-1">
                     <div class="text-xl font-extrabold text-white" id="statCashFlowOut">-€0,00</div>
-                    <p class="text-[10px] text-brand-muted">Addebiti reali effettuati nel mese</p>
+                    <p class="text-[10px] text-brand-muted">Addebiti reali di questo mese</p>
                 </div>
             </div>
 
-            <!-- 2. PESO / COMPETENZA MENSILE REALE -->
             <div class="bg-brand-card border border-brand-border p-5 rounded-2xl flex flex-col justify-between">
                 <div class="flex justify-between items-start">
                     <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400">Costo Consumi Mese</span>
@@ -118,11 +166,10 @@
                 </div>
                 <div class="mt-3 space-y-1">
                     <div class="text-xl font-extrabold text-indigo-400" id="statMonthlyAccrualCost">€0,00</div>
-                    <p class="text-[10px] text-neutral-400">Basato sui mesi di competenza selezionati</p>
+                    <p class="text-[10px] text-neutral-400">Competenza dei mesi selezionati</p>
                 </div>
             </div>
 
-            <!-- 3. BILANCIO NETTO CASSA -->
             <div class="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl flex flex-col justify-between">
                 <div class="flex justify-between items-start">
                     <span class="text-xs font-semibold uppercase tracking-wider text-neutral-400">Bilancio Cassa Mese</span>
@@ -135,6 +182,26 @@
                     <p id="statIncomeText" class="text-[10px] text-emerald-400">Entrate mese: +€0,00</p>
                 </div>
             </div>
+        </div>
+
+        <!-- STIMA SPESA MESE SUCCESSIVO (MEDIA STORICA VARIABILI + FISSE) -->
+        <div class="bg-gradient-to-r from-neutral-900 via-brand-card to-neutral-900 border border-indigo-900/50 p-5 rounded-2xl space-y-4">
+            <div class="flex justify-between items-start">
+                <div class="flex items-center gap-2.5">
+                    <div class="p-2 bg-indigo-950 border border-indigo-800/60 rounded-xl text-indigo-400">
+                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-indigo-300">Stima Uscite Mese Successivo</h2>
+                        <p class="text-[10px] text-neutral-400">Fisse ricorrenti + media storica delle voci variabili (incluse le registrazioni a 0€)</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span id="nextMonthEstimateTotal" class="text-xl font-extrabold text-indigo-300">€0,00</span>
+                </div>
+            </div>
+
+            <div id="nextMonthDetailsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-2 border-t border-brand-border/60"></div>
         </div>
 
         <!-- CHARTS SECTION -->
@@ -164,21 +231,27 @@
             </div>
         </div>
 
-        <!-- TRANSACTIONS LIST SECTION -->
+        <!-- TRANSACTIONS LIST SECTION WITH CATEGORY FILTER -->
         <div class="bg-brand-card border border-brand-border rounded-2xl overflow-hidden p-4 space-y-4">
-            <div class="flex justify-between items-center border-b border-brand-border pb-3">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-brand-border pb-3">
                 <div>
                     <h2 class="text-sm font-bold uppercase tracking-wider text-white">Dettaglio Spese & Consumi Mese</h2>
                     <p class="text-[10px] text-brand-muted mt-0.5">Mostra pagamenti effettivi + quote assegnate ai mesi selezionati</p>
                 </div>
-                <span id="tx-count" class="text-xs text-brand-muted font-mono">0 movimenti</span>
+                
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <select id="filterListCategory" onchange="renderApp()" class="bg-brand-black border border-brand-border text-xs rounded-xl px-3 py-1.5 text-white focus:outline-none w-full sm:w-auto">
+                        <option value="ALL">Tutte le Categorie</option>
+                    </select>
+                    <span id="tx-count" class="text-xs text-brand-muted font-mono whitespace-nowrap">0 voci</span>
+                </div>
             </div>
 
             <div id="tx-list" class="space-y-3"></div>
 
             <div id="tx-empty-state" class="hidden py-12 text-center space-y-2">
                 <i data-lucide="inbox" class="w-10 h-10 mx-auto text-brand-muted stroke-1"></i>
-                <p class="text-brand-muted text-xs">Nessun movimento o quota di consumo per questo mese.</p>
+                <p class="text-brand-muted text-xs">Nessun movimento o quota di consumo per questo mese/categoria.</p>
             </div>
         </div>
     </main>
@@ -203,7 +276,7 @@
 
                 <div>
                     <label class="block text-xs font-medium text-brand-muted mb-1">Descrizione *</label>
-                    <input type="text" id="txTitle" required placeholder="es. Bolletta Luce, Stipendio..." class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white">
+                    <input type="text" id="txTitle" required placeholder="es. Gruppo Terapia, Bolletta..." class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
@@ -212,8 +285,8 @@
                         <input type="number" step="0.01" id="txAmount" required placeholder="0.00" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white font-semibold">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-brand-muted mb-1">Data Pagamento / Addebito *</label>
-                        <input type="date" id="txDate" required class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white">
+                        <label class="block text-xs font-medium text-brand-muted mb-1">Data Pagamento *</label>
+                        <input type="text" id="txDate" required placeholder="Seleziona data" class="w-full bg-brand-black border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white cursor-pointer">
                     </div>
                 </div>
 
@@ -232,7 +305,6 @@
                     </select>
                 </div>
 
-                <!-- SELEZIONE MESI MULTIPLA MANUALE -->
                 <div id="monthsSelectionGroup" class="hidden space-y-2">
                     <div class="flex justify-between items-center">
                         <label class="block text-xs font-medium text-brand-muted">Mesi di Competenza Validi *</label>
@@ -241,9 +313,7 @@
                             <button type="button" onclick="selectAllMonths(false)" class="text-[10px] text-brand-muted hover:underline">Azzera</button>
                         </div>
                     </div>
-                    <div id="monthsGrid" class="grid grid-cols-4 gap-1.5 p-2 bg-brand-black border border-brand-border rounded-xl">
-                        <!-- Generato dinamicamente in JS -->
-                    </div>
+                    <div id="monthsGrid" class="grid grid-cols-4 gap-1.5 p-2 bg-brand-black border border-brand-border rounded-xl"></div>
                     <p class="text-[10px] text-brand-muted">L'importo verrà diviso equamente solo tra i mesi selezionati.</p>
                 </div>
 
@@ -302,7 +372,7 @@
         </div>
     </div>
 
-    <!-- FIREBASE SDK -->
+    <!-- FIREBASE SDK (Placeholder Sicuro) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -344,15 +414,17 @@ const firebaseConfig = {
         let annualChartInstance = null;
         let currentTxType = 'expense';
         let selectedMonths = [];
+        let flatpickrMonthPicker = null;
+        let flatpickrTxDatePicker = null;
 
         try {
-            if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
+            if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "INSERISCI_LA_TUA_API_KEY") {
                 firebase.initializeApp(firebaseConfig);
                 db = firebase.firestore();
                 document.getElementById('status-indicator').innerText = "Cloud Sync (Firebase)";
                 initFirebaseListeners();
             } else {
-                throw new Error("Configurazione Firebase mancante");
+                throw new Error("Firebase non configurato, uso locale");
             }
         } catch (e) {
             useLocalStorage = true;
@@ -364,7 +436,7 @@ const firebaseConfig = {
             db.collection("subtrack_transactions").onSnapshot(snapshot => {
                 transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderApp();
-            }, err => console.error("Errore sync transazioni:", err));
+            }, err => console.error("Sync error:", err));
 
             db.collection("subtrack_categories").onSnapshot(snapshot => {
                 if (!snapshot.empty) {
@@ -373,7 +445,7 @@ const firebaseConfig = {
                 } else {
                     categories.forEach(c => db.collection("subtrack_categories").doc(c.id).set(c));
                 }
-            }, err => console.error("Errore sync categorie:", err));
+            }, err => console.error("Sync error:", err));
         }
 
         function loadFromLocalStorage() {
@@ -394,16 +466,139 @@ const firebaseConfig = {
 
         window.addEventListener('DOMContentLoaded', () => {
             const now = new Date();
-            document.getElementById('monthFilter').value = now.toISOString().slice(0, 7);
+            const defaultYM = now.toISOString().slice(0, 7);
+            
+            // Inizializza Flatpickr Periodo Analisi (Italiano, Lunedì)
+            flatpickrMonthPicker = flatpickr("#monthFilterBtn", {
+                locale: "it",
+                plugins: [
+                    // Semplice selettore anno-mese personalizzato in italiano
+                ],
+                defaultDate: defaultYM,
+                dateFormat: "Y-m",
+                altInput: true,
+                altFormat: "F Y",
+                onChange: function(selectedDates, dateStr) {
+                    renderApp();
+                }
+            });
+
+            // Inizializza Flatpickr Data Transazione (Italiano, Lunedì)
+            flatpickrTxDatePicker = flatpickr("#txDate", {
+                locale: "it",
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "j F Y",
+                defaultDate: "today"
+            });
+
             initMonthsGrid();
             if (window.lucide) lucide.createIcons();
             renderApp();
         });
 
         // ==========================================
-        // DUAL FINANCIAL ENGINE WITH MANUAL MONTHS
+        // GESTIONE FOCUS RICERCA GLOBALE & OVERLAY
         // ==========================================
-        
+        function activateSearchFocus() {
+            const overlay = document.getElementById('search-overlay');
+            const container = document.getElementById('search-box-container');
+            overlay.classList.remove('hidden', 'pointer-events-none');
+            overlay.classList.add('opacity-100');
+            container.classList.add('ring-2', 'ring-white', 'scale-[1.02]');
+            document.getElementById('search-clear-btn').classList.remove('hidden');
+        }
+
+        function deactivateSearchFocus() {
+            const overlay = document.getElementById('search-overlay');
+            const container = document.getElementById('search-box-container');
+            overlay.classList.remove('opacity-100');
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => overlay.classList.add('hidden'), 250);
+            container.classList.remove('ring-2', 'ring-white', 'scale-[1.02]');
+        }
+
+        function clearSearch() {
+            document.getElementById('globalSearchInput').value = '';
+            document.getElementById('search-clear-btn').classList.add('hidden');
+            exitSearchView();
+            deactivateSearchFocus();
+        }
+
+        function handleSearchKeyDown(e) {
+            if (e.key === 'Enter') {
+                const query = e.target.value.trim();
+                if (query.length > 0) {
+                    executeGlobalSearch(query);
+                }
+            }
+        }
+
+        function executeGlobalSearch(query) {
+            deactivateSearchFocus();
+            document.getElementById('main-dashboard').classList.add('hidden');
+            document.getElementById('search-results-page').classList.remove('hidden');
+            document.getElementById('search-query-label').innerText = `Risultati per: "${query}"`;
+
+            const resultsContainer = document.getElementById('search-results-list');
+            resultsContainer.innerHTML = '';
+
+            const qLower = query.toLowerCase();
+            const matched = transactions.filter(t => t.title.toLowerCase().includes(qLower));
+
+            if (matched.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="py-16 text-center space-y-2 bg-brand-card border border-brand-border rounded-2xl">
+                        <i data-lucide="search-x" class="w-10 h-10 mx-auto text-brand-muted"></i>
+                        <p class="text-brand-muted text-xs">Nessuna voce trovata con "${query}" in nessun anno o mese.</p>
+                    </div>
+                `;
+                if (window.lucide) lucide.createIcons();
+                return;
+            }
+
+            matched.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            matched.forEach((tx, index) => {
+                const cat = categories.find(c => c.id === tx.categoryId) || { name: 'Generale', color: '#737373' };
+                const isExpense = tx.type === 'expense';
+
+                const card = document.createElement('div');
+                card.className = 'bg-brand-card border border-brand-border rounded-xl p-4 space-y-2';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-mono font-bold text-brand-muted bg-brand-black px-2 py-0.5 rounded border border-brand-border">#${index + 1}</span>
+                            <h3 class="font-bold text-white text-sm">${escapeHtml(tx.title)}</h3>
+                        </div>
+                        <span class="text-sm font-mono font-extrabold ${isExpense ? 'text-rose-400' : 'text-emerald-400'}">
+                            ${isExpense ? '-' : '+'}${formatCurrency(tx.amount)}
+                        </span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 text-xs text-brand-muted">
+                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-brand-border" style="color: ${cat.color}">
+                            <span class="w-1.5 h-1.5 rounded-full" style="background-color: ${cat.color}"></span>
+                            ${escapeHtml(cat.name)}
+                        </span>
+                        <span class="ml-auto font-mono text-[11px]">Data: ${formatDateEU(tx.date)}</span>
+                    </div>
+                `;
+                resultsContainer.appendChild(card);
+            });
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function exitSearchView() {
+            document.getElementById('search-results-page').classList.add('hidden');
+            document.getElementById('main-dashboard').classList.remove('hidden');
+            document.getElementById('globalSearchInput').value = '';
+            document.getElementById('search-clear-btn').classList.add('hidden');
+        }
+
+        // ==========================================
+        // MOTORE DI CALCOLO & STIMA MESE SUCCESSIVO
+        // ==========================================
         function getTxCashFlowValue(tx, targetYM) {
             const txYM = tx.date.slice(0, 7);
             if (tx.recurrence === 'once' || tx.recurrence === 'variable') {
@@ -414,8 +609,7 @@ const firebaseConfig = {
                 const [txY, txM] = tx.date.slice(0, 10).split('-').map(Number);
                 const monthDiff = (targetY - txY) * 12 + (targetM - txM);
                 if (monthDiff < 0) return 0;
-                const cadence = parseInt(tx.cadence) || 1;
-                return (monthDiff % cadence === 0) ? tx.amount : 0;
+                return tx.amount;
             }
             return 0;
         }
@@ -427,44 +621,64 @@ const firebaseConfig = {
             if (tx.recurrence === 'once') {
                 return (tx.date.slice(0, 7) === targetYM) ? tx.amount : 0;
             }
-
             if (tx.recurrence === 'fixed') {
-                const cadence = parseInt(tx.cadence) || 1;
-                return tx.amount / cadence;
+                return tx.amount;
             }
-
             if (tx.recurrence === 'variable') {
-                // Gestione con Mesi Selezionati Manualmente (1-12)
                 const targetYearMatch = (targetY === txY);
                 if (targetYearMatch && tx.validMonths && tx.validMonths.includes(targetM)) {
                     return tx.amount / tx.validMonths.length;
                 }
-                
-                // Fallback retroattivo automatico se non erano specificati i mesi a mano
-                if (!tx.validMonths || tx.validMonths.length === 0) {
-                    const monthDiff = (targetY - txY) * 12 + (targetM - txM);
-                    const cadence = parseInt(tx.cadence) || 2;
-                    if (monthDiff >= -cadence && monthDiff < 0) {
-                        return tx.amount / cadence;
-                    }
-                }
             }
-
             return 0;
         }
 
-        function getValidMonthsFormatted(tx) {
-            if (tx.validMonths && tx.validMonths.length > 0) {
-                return tx.validMonths.map(m => MONTH_NAMES_IT[m - 1]).join(', ');
-            }
-            return null;
+        // Calcolo stima mese successivo basato sulla media storica delle ricorrenti variabili + fisse
+        function calculateNextMonthEstimate() {
+            const currentYM = document.getElementById('monthFilterBtn').value || new Date().toISOString().slice(0, 7);
+            const [curY, curM] = currentYM.split('-').map(Number);
+            
+            let nextM = curM + 1;
+            let nextY = curY;
+            if (nextM > 12) { nextM = 1; nextY += 1; }
+            const nextYM = `${nextY}-${String(nextM).padStart(2, '0')}`;
+
+            let totalEstimate = 0;
+            const estimateBreakdown = [];
+
+            // Raggruppa tutte le transazioni per titolo normalizzato
+            const uniqueTitles = [...new Set(transactions.map(t => t.title.trim()))];
+
+            uniqueTitles.forEach(title => {
+                const items = transactions.filter(t => t.title.trim() === title);
+                const sample = items[0];
+
+                // Escludi Una Tantum
+                if (sample.recurrence === 'once') return;
+
+                if (sample.recurrence === 'fixed') {
+                    // Fisse ricorrenti incluse interamente
+                    totalEstimate += sample.amount;
+                    estimateBreakdown.push({ title, amount: sample.amount, type: sample.type, note: 'Fissa' });
+                } else if (sample.recurrence === 'variable') {
+                    // Variabili: calcola la media su tutte le volte che appare (considerando anche i mesi a 0 se l'utente li ha inseriti)
+                    const totalSum = items.reduce((acc, curr) => acc + curr.amount, 0);
+                    const avgAmount = totalSum / items.length;
+
+                    totalEstimate += avgAmount;
+                    estimateBreakdown.push({ title, amount: avgAmount, type: sample.type, note: `Media (${items.length} occorrenze)` });
+                }
+            });
+
+            return { total: totalEstimate, breakdown: estimateBreakdown };
         }
 
         // ==========================================
         // RENDER APP & UI
         // ==========================================
         function renderApp() {
-            const selectedYM = document.getElementById('monthFilter').value || new Date().toISOString().slice(0, 7);
+            const selectedYM = document.getElementById('monthFilterBtn').value || new Date().toISOString().slice(0, 7);
+            const catFilter = document.getElementById('filterListCategory')?.value || 'ALL';
             
             let cashOutTotal = 0;
             let cashInTotal = 0;
@@ -484,7 +698,9 @@ const firebaseConfig = {
                 }
 
                 if (cashVal > 0 || accrualVal > 0) {
-                    txDisplayList.push({ ...tx, cashVal, accrualVal });
+                    if (catFilter === 'ALL' || tx.categoryId === catFilter) {
+                        txDisplayList.push({ ...tx, cashVal, accrualVal });
+                    }
                 }
             });
 
@@ -495,15 +711,54 @@ const firebaseConfig = {
             document.getElementById('statMonthlyBalance').innerText = formatCurrency(netCashBalance);
             document.getElementById('statIncomeText').innerText = `Entrate mese: +${formatCurrency(cashInTotal)}`;
 
-            renderTransactionsList(txDisplayList, selectedYM);
+            renderNextMonthEstimateUI();
+            renderTransactionsList(txDisplayList);
             renderCategoriesGrid();
+            populateCategoryFilterSelect();
             renderCategoryChart(txDisplayList);
             renderAnnualChart(selectedYM.slice(0, 4));
 
             if (window.lucide) lucide.createIcons();
         }
 
-        function renderTransactionsList(txList, selectedYM) {
+        function renderNextMonthEstimateUI() {
+            const estimate = calculateNextMonthEstimate();
+            document.getElementById('nextMonthEstimateTotal').innerText = formatCurrency(estimate.total);
+
+            const container = document.getElementById('nextMonthDetailsList');
+            container.innerHTML = '';
+
+            estimate.breakdown.forEach(item => {
+                const isExpense = item.type === 'expense';
+                const el = document.createElement('div');
+                el.className = 'bg-brand-black border border-brand-border p-2.5 rounded-xl flex justify-between items-center text-xs';
+                el.innerHTML = `
+                    <div class="min-w-0 truncate pr-2">
+                        <p class="font-bold text-white truncate">${escapeHtml(item.title)}</p>
+                        <span class="text-[10px] text-brand-muted">${item.note}</span>
+                    </div>
+                    <span class="font-mono font-bold ${isExpense ? 'text-rose-400' : 'text-emerald-400'} shrink-0">
+                        ${isExpense ? '-' : '+'}${formatCurrency(item.amount)}
+                    </span>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        function populateCategoryFilterSelect() {
+            const sel = document.getElementById('filterListCategory');
+            const currentVal = sel.value;
+            sel.innerHTML = '<option value="ALL">Tutte le Categorie</option>';
+            categories.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.innerText = c.name;
+                sel.appendChild(opt);
+            });
+            sel.value = currentVal;
+        }
+
+        function renderTransactionsList(txList) {
             const container = document.getElementById('tx-list');
             const emptyState = document.getElementById('tx-empty-state');
             container.innerHTML = '';
@@ -518,14 +773,11 @@ const firebaseConfig = {
             txList.forEach((tx, index) => {
                 const cat = categories.find(c => c.id === tx.categoryId) || { name: 'Generale', color: '#737373' };
                 const isExpense = tx.type === 'expense';
-                const monthsText = getValidMonthsFormatted(tx);
 
                 let recBadge = '';
                 if (tx.recurrence === 'fixed') recBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] bg-neutral-800 text-neutral-300">Fissa</span>`;
-                else if (tx.recurrence === 'variable') recBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] bg-amber-950 text-amber-300 border border-amber-800/50">Ripartito (${tx.validMonths ? tx.validMonths.length : 2}m)</span>`;
+                else if (tx.recurrence === 'variable') recBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] bg-amber-950 text-amber-300 border border-amber-800/50">Variabile</span>`;
                 else recBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] bg-brand-black text-brand-muted">Una tantum</span>`;
-
-                const isChargeMonth = (tx.date.slice(0, 7) === selectedYM);
 
                 const card = document.createElement('div');
                 card.className = 'bg-brand-black border border-brand-border rounded-xl p-3.5 space-y-2.5 transition-all hover:border-neutral-700';
@@ -533,20 +785,12 @@ const firebaseConfig = {
                     <div class="flex justify-between items-start gap-2">
                         <div class="flex items-center gap-2 min-w-0">
                             <span class="text-xs font-mono font-bold text-brand-muted bg-brand-card px-2 py-0.5 rounded border border-brand-border">#${index + 1}</span>
-                            <div>
-                                <h3 class="font-bold text-white text-sm truncate">${escapeHtml(tx.title)}</h3>
-                                ${monthsText ? `<p class="text-[11px] text-amber-400 font-medium">Mesi competenza: ${monthsText}</p>` : ''}
-                            </div>
+                            <h3 class="font-bold text-white text-sm truncate">${escapeHtml(tx.title)}</h3>
                         </div>
                         <div class="text-right shrink-0">
                             <div class="text-sm font-mono font-extrabold ${isExpense ? 'text-rose-400' : 'text-emerald-400'}">
-                                ${isExpense ? '-' : '+'}${formatCurrency(tx.accrualVal)} /mese
+                                ${isExpense ? '-' : '+'}${formatCurrency(tx.accrualVal)}
                             </div>
-                            ${tx.recurrence === 'variable' ? `
-                                <div class="text-[10px] font-mono ${isChargeMonth ? 'text-rose-400 font-bold' : 'text-brand-muted'}">
-                                    Addebito cassa: ${isChargeMonth ? '-' + formatCurrency(tx.amount) : '€0,00'}
-                                </div>
-                            ` : ''}
                         </div>
                     </div>
 
@@ -556,7 +800,7 @@ const firebaseConfig = {
                             ${escapeHtml(cat.name)}
                         </span>
                         ${recBadge}
-                        <span class="ml-auto font-mono text-[11px]">Data Addebito: ${formatDateEU(tx.date)} (Totale: ${formatCurrency(tx.amount)})</span>
+                        <span class="ml-auto font-mono text-[11px]">Data: ${formatDateEU(tx.date)} (Totale: ${formatCurrency(tx.amount)})</span>
                     </div>
 
                     <div class="flex justify-end gap-3 pt-2 border-t border-brand-border/40 text-xs">
@@ -736,16 +980,6 @@ const firebaseConfig = {
             }
         }
 
-        function autoSelectDefaultMonthsForDate(dateStr) {
-            if (!dateStr) return;
-            const month = parseInt(dateStr.split('-')[1]);
-            // Imposta di default i 2 mesi precedenti
-            let m1 = month - 2; if (m1 < 1) m1 += 12;
-            let m2 = month - 1; if (m2 < 1) m2 += 12;
-            selectedMonths = [m1, m2];
-            updateMonthsButtonsUI();
-        }
-
         // ==========================================
         // TRANSACTION ACTIONS & MODALS
         // ==========================================
@@ -753,7 +987,7 @@ const firebaseConfig = {
             populateCategorySelect();
             document.getElementById('txForm').reset();
             document.getElementById('txId').value = '';
-            document.getElementById('txDate').value = new Date().toISOString().slice(0, 10);
+            flatpickrTxDatePicker.setDate(new Date());
             setTxType('expense');
 
             if (editId) {
@@ -762,7 +996,7 @@ const firebaseConfig = {
                     document.getElementById('txId').value = tx.id;
                     document.getElementById('txTitle').value = tx.title;
                     document.getElementById('txAmount').value = tx.amount;
-                    document.getElementById('txDate').value = tx.date;
+                    flatpickrTxDatePicker.setDate(tx.date);
                     setTxType(tx.type);
                     document.getElementById('txCategory').value = tx.categoryId;
                     document.getElementById('txRecurrence').value = tx.recurrence || 'once';
@@ -771,7 +1005,8 @@ const firebaseConfig = {
                 }
             } else {
                 document.getElementById('txModalTitle').innerText = 'Nuovo Movimento';
-                autoSelectDefaultMonthsForDate(document.getElementById('txDate').value);
+                selectedMonths = [];
+                updateMonthsButtonsUI();
             }
 
             toggleCadenceVisibility();
@@ -987,7 +1222,7 @@ const firebaseConfig = {
             } else {
                 setTxType('expense');
             }
-            if (text.includes('bimensile') || text.includes('bolletta')) {
+            if (text.includes('bimensile') || text.includes('bolletta') || text.includes('terapia')) {
                 document.getElementById('txRecurrence').value = 'variable';
             }
             document.getElementById('txTitle').value = capitalizeWords(text);
@@ -1006,7 +1241,6 @@ const firebaseConfig = {
             return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
-        // Formattazione data europea GG/MM/AAAA
         function formatDateEU(dateStr) {
             if (!dateStr) return '';
             const parts = dateStr.split('-');
