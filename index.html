@@ -53,22 +53,24 @@
 
         .title-chrome-3d {
             font-weight: 800;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.03em;
+            line-height: 1.15;
             background: linear-gradient(180deg, #ffffff 0%, var(--chrome-color) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 8px var(--chrome-glow));
+            filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 6px var(--chrome-glow));
         }
 
         .led-box {
             position: relative;
             border-radius: 1rem;
+            overflow: hidden;
             transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
         }
 
         .led-box:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 0 20px 2px var(--led-glow), inset 0 0 10px rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px) scale(1.015);
+            box-shadow: 0 0 20px 2px var(--led-glow);
             border-color: var(--led-color);
         }
     </style>
@@ -162,8 +164,8 @@
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
             
             <div onclick="openStatsModal('accrual')" style="--led-color: #f472b6; --led-glow: rgba(244,114,182,0.35); --chrome-color: #f472b6; --chrome-glow: rgba(244,114,182,0.5);" class="led-box bg-white dark:bg-brand-card border-2 border-pink-400/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
-                <div class="flex justify-between items-start">
-                    <span class="text-[10px] sm:text-xs uppercase title-chrome-3d truncate pr-1">COSTI FISSI MESE</span>
+                <div class="flex justify-between items-start gap-1">
+                    <span class="text-[10px] sm:text-xs uppercase title-chrome-3d block">COSTI FISSI<br>MESE</span>
                     <div class="p-1.5 sm:p-2 bg-pink-50 dark:bg-brand-black rounded-xl border border-pink-200 dark:border-brand-border text-pink-400 shrink-0">
                         <i data-lucide="calculator" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     </div>
@@ -175,8 +177,8 @@
             </div>
 
             <div onclick="openStatsModal('estimate')" style="--led-color: #818cf8; --led-glow: rgba(129,140,248,0.35); --chrome-color: #818cf8; --chrome-glow: rgba(129,140,248,0.5);" class="led-box bg-white dark:bg-brand-card border-2 border-indigo-400/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
-                <div class="flex justify-between items-start">
-                    <span class="text-[10px] sm:text-xs uppercase title-chrome-3d truncate pr-1">STIMA MESE PROX</span>
+                <div class="flex justify-between items-start gap-1">
+                    <span class="text-[10px] sm:text-xs uppercase title-chrome-3d block">STIMA MESE<br>PROX</span>
                     <div class="p-1.5 sm:p-2 bg-indigo-50 dark:bg-brand-black rounded-xl border border-indigo-200 dark:border-brand-border text-indigo-400 shrink-0">
                         <i data-lucide="trending-up" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     </div>
@@ -188,8 +190,8 @@
             </div>
 
             <div onclick="openStatsModal('cashout')" style="--led-color: #f43f5e; --led-glow: rgba(244,63,94,0.35); --chrome-color: #f43f5e; --chrome-glow: rgba(244,63,94,0.5);" class="led-box bg-white dark:bg-brand-card border-2 border-rose-500/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
-                <div class="flex justify-between items-start">
-                    <span class="text-[10px] sm:text-xs uppercase title-chrome-3d truncate pr-1">USCITE REALI MESE</span>
+                <div class="flex justify-between items-start gap-1">
+                    <span class="text-[10px] sm:text-xs uppercase title-chrome-3d block">USCITE REALI<br>MESE</span>
                     <div class="p-1.5 sm:p-2 bg-rose-50 dark:bg-brand-black rounded-xl border border-rose-200 dark:border-brand-border text-rose-500 shrink-0">
                         <i data-lucide="arrow-down-left" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     </div>
@@ -201,8 +203,8 @@
             </div>
 
             <div onclick="openStatsModal('balance')" style="--led-color: #10b981; --led-glow: rgba(16,185,129,0.35); --chrome-color: #10b981; --chrome-glow: rgba(16,185,129,0.5);" class="led-box bg-white dark:bg-neutral-900 border-2 border-emerald-500/80 p-3.5 sm:p-5 flex flex-col justify-between cursor-pointer shadow-md">
-                <div class="flex justify-between items-start">
-                    <span class="text-[10px] sm:text-xs uppercase title-chrome-3d truncate pr-1">BILANCIO MESE</span>
+                <div class="flex justify-between items-start gap-1">
+                    <span class="text-[10px] sm:text-xs uppercase title-chrome-3d block">BILANCIO<br>MESE</span>
                     <div class="p-1.5 sm:p-2 bg-emerald-50 dark:bg-black rounded-xl border border-emerald-200 dark:border-neutral-800 text-emerald-500 shrink-0">
                         <i data-lucide="scale" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     </div>
@@ -702,7 +704,8 @@ const firebaseConfig = {
             const total = getTxTotal(tx);
 
             if (tx.recurrence === 'once') {
-                return 0;
+                const txYM = tx.date.slice(0, 7);
+                return txYM === targetYM ? total : 0;
             }
             if (tx.recurrence === 'fixed') {
                 const cadence = parseInt(tx.fixedCadence) || 1;
@@ -837,7 +840,7 @@ const firebaseConfig = {
                     bodyEl.innerHTML = `<p class="text-neutral-500 dark:text-brand-muted text-center py-6">Nessun costo fisso o ripartito di competenza per questo mese.</p>`;
                 } else {
                     const sortedList = sortAlpha(statsModalData.accrual);
-                    let html = `<p class="text-neutral-600 dark:text-neutral-400 pb-2">Quote di competenza mensili (escluse spese una tantum):</p><div class="space-y-1.5 font-mono">`;
+                    let html = `<p class="text-neutral-600 dark:text-neutral-400 pb-2">Quote di competenza mensili e spese una tantum:</p><div class="space-y-1.5 font-mono">`;
                     sortedList.forEach((item, index) => {
                         const feeText = item.fee > 0 ? ` <span class="text-[10px] text-neutral-500 dark:text-brand-muted font-sans">(${formatCurrency(item.baseAmount)} + ${formatCurrency(item.fee)} comm.)</span>` : '';
                         html += `<div class="bg-neutral-100 dark:bg-black/40 border border-neutral-200 dark:border-brand-border p-2.5 rounded-xl flex justify-between items-center gap-2">
