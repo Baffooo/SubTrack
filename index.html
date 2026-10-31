@@ -7,10 +7,9 @@
     
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='20' height='14' x='2' y='5' rx='2'/><line x1='2' x2='22' y1='10' y2='10'/></svg>">
     
-    <!-- Apple Touch Icon ottimizzato per iOS Home Screen -->
-    <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADwCAYAAAA+VemSAAAACXBIWXMAAAsTAAALEwEAmpwYAAAKT2lDQ1BQaG90b3Nob3AgSUNDIHByb2ZpbGUAAHjanVNdVFPpFjJ33v9CSAPBUUG erythematol... (icona portafoglio scura solida)" id="apple-touch-icon-link">
-    <!-- Fallback SVG robusto per Apple Touch Icon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%230a0a0a'/%3E%3Crect width='110' height='75' x='35' y='52' rx='12' fill='none' stroke='%23ffffff' stroke-width='12'/%3E%3Ccircle cx='120' cy='90' r='12' fill='%236366f1'/%3E%3C/svg%3E">
+    <!-- Icona specifica e ottimizzata per iOS Home Screen (evita la comparsa della "S") -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%230a0a0a'/%3E%3Crect width='110' height='75' x='35' y='52' rx='12' fill='none' stroke='%23ffffff' stroke-width='12'/%3E%3Ccircle cx='120' cy='90' r='12' fill='%236366f1'/%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%230a0a0a'/%3E%3Crect width='110' height='75' x='35' y='52' rx='12' fill='none' stroke='%23ffffff' stroke-width='12'/%3E%3Ccircle cx='120' cy='90' r='12' fill='%236366f1'/%3E%3C/svg%3E">
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -93,7 +92,7 @@
                 <div class="truncate">
                     <div class="flex items-center gap-2">
                         <h1 class="text-sm font-extrabold tracking-wider text-neutral-900 dark:text-white uppercase leading-none">SUBTRACK</h1>
-                        <span id="app-version-badge" onclick="checkForAppUpdate()" class="text-[9px] font-mono bg-neutral-200 dark:bg-brand-card border border-neutral-300 dark:border-brand-border px-1.5 py-0.5 rounded text-neutral-600 dark:text-neutral-400 cursor-pointer hover:border-neutral-400 dark:hover:border-white transition-all shadow-sm" title="Versione attuale. Clicca per aggiornare all'ultima release">v1.2.5</span>
+                        <span id="app-version-badge" onclick="checkForAppUpdate()" class="text-[9px] font-mono bg-neutral-200 dark:bg-brand-card border border-neutral-300 dark:border-brand-border px-1.5 py-0.5 rounded text-neutral-600 dark:text-neutral-400 cursor-pointer hover:border-neutral-400 dark:hover:border-white transition-all shadow-sm" title="Versione attuale. Clicca per aggiornare all'ultima release">v1.2.6</span>
                     </div>
                     <p id="status-indicator" class="text-[10px] text-neutral-500 dark:text-brand-muted font-medium mt-0.5">Inizializzazione...</p>
                 </div>
@@ -451,13 +450,12 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <script>
-        const APP_VERSION = "v1.2.5";
+        const APP_VERSION = "v1.2.6";
         document.getElementById('app-version-badge').innerText = APP_VERSION;
 
         function checkForAppUpdate() {
             const badge = document.getElementById('app-version-badge');
             badge.innerText = "Aggiornamento...";
-            // Forziamo il ricaricamento pulito bypassando la cache di iOS tramite timestamp
             setTimeout(() => {
                 const cleanUrl = window.location.href.split('?')[0];
                 window.location.href = cleanUrl + '?v=' + Date.now();
